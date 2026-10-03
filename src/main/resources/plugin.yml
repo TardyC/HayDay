@@ -1,0 +1,30 @@
+name: HayDay
+version: '${project.version}'
+main: dev.tardyc.hayday.HayDayPlugin
+api-version: '1.21'
+author: TardyC
+description: Hay Day farm-system med marker, dyr, produktion, ordrer, levels og hologrammer.
+softdepend: [Vault, PlaceholderAPI, ProtocolLib, ItemsAdder]
+
+commands:
+  hayday:
+    description: Åbn din HayDay-gård.
+    usage: /<command> [hjælp]
+    aliases: [hd, farm, gaard]
+
+permissions:
+  hayday.use:
+    description: Giver adgang til at spille HayDay.
+    default: true
+  hayday.admin:
+    description: Giver adgang til admin-kommandoer.
+    default: op
+    children:
+      hayday.bypass: true
+      hayday.hologram: true
+  hayday.bypass:
+    description: Kan bruge og fjerne andre spilleres marker og bygninger.
+    default: op
+  hayday.hologram:
+    description: Kan oprette og redigere hologrammer.
+    default: op

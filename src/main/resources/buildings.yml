@@ -1,0 +1,336 @@
+# ==============================================================
+#   Bygninger og opskrifter
+#
+#   block:           blokken der placeres (spilleren får den som item i butikken)
+#   animal:          (valgfri) dyr der står oven på bygningen, fx CHICKEN, COW, PIG, SHEEP
+#   hologram-height: hvor højt over blokken hologrammet sidder
+#   price / level:   pris i butikken og hvilket level den låses op ved
+#   slots:           antal produktionspladser fra start
+#   max-slots:       maks antal pladser (kan købes i bygningens menu)
+#   slot-price:      pris for næste plads = slot-price * (antal købte pladser + 1)
+#   max-per-player:  hvor mange af denne bygning en spiller må have
+#   function:        "production" (standard) eller "roadside" (vejbod - andre spillere kan købe dine varer)
+#
+#   recipes.<id>:
+#     output / amount: hvilken vare og hvor mange der laves
+#     time:            produktionstid i sekunder
+#     xp:              xp når varen hentes
+#     level:           level der kræves
+#     ingredients:     varer der bruges (fra silo/lade)
+# ==============================================================
+buildings:
+  foderfabrik:
+    name: "&6Foderfabrik"
+    block: BARREL
+    hologram-height: 1.25
+    price: 100
+    level: 1
+    slots: 2
+    max-slots: 6
+    slot-price: 250
+    max-per-player: 1
+    recipes:
+      kyllingefoder:
+        output: kyllingefoder
+        amount: 3
+        time: 60
+        xp: 1
+        level: 1
+        ingredients:
+          hvede: 3
+      kofoder:
+        output: kofoder
+        amount: 3
+        time: 180
+        xp: 2
+        level: 4
+        ingredients:
+          hvede: 2
+          kartoffel: 1
+      grisefoder:
+        output: grisefoder
+        amount: 3
+        time: 300
+        xp: 3
+        level: 8
+        ingredients:
+          gulerod: 2
+          sukkerroe: 1
+      faarefoder:
+        output: faarefoder
+        amount: 3
+        time: 300
+        xp: 3
+        level: 10
+        ingredients:
+          kartoffel: 2
+          gulerod: 1
+
+  hoensehus:
+    name: "&eHønsehus"
+    block: HAY_BLOCK
+    animal: CHICKEN
+    hologram-height: 1.95
+    price: 200
+    level: 2
+    slots: 3
+    max-slots: 6
+    slot-price: 300
+    max-per-player: 1
+    recipes:
+      aeg:
+        output: aeg
+        amount: 2
+        time: 120
+        xp: 2
+        level: 2
+        ingredients:
+          kyllingefoder: 1
+
+  bageri:
+    name: "&6Bageri"
+    block: SMOKER
+    hologram-height: 1.25
+    price: 350
+    level: 3
+    slots: 2
+    max-slots: 6
+    slot-price: 350
+    max-per-player: 1
+    recipes:
+      broed:
+        output: broed
+        amount: 1
+        time: 120
+        xp: 3
+        level: 3
+        ingredients:
+          hvede: 3
+      smaakager:
+        output: smaakager
+        amount: 1
+        time: 360
+        xp: 8
+        level: 6
+        ingredients:
+          hvede: 2
+          aeg: 1
+          sukker: 1
+      graeskartaerte:
+        output: graeskartaerte
+        amount: 1
+        time: 720
+        xp: 12
+        level: 9
+        ingredients:
+          graeskar: 1
+          aeg: 1
+          sukker: 1
+      kage:
+        output: kage
+        amount: 1
+        time: 900
+        xp: 18
+        level: 11
+        ingredients:
+          hvede: 2
+          aeg: 2
+          maelk: 1
+          sukker: 1
+
+  kostald:
+    name: "&fKostald"
+    block: MOSS_BLOCK
+    animal: COW
+    hologram-height: 2.65
+    price: 600
+    level: 4
+    slots: 3
+    max-slots: 6
+    slot-price: 400
+    max-per-player: 1
+    recipes:
+      maelk:
+        output: maelk
+        amount: 2
+        time: 300
+        xp: 3
+        level: 4
+        ingredients:
+          kofoder: 1
+
+  sukkermoelle:
+    name: "&fSukkermølle"
+    block: GRINDSTONE
+    hologram-height: 1.25
+    price: 800
+    level: 5
+    slots: 2
+    max-slots: 6
+    slot-price: 450
+    max-per-player: 1
+    recipes:
+      sukker:
+        output: sukker
+        amount: 1
+        time: 180
+        xp: 3
+        level: 5
+        ingredients:
+          sukkerroe: 1
+
+  mejeri:
+    name: "&bMejeri"
+    block: CAULDRON
+    hologram-height: 1.25
+    price: 1200
+    level: 6
+    slots: 2
+    max-slots: 6
+    slot-price: 500
+    max-per-player: 1
+    recipes:
+      floede:
+        output: floede
+        amount: 1
+        time: 240
+        xp: 4
+        level: 6
+        ingredients:
+          maelk: 1
+      smoer:
+        output: smoer
+        amount: 1
+        time: 360
+        xp: 7
+        level: 7
+        ingredients:
+          maelk: 2
+      ost:
+        output: ost
+        amount: 1
+        time: 600
+        xp: 10
+        level: 9
+        ingredients:
+          maelk: 3
+
+  svinesti:
+    name: "&dSvinesti"
+    block: MUD
+    animal: PIG
+    hologram-height: 2.15
+    price: 1600
+    level: 8
+    slots: 3
+    max-slots: 6
+    slot-price: 550
+    max-per-player: 1
+    recipes:
+      bacon:
+        output: bacon
+        amount: 2
+        time: 480
+        xp: 5
+        level: 8
+        ingredients:
+          grisefoder: 1
+
+  faarefold:
+    name: "&fFårefold"
+    block: GRASS_BLOCK
+    animal: SHEEP
+    hologram-height: 2.55
+    price: 2200
+    level: 10
+    slots: 3
+    max-slots: 6
+    slot-price: 600
+    max-per-player: 1
+    recipes:
+      uld:
+        output: uld
+        amount: 2
+        time: 600
+        xp: 5
+        level: 10
+        ingredients:
+          faarefoder: 1
+
+  vaeveri:
+    name: "&bVæveri"
+    block: LOOM
+    hologram-height: 1.25
+    price: 2800
+    level: 11
+    slots: 2
+    max-slots: 6
+    slot-price: 650
+    max-per-player: 1
+    recipes:
+      uldsweater:
+        output: uldsweater
+        amount: 1
+        time: 600
+        xp: 10
+        level: 11
+        ingredients:
+          uld: 2
+      uldtaeppe:
+        output: uldtaeppe
+        amount: 1
+        time: 900
+        xp: 16
+        level: 13
+        ingredients:
+          uld: 3
+          sukkerroe: 1
+
+  saftpresse:
+    name: "&6Saftpresse"
+    block: BREWING_STAND
+    hologram-height: 1.25
+    price: 3500
+    level: 12
+    slots: 2
+    max-slots: 6
+    slot-price: 700
+    max-per-player: 1
+    recipes:
+      gulerodsjuice:
+        output: gulerodsjuice
+        amount: 1
+        time: 480
+        xp: 7
+        level: 12
+        ingredients:
+          gulerod: 3
+      melonjuice:
+        output: melonjuice
+        amount: 1
+        time: 900
+        xp: 14
+        level: 13
+        ingredients:
+          melon: 2
+      baersaft:
+        output: baersaft
+        amount: 1
+        time: 1200
+        xp: 16
+        level: 14
+        ingredients:
+          soedebaer: 3
+          sukker: 1
+
+  vejbod:
+    name: "&6Vejbod"
+    function: roadside
+    block: CHEST
+    hologram-height: 1.25
+    price: 500
+    level: 5
+    slots: 1
+    max-slots: 1
+    slot-price: 0
+    max-per-player: 1

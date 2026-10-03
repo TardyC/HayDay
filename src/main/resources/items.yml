@@ -1,0 +1,252 @@
+# ==============================================================
+#   Alle varer i HayDay
+#
+#   category: CROP     = afgrøde (gemmes i siloen, kan plantes på marker)
+#   category: PRODUCT  = produkt  (gemmes i laden, laves i bygninger)
+#
+#   icon:        Minecraft-materiale der vises i menuer
+#   color:       (valgfri) farve til potions/læder, fx "#FF8800"
+#   itemsadder:  (valgfri) brug et ItemsAdder-item som ikon, fx "mitpack:tomat"
+#   sell-price:  hvad varen kan sælges for
+#   xp:          xp-værdi pr. stk. når varen leveres i en ordre
+#
+#   crop.stages: blokke der vises mens afgrøden gror (Minecraft block-data).
+#                Den SIDSTE blok vises når afgrøden er klar til høst.
+# ==============================================================
+items:
+  # ---------------------------- AFGRØDER ----------------------------
+  hvede:
+    name: "&eHvede"
+    icon: WHEAT
+    category: CROP
+    sell-price: 2
+    xp: 1
+    crop:
+      level: 1
+      grow-time: 120
+      seed-price: 2
+      harvest-amount: 2
+      harvest-xp: 1
+      stages: ["wheat[age=0]", "wheat[age=2]", "wheat[age=4]", "wheat[age=6]", "wheat[age=7]"]
+  gulerod:
+    name: "&6Gulerod"
+    icon: CARROT
+    category: CROP
+    sell-price: 4
+    xp: 2
+    crop:
+      level: 2
+      grow-time: 300
+      seed-price: 4
+      harvest-amount: 2
+      harvest-xp: 2
+      stages: ["carrots[age=0]", "carrots[age=2]", "carrots[age=4]", "carrots[age=6]", "carrots[age=7]"]
+  kartoffel:
+    name: "&#C8A165Kartoffel"
+    icon: POTATO
+    category: CROP
+    sell-price: 6
+    xp: 3
+    crop:
+      level: 3
+      grow-time: 600
+      seed-price: 6
+      harvest-amount: 2
+      harvest-xp: 3
+      stages: ["potatoes[age=0]", "potatoes[age=2]", "potatoes[age=4]", "potatoes[age=6]", "potatoes[age=7]"]
+  sukkerroe:
+    name: "&dSukkerroe"
+    icon: BEETROOT
+    category: CROP
+    sell-price: 8
+    xp: 4
+    crop:
+      level: 5
+      grow-time: 900
+      seed-price: 8
+      harvest-amount: 2
+      harvest-xp: 4
+      stages: ["beetroots[age=0]", "beetroots[age=1]", "beetroots[age=2]", "beetroots[age=3]"]
+  graeskar:
+    name: "&6Græskar"
+    icon: PUMPKIN
+    category: CROP
+    sell-price: 15
+    xp: 6
+    crop:
+      level: 7
+      grow-time: 1800
+      seed-price: 15
+      harvest-amount: 2
+      harvest-xp: 6
+      stages: ["pumpkin_stem[age=0]", "pumpkin_stem[age=2]", "pumpkin_stem[age=4]", "pumpkin_stem[age=7]", "pumpkin"]
+  soedebaer:
+    name: "&cSøde bær"
+    icon: SWEET_BERRIES
+    category: CROP
+    sell-price: 18
+    xp: 7
+    crop:
+      level: 8
+      grow-time: 2400
+      seed-price: 18
+      harvest-amount: 2
+      harvest-xp: 7
+      stages: ["sweet_berry_bush[age=0]", "sweet_berry_bush[age=1]", "sweet_berry_bush[age=2]", "sweet_berry_bush[age=3]"]
+  melon:
+    name: "&aMelon"
+    icon: MELON_SLICE
+    category: CROP
+    sell-price: 22
+    xp: 8
+    crop:
+      level: 10
+      grow-time: 2700
+      seed-price: 22
+      harvest-amount: 2
+      harvest-xp: 8
+      stages: ["melon_stem[age=0]", "melon_stem[age=2]", "melon_stem[age=4]", "melon_stem[age=7]", "melon"]
+
+  # ---------------------------- FODER ----------------------------
+  kyllingefoder:
+    name: "&eKyllingefoder"
+    icon: WHEAT_SEEDS
+    category: PRODUCT
+    sell-price: 3
+    xp: 1
+  kofoder:
+    name: "&aKofoder"
+    icon: HAY_BLOCK
+    category: PRODUCT
+    sell-price: 6
+    xp: 2
+  grisefoder:
+    name: "&dGrisefoder"
+    icon: BEETROOT_SEEDS
+    category: PRODUCT
+    sell-price: 9
+    xp: 3
+  faarefoder:
+    name: "&fFårefoder"
+    icon: MELON_SEEDS
+    category: PRODUCT
+    sell-price: 9
+    xp: 3
+
+  # ---------------------------- DYREPRODUKTER ----------------------------
+  aeg:
+    name: "&fÆg"
+    icon: EGG
+    category: PRODUCT
+    sell-price: 6
+    xp: 2
+  maelk:
+    name: "&fMælk"
+    icon: MILK_BUCKET
+    category: PRODUCT
+    sell-price: 11
+    xp: 3
+  bacon:
+    name: "&cBacon"
+    icon: PORKCHOP
+    category: PRODUCT
+    sell-price: 16
+    xp: 5
+  uld:
+    name: "&fUld"
+    icon: WHITE_WOOL
+    category: PRODUCT
+    sell-price: 16
+    xp: 5
+
+  # ---------------------------- BAGERI ----------------------------
+  broed:
+    name: "&6Brød"
+    icon: BREAD
+    category: PRODUCT
+    sell-price: 9
+    xp: 3
+  smaakager:
+    name: "&6Småkager"
+    icon: COOKIE
+    category: PRODUCT
+    sell-price: 32
+    xp: 9
+  graeskartaerte:
+    name: "&6Græskartærte"
+    icon: PUMPKIN_PIE
+    category: PRODUCT
+    sell-price: 48
+    xp: 14
+  kage:
+    name: "&dLagkage"
+    icon: CAKE
+    category: PRODUCT
+    sell-price: 70
+    xp: 20
+
+  # ---------------------------- SUKKERMØLLE ----------------------------
+  sukker:
+    name: "&fSukker"
+    icon: SUGAR
+    category: PRODUCT
+    sell-price: 14
+    xp: 4
+
+  # ---------------------------- MEJERI ----------------------------
+  floede:
+    name: "&fFløde"
+    icon: POWDER_SNOW_BUCKET
+    category: PRODUCT
+    sell-price: 16
+    xp: 5
+  smoer:
+    name: "&eSmør"
+    icon: GOLD_INGOT
+    category: PRODUCT
+    sell-price: 28
+    xp: 8
+  ost:
+    name: "&eOst"
+    icon: SPONGE
+    category: PRODUCT
+    sell-price: 42
+    xp: 12
+
+  # ---------------------------- SAFTPRESSE ----------------------------
+  gulerodsjuice:
+    name: "&6Gulerodsjuice"
+    icon: POTION
+    color: "#FF8C1A"
+    category: PRODUCT
+    sell-price: 24
+    xp: 8
+  baersaft:
+    name: "&cBærsaft"
+    icon: POTION
+    color: "#B0103A"
+    category: PRODUCT
+    sell-price: 70
+    xp: 18
+  melonjuice:
+    name: "&aMelonjuice"
+    icon: POTION
+    color: "#FF5A5A"
+    category: PRODUCT
+    sell-price: 60
+    xp: 16
+
+  # ---------------------------- VÆVERI ----------------------------
+  uldsweater:
+    name: "&cUldsweater"
+    icon: LEATHER_CHESTPLATE
+    color: "#C0392B"
+    category: PRODUCT
+    sell-price: 46
+    xp: 13
+  uldtaeppe:
+    name: "&bUldtæppe"
+    icon: LIGHT_BLUE_CARPET
+    category: PRODUCT
+    sell-price: 75
+    xp: 20

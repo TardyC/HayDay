@@ -1,0 +1,168 @@
+# ==============================================================
+#   Alle beskeder i HayDay. Farvekoder: &a, &l osv. og hex: &#55FF55
+#   Sæt en besked til "" for at slå den fra.
+# ==============================================================
+prefix: "&8[&a&lHay&e&lDay&8] &7"
+
+general:
+  no-permission: "&cDu har ikke adgang til dette."
+  player-only: "&cDenne kommando kan kun bruges af spillere."
+  player-not-found: "&cSpilleren &f{player} &cblev ikke fundet &7(skal være online)&c."
+  invalid-number: "&c'&f{input}&c' er ikke et gyldigt tal."
+  unknown-item: "&cUkendt vare: &f{item}"
+  unknown-building: "&cUkendt bygning: &f{building}"
+  world-not-allowed: "&cDu kan ikke bruge HayDay i denne verden."
+  reloaded: "&aHayDay er genindlæst! &7({items} varer, {buildings} bygninger)"
+  not-enough-money: "&cDu har ikke råd! Det koster &f{price}&c, og du har &f{balance}&c."
+  inventory-full: "&eDit inventory var fuldt, så genstanden blev smidt ved dine fødder."
+  not-yours: "&cDette tilhører &f{owner}&c."
+  unknown-command: "&cUkendt kommando. Skriv &f/hayday hjælp&c."
+
+welcome:
+  - "&a&l» Velkommen til din HayDay-gård! «"
+  - "&7Du har fået &f{fields} marker &7og &fstartvarer &7i din silo."
+  - "&7Placér markerne på jorden, plant afgrøder og opfyld ordrer."
+  - "&7Skriv &f/hayday &7for at åbne menuen."
+
+field:
+  placed: "&aDu har lavet en ny mark! &7({count}/{max})"
+  limit: "&cDu har allerede &f{max} &cmarker. Stig i level for at få flere!"
+  need-air: "&cDer skal være fri luft over marken."
+  planted: "&aDu plantede &f{crop}&a. &7Klar om {time}."
+  planted-many: "&aDu plantede &f{crop} &apå &f{count} &amarker."
+  plant-none: "&cDer var ingen tomme marker i nærheden, eller du havde ikke nok afgrøder/penge."
+  cannot-afford-seed: "&cDu har ingen &f{crop} &ci siloen og ikke råd til frø &7({price})&c."
+  crop-locked: "&f{crop} &cbliver låst op ved level &f{level}&c."
+  not-empty: "&cDer gror allerede noget på denne mark."
+  growing: "&f{crop} &7er klar om &f{time}&7."
+  harvested: "&aDu høstede &f{amount}x {crop}&a! &b+{xp} XP"
+  harvested-many: "&aDu høstede &f{count} &amarker: &f{items}&a. &b+{xp} XP"
+  silo-full: "&cDin silo er fuld! &7Sælg varer eller opgradér siloen."
+  removed: "&eMarken blev fjernet og lagt i dit inventory."
+  remove-not-empty: "&cDu kan kun fjerne en tom mark. Høst den først."
+  remove-hint: "&7Tip: &fShift + slå &7på en tom mark for at fjerne den."
+  ready-notify: "&a✔ &f{count} &amark(er) er klar til høst!"
+  nothing-ready: "&7Ingen af dine marker i nærheden er klar endnu."
+
+building:
+  placed: "&aDu har placeret &f{building}&a! Højreklik på den for at starte produktion."
+  already-owned: "&cDu har allerede &f{building}&c."
+  need-air: "&cDer skal være fri luft over bygningen, så dyret har plads."
+  remove-hint: "&7Tip: &fShift + slå &7på bygningen for at samle den op (køen skal være tom)."
+  locked: "&f{building} &cbliver låst op ved level &f{level}&c."
+  removed: "&e{building} &eblev fjernet og lagt i dit inventory."
+  remove-not-empty: "&cDu kan kun fjerne en bygning når køen er tom."
+  queue-full: "&cKøen er fuld! &7Hent dine varer eller køb flere pladser."
+  missing-ingredients: "&cDu mangler: &f{missing}"
+  recipe-locked: "&f{product} &cbliver låst op ved level &f{level}&c."
+  started: "&aProduktion startet: &f{product}&a. &7Færdig om {time}."
+  collected: "&aDu hentede &f{items}&a! &b+{xp} XP"
+  barn-full: "&cDin lade er fuld! &7Sælg varer eller opgradér laden."
+  slot-upgraded: "&a{building} &ahar nu &f{slots} &aproduktionspladser."
+  slot-max: "&cBygningen har allerede det maksimale antal pladser."
+  done-notify: "&a✔ &f{building} &ahar &f{count} &avare(r) klar!"
+
+storage:
+  silo: "Silo"
+  barn: "Lade"
+  upgraded: "&aDin {storage} &akan nu rumme &f{capacity} &avarer!"
+  max: "&cDin {storage} &cer allerede fuldt opgraderet."
+  sold: "&aDu solgte &f{amount}x {item} &afor &f{price}&a."
+  not-enough: "&cDu har ikke nok &f{item}&c."
+
+orders:
+  completed: "&aOrdre leveret! &6+{coins} &b+{xp} XP"
+  missing: "&cDu mangler varer: &f{missing}"
+  discarded: "&eOrdren blev kasseret. En ny ordre kommer om &f{time}&e."
+
+level:
+  up-chat: "&6&l★ LEVEL UP! &eDu er nu level &f{level}&e! &6+{coins}"
+  up-title: "&6&lLEVEL UP!"
+  up-subtitle: "&eDu er nu level &f{level}"
+  unlocked: "&aNyt låst op: &f{list}"
+  xp-actionbar: "&b+{xp} XP &8| &7Level {level} &8[{bar}&8]"
+
+market:
+  listed: "&aDu satte &f{amount}x {item} &atil salg for &6{price}&a."
+  bought: "&aDu købte &f{amount}x {item} &afra &f{seller} &afor &6{price}&a."
+  sold-notify: "&6{icon_coin} &f{buyer} &ahar købt &f{amount}x {item} &afra din vejbod! &7Hent &6{price} &7i vejboden."
+  collected: "&aDu hentede &6{price} &afra din vejbod!"
+  cancelled: "&eVaren blev taget af hylden og lagt tilbage på dit lager."
+  gone: "&cDen vare er desværre allerede solgt."
+  own: "&cDu kan ikke købe dine egne varer."
+  slot-bought: "&aDin vejbod har nu &f{slots} &apladser."
+  slot-max: "&cDin vejbod har allerede det maksimale antal pladser."
+  nothing-selected: "&cVælg først en vare fra dit lager."
+  sold-summary: "&6{icon_coin} &aDu har &f{count} &asolgte varer at hente i din vejbod!"
+
+shop:
+  bought: "&aDu købte &f{item} &afor &f{price}&a. &7Placér den der hvor du vil have den!"
+  field-limit: "&cDu kan ikke have flere marker på dit level &7({max})&c."
+
+join:
+  summary: "&7Din gård: &a{fields} &7mark(er) klar til høst og &a{items} &7vare(r) klar i bygninger."
+
+admin:
+  storage-given: "&aGav &f{amount}x {item} &atil &f{player}&a."
+  storage-taken: "&aFjernede &f{amount}x {item} &afra &f{player}&a."
+  item-given: "&aGav &f{amount}x {item} &atil &f{player}&a."
+  xp-given: "&aGav &f{amount} XP &atil &f{player}&a."
+  level-set: "&f{player} &aer nu level &f{level}&a."
+  coins-given: "&aGav &f{amount} &atil &f{player}&a."
+  reset: "&a{player}s HayDay-data blev nulstillet."
+  reset-confirm: "&cDette sletter al HayDay-data for &f{player}&c. Skriv &f/hayday admin reset {player} confirm&c."
+  no-target: "&cDu kigger ikke på en mark eller bygning."
+  removed: "&aFjernede {what} &aejet af &f{owner}&a."
+  finished: "&aFærdiggjorde {what}&a."
+  info-field: "&7Mark ejet af &f{owner}&7 - afgrøde: &f{crop}&7 - status: &f{status}"
+  info-building: "&7{building} &7ejet af &f{owner}&7 - pladser: &f{slots}&7 - kø: &f{queue}"
+
+holo:
+  created: "&aHologram &f{name} &aoprettet."
+  deleted: "&aHologram &f{name} &aslettet."
+  exists: "&cDer findes allerede et hologram med navnet &f{name}&c."
+  not-found: "&cHologrammet &f{name} &cfindes ikke."
+  updated: "&aHologram &f{name} &aopdateret."
+  moved: "&aHologram &f{name} &aflyttet hertil."
+  invalid-line: "&cUgyldigt linjenummer. Hologrammet har &f{lines} &clinjer."
+  top-no-lines: "&cTop-hologrammer opdateres automatisk og kan ikke redigeres linje for linje."
+  list-header: "&6Hologrammer &7({count}):"
+  list-entry: "&8- &f{name} &7({type}) &8@ &7{world} {x}, {y}, {z}"
+  teleported: "&aTeleporteret til &f{name}&a."
+
+help:
+  - "&a&l» HayDay hjælp «"
+  - "&f/hayday &7- Åbn hovedmenuen"
+  - "&f/hayday silo &7| &flade &7- Se dit lager og sælg varer"
+  - "&f/hayday ordrer &7- Åbn ordretavlen"
+  - "&f/hayday butik &7- Køb marker og bygninger"
+  - "&f/hayday vejbod [spiller] &7- Din (eller en andens) vejbod"
+  - "&f/hayday avis &7- Se hvad andre spillere sælger"
+  - "&f/hayday profil [spiller] &7- Se en profil"
+  - "&f/hayday top &7- Se de bedste farmere"
+  - "&7Højreklik på en &fmark &7for at plante/høste. &fShift+højreklik &7høster alle marker tæt på."
+  - "&7Højreklik på en &fbygning &7for at producere varer."
+  - "&7Shift + slå på din tomme mark/bygning for at samle den op igen."
+
+admin-help:
+  - "&c&l» HayDay admin «"
+  - "&f/hayday admin give <spiller> <vare> <antal> &7- Giv varer til lager"
+  - "&f/hayday admin take <spiller> <vare> <antal> &7- Fjern varer fra lager"
+  - "&f/hayday admin item <spiller> <mark|bygning> [antal] &7- Giv mark/bygning som item"
+  - "&f/hayday admin xp <spiller> <antal> &7- Giv XP"
+  - "&f/hayday admin level <spiller> <level> &7- Sæt level"
+  - "&f/hayday admin coins <spiller> <antal> &7- Giv/tag penge"
+  - "&f/hayday admin reset <spiller> &7- Nulstil spillerens data"
+  - "&f/hayday admin info &7| &ffjern &7| &ffaerdig &7- Mark/bygning du kigger på"
+  - "&f/hayday admin reload &7- Genindlæs konfigurationen"
+  - "&f/hayday holo &7- Hologram-kommandoer"
+
+holo-help:
+  - "&b&l» HayDay hologrammer «"
+  - "&f/hayday holo create <navn> [tekst] &7- Opret tekst-hologram"
+  - "&f/hayday holo top <navn> &7- Opret top-liste hologram"
+  - "&f/hayday holo addline <navn> <tekst>"
+  - "&f/hayday holo setline <navn> <nr> <tekst>"
+  - "&f/hayday holo removeline <navn> <nr>"
+  - "&f/hayday holo command <navn> <kommando|none> &7- Kommando ved klik"
+  - "&f/hayday holo move <navn> &7| &ftp <navn> &7| &fdelete <navn> &7| &flist"

@@ -1,0 +1,225 @@
+# ==============================================================
+#   HayDay  -  farm-plugin af TardyC
+#
+#   Alle tider er i sekunder (med mindre andet står).
+#   Farvekoder: &a, &l osv. - og hex-farver: &#55FF55
+#   Varer og afgrøder ligger i items.yml, bygninger og opskrifter i buildings.yml
+# ==============================================================
+
+economy:
+  # "vault"    = brug serverens økonomi (fx EssentialsX) via Vault.
+  # "internal" = HayDays egne mønter (gemmes pr. spiller).
+  # Findes Vault ikke, bruges "internal" automatisk.
+  type: vault
+  # Navn på valutaen (bruges kun når type er "internal")
+  currency-name: "mønter"
+  # Startbeløb for nye spillere (kun "internal")
+  start-coins: 100
+
+general:
+  # Verdener hvor man må placere marker og bygninger. Tom liste = alle verdener.
+  allowed-worlds: []
+  # Hvor ofte data gemmes automatisk (minutter)
+  autosave-minutes: 5
+  # Shift + højreklik på en mark høster alle dine marker inden for denne radius (blokke)
+  mass-action-radius: 12
+  # Send en besked når marker/bygninger bliver færdige
+  notify-ready: true
+  # Vis en oversigt over gården når man logger ind
+  join-summary: true
+
+levels:
+  max-level: 50
+  # XP til næste level = xp-base + (level - 1) * xp-increase
+  xp-base: 20
+  xp-increase: 15
+  # Belønning ved level up = nyt level * coins-per-level
+  coins-per-level: 50
+
+fields:
+  # Antal marker man må have = base-amount + (level - 1) * per-level (højst max-amount)
+  base-amount: 4
+  per-level: 1
+  max-amount: 40
+  # Pris for en ny mark i butikken = price-base + (antal købte marker * price-increase)
+  price-base: 50
+  price-increase: 20
+
+planting:
+  # Hay Day-stil: plant med 1 afgrøde fra siloen og høst 2.
+  # Har du ingen af afgrøden i siloen, betaler du frø-prisen i stedet.
+  use-silo-crop: true
+
+storage:
+  silo:   # afgrøder
+    base-capacity: 50
+    upgrade-capacity: 25
+    upgrade-price-base: 300
+    upgrade-price-increase: 150
+    max-upgrades: 20
+  barn:   # produkter (laden)
+    base-capacity: 50
+    upgrade-capacity: 25
+    upgrade-price-base: 300
+    upgrade-price-increase: 150
+    max-upgrades: 20
+
+orders:
+  # Antal ordrer på ordretavlen = base-slots + (level / extra-slot-every-levels) (højst max-slots)
+  base-slots: 3
+  extra-slot-every-levels: 4
+  max-slots: 9
+  # Antal forskellige varer i en ordre
+  min-items: 1
+  max-items: 3
+  crop-amount-min: 2
+  crop-amount-max: 6
+  product-amount-min: 1
+  product-amount-max: 3
+  # Belønning = varernes salgspris * en tilfældig multiplier mellem min og max
+  reward-multiplier-min: 1.4
+  reward-multiplier-max: 2.0
+  # XP = varernes xp-værdi * xp-multiplier
+  xp-multiplier: 1.5
+  # Ventetid før en ny ordre dukker op (sekunder)
+  new-order-delay: 30
+  discard-delay: 180
+
+starter:
+  # Hvad nye spillere får første gang de åbner /hayday
+  fields: 3
+  storage:
+    hvede: 6
+
+holograms:
+  # Hvor langt væk hologrammer kan ses (1.0 = ca. 64 blokke)
+  view-range: 0.6
+  # Tekststørrelse
+  scale: 1.0
+  shadow: true
+  # Baggrundsfarve som ARGB hex (#AARRGGBB). #00000000 = gennemsigtig, "default" = Minecrafts grå boks
+  background: "#00000000"
+  # Højde over jordblokken for hologrammer på marker
+  field-height: 2.1
+  # Hvor ofte hologrammer og afgrøder opdateres (ticks, 20 = 1 sekund)
+  update-interval: 20
+  progress-bar:
+    length: 12
+    symbol: "▌"
+    done-color: "&a"
+    left-color: "&8"
+  # Pladsholdere: {crop} {owner} {time} {bar} {percent} + ikoner som {icon_clock} (se "icons" længere nede)
+  field:
+    empty:
+      - "&7&oTom mark"
+      - "&8{owner}"
+    growing:
+      - "&e&l{crop}"
+      - "{bar} &f{percent}%"
+      - "{icon_clock} &7{time}"
+    ready:
+      - "{icon_check} &a&l{crop} er klar!"
+      - "&7Højreklik for at høste"
+  # Pladsholdere: {building} {owner} {product} {time} {queue} {slots} {done}
+  building:
+    idle:
+      - "&6&l{building}"
+      - "&7{owner}"
+      - "&8Højreklik for at åbne"
+    working:
+      - "&6&l{building}"
+      - "&eLaver: &f{product}"
+      - "{icon_clock} &7{time} &8| {icon_crate} &7{queue}/{slots}"
+    done:
+      - "&6&l{building}"
+      - "{icon_check} &a&l{done} vare(r) klar!"
+      - "&7Højreklik for at hente"
+  # Vejboden. Pladsholdere: {building} {owner} {active} {sold}
+  roadside:
+    - "&6&l{building}"
+    - "&7{owner}s vejbod"
+    - "{icon_crate} &e{active} til salg &8| {icon_coin} &a{sold} solgt"
+  # Top-hologrammer (/hayday holo top <navn>)
+  top:
+    size: 10
+    title:
+      - "&6&l★ TOP HAYDAY FARMERE ★"
+      - ""
+    entry: "&e#{rank} &f{name} &8- &aLevel {level} &7({xp} XP)"
+    empty: "&8#{rank} ---"
+
+# ==============================================================
+#   Vejbod og avis (spillere sælger til hinanden)
+# ==============================================================
+market:
+  # Antal pladser i vejboden fra start, og hvor mange man maks kan købe sig til (højst 14)
+  base-slots: 4
+  max-slots: 14
+  # Pris for næste plads = slot-price * (antal købte pladser + 1)
+  slot-price: 300
+  # Maks antal af en vare i én kasse
+  max-amount: 30
+  # Prisgrænser i forhold til varens normale salgspris
+  min-price-multiplier: 0.5
+  max-price-multiplier: 3.0
+  default-price-multiplier: 1.5
+  # Efter hvor mange timer en vare udløber (0 = aldrig). Udløbne varer hentes tilbage i vejboden.
+  expire-hours: 48
+
+# ==============================================================
+#   Animationer (bruger Display-entities - virker uden ekstra plugins)
+# ==============================================================
+animations:
+  enabled: true
+  # Afgrøder/varer hopper op og flyver hen til spilleren
+  harvest: true
+  # "+2 Hvede" tekster der svæver op
+  floating-text: true
+  # Svævende ikon over marker der er klar til høst
+  field-icons: true
+  # Roterende ikon over bygninger der producerer
+  building-icons: true
+  level-up-firework: true
+  ready-sparkles: true
+  # Brug ProtocolLib til Minecrafts rigtige "saml op"-animation (kræver ProtocolLib)
+  use-protocollib: true
+
+# ==============================================================
+#   ItemsAdder (valgfrit) - Hay Day-inspirerede menuer og ikoner
+#   Første gang kopieres indholdet til plugins/ItemsAdder/contents/hayday/
+#   og /iazip køres automatisk, så alle får resourcepacken.
+# ==============================================================
+itemsadder:
+  enabled: true
+  # Teksturerede menu-baggrunde (kræver at resourcepacken er indlæst)
+  textured-menus: true
+  # Kopiér HayDays ItemsAdder-indhold automatisk hvis det mangler
+  export-content: true
+  # Kør /iazip automatisk efter indholdet er kopieret første gang
+  auto-zip: true
+  # Finjustering af baggrundens og titlens placering (pixels)
+  texture-offset: -16
+  title-offset: 0
+  title-color: "&#3B2410"
+
+# Ikoner som kan bruges i hologrammer og beskeder: {icon_clock}, {icon_check} ...
+# Med ItemsAdder bruges billederne fra resourcepacken, ellers "fallback"-teksten.
+icons:
+  clock:
+    itemsadder: ":hayday_icon_clock:"
+    fallback: "&7⌚"
+  check:
+    itemsadder: ":hayday_icon_check:"
+    fallback: "&a✔"
+  coin:
+    itemsadder: ":hayday_icon_coin:"
+    fallback: "&6⛃"
+  xp:
+    itemsadder: ":hayday_icon_xp:"
+    fallback: "&b★"
+  crate:
+    itemsadder: ":hayday_icon_crate:"
+    fallback: "&6▣"
+  star:
+    itemsadder: ":hayday_icon_star:"
+    fallback: "&e★"
