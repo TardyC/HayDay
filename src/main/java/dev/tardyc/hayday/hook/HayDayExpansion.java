@@ -4,6 +4,7 @@ import dev.tardyc.hayday.HayDayPlugin;
 import dev.tardyc.hayday.manager.LeaderboardManager;
 import dev.tardyc.hayday.model.ItemCategory;
 import dev.tardyc.hayday.model.PlayerData;
+import dev.tardyc.hayday.util.Text;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -109,6 +110,19 @@ public final class HayDayExpansion extends PlaceholderExpansion {
                 return String.valueOf(plugin.getStorage().capacity(data, ItemCategory.PRODUCT));
             case "orders_ready":
                 return String.valueOf(plugin.getOrders().countReady(data));
+            case "ship_state":
+                switch (plugin.getShip().state(data)) {
+                    case LOCKED:
+                        return "låst";
+                    case AWAY:
+                        return "ude at sejle";
+                    default:
+                        return "i havn";
+                }
+            case "ship_time":
+                return Text.timeMillis(plugin.getShip().timeLeft(data));
+            case "ship_filled":
+                return plugin.getShip().filled(data) + "/" + data.getShipCrates().size();
             case "rank":
                 return String.valueOf(plugin.getLeaderboard().rank(player.getUniqueId()));
             default:

@@ -29,7 +29,7 @@ public final class SellMenu extends Menu {
     protected void render() {
         PlayerData data = plugin.getPlayers().get(player);
         int owned = data.getAmount(item.getId());
-        set(4, item.icon()
+        set(4, item.icon(player)
                 .amount(Math.max(1, owned))
                 .lore("&7Du har: &f" + owned,
                         "&7Pris pr. stk: &6" + money(item.getSellPrice()))

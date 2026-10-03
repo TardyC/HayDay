@@ -99,6 +99,25 @@ public final class Settings {
     public long marketExpireHours;
     public List<String> roadsideLines;
 
+    // Skibet
+    public boolean shipEnabled;
+    public int shipLevel;
+    public int shipTypes;
+    public int shipCratesPerType;
+    public int shipCropMin;
+    public int shipCropMax;
+    public int shipProductMin;
+    public int shipProductMax;
+    public double shipRewardMultiplier;
+    public double shipXpMultiplier;
+    public double shipBonusPercent;
+    public long shipStayTime;
+    public long shipAwayTime;
+    public List<String> harborDocked;
+    public List<String> harborAway;
+    public List<String> harborLocked;
+    public List<String> harborOffline;
+
     // Animationer
     public boolean animations;
     public boolean animHarvest;
@@ -108,6 +127,18 @@ public final class Settings {
     public boolean animFireworks;
     public boolean animSparkles;
     public boolean useProtocolLib;
+
+    // Resourcepack
+    public String packMode;
+    public boolean texturedMenus;
+    public boolean customItemTextures;
+    public boolean packSendOnJoin;
+    public boolean packRequired;
+    public String packPrompt;
+    public String packUrl;
+    public boolean packHostEnabled;
+    public String packHostAddress;
+    public int packHostPort;
 
     // ItemsAdder
     public boolean itemsAdder;
@@ -204,6 +235,24 @@ public final class Settings {
         marketDefaultMultiplier = c.getDouble("market.default-price-multiplier", 1.5);
         marketExpireHours = Math.max(0, c.getLong("market.expire-hours", 48));
 
+        shipEnabled = c.getBoolean("ship.enabled", true);
+        shipLevel = Math.max(1, c.getInt("ship.level", 6));
+        shipTypes = Math.max(1, Math.min(3, c.getInt("ship.crate-types", 3)));
+        shipCratesPerType = Math.max(1, Math.min(3, c.getInt("ship.crates-per-type", 3)));
+        shipCropMin = Math.max(1, c.getInt("ship.crop-amount-min", 4));
+        shipCropMax = Math.max(shipCropMin, c.getInt("ship.crop-amount-max", 8));
+        shipProductMin = Math.max(1, c.getInt("ship.product-amount-min", 1));
+        shipProductMax = Math.max(shipProductMin, c.getInt("ship.product-amount-max", 3));
+        shipRewardMultiplier = c.getDouble("ship.reward-multiplier", 1.6);
+        shipXpMultiplier = c.getDouble("ship.xp-multiplier", 1.5);
+        shipBonusPercent = c.getDouble("ship.bonus-percent", 25);
+        shipStayTime = Math.max(60, c.getLong("ship.stay-time", 7200)) * 1000L;
+        shipAwayTime = Math.max(10, c.getLong("ship.away-time", 1800)) * 1000L;
+        harborDocked = lines(c, "holograms.harbor.docked");
+        harborAway = lines(c, "holograms.harbor.away");
+        harborLocked = lines(c, "holograms.harbor.locked");
+        harborOffline = lines(c, "holograms.harbor.offline");
+
         animations = c.getBoolean("animations.enabled", true);
         animHarvest = animations && c.getBoolean("animations.harvest", true);
         animFloatingText = animations && c.getBoolean("animations.floating-text", true);
@@ -212,6 +261,17 @@ public final class Settings {
         animFireworks = animations && c.getBoolean("animations.level-up-firework", true);
         animSparkles = animations && c.getBoolean("animations.ready-sparkles", true);
         useProtocolLib = c.getBoolean("animations.use-protocollib", true);
+
+        packMode = c.getString("resource-pack.mode", "auto").toLowerCase(Locale.ROOT);
+        texturedMenus = c.getBoolean("resource-pack.textured-menus", true);
+        customItemTextures = c.getBoolean("resource-pack.custom-item-textures", true);
+        packSendOnJoin = c.getBoolean("resource-pack.send-on-join", true);
+        packRequired = c.getBoolean("resource-pack.required", false);
+        packPrompt = Text.color(c.getString("resource-pack.prompt", "&aHayDay bruger en resourcepack med farm-grafik."));
+        packUrl = c.getString("resource-pack.url", "").trim();
+        packHostEnabled = c.getBoolean("resource-pack.host.enabled", true);
+        packHostAddress = c.getString("resource-pack.host.address", "").trim();
+        packHostPort = c.getInt("resource-pack.host.port", 8163);
 
         itemsAdder = c.getBoolean("itemsadder.enabled", true);
         itemsAdderMenus = c.getBoolean("itemsadder.textured-menus", true);

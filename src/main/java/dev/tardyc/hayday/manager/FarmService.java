@@ -6,6 +6,7 @@ import dev.tardyc.hayday.config.Settings;
 import dev.tardyc.hayday.gui.BuildingMenu;
 import dev.tardyc.hayday.gui.RoadsideMenu;
 import dev.tardyc.hayday.gui.SeedMenu;
+import dev.tardyc.hayday.gui.ShipMenu;
 import dev.tardyc.hayday.model.BlockPos;
 import dev.tardyc.hayday.model.Building;
 import dev.tardyc.hayday.model.BuildingType;
@@ -409,6 +410,10 @@ public final class FarmService {
             return;
         }
         if (!canUse(player, building.getOwner(), building.getOwnerName())) {
+            return;
+        }
+        if (type.isHarbor()) {
+            new ShipMenu(plugin, player).open();
             return;
         }
         collect(player, building, true);

@@ -2,6 +2,7 @@ package dev.tardyc.hayday.gui;
 
 import dev.tardyc.hayday.HayDayPlugin;
 import dev.tardyc.hayday.manager.LeaderboardManager;
+import dev.tardyc.hayday.manager.ShipManager;
 import dev.tardyc.hayday.model.Building;
 import dev.tardyc.hayday.model.BuildingType;
 import dev.tardyc.hayday.model.Field;
@@ -23,7 +24,7 @@ import java.util.List;
  * <pre>
  *  . . . . P . . . .     P = profil
  *  . S . L . O . B .     S = silo, L = lade, O = ordretavle, B = butik
- *  . . V . A . G . .     V = vejbod, A = avisen, G = min gård
+ *  . V . A . K . G .     V = vejbod, A = avisen, K = skibet, G = min gård
  *  . . T . X . H . .     T = top, X = luk, H = hjælp
  * </pre>
  */
@@ -88,7 +89,7 @@ public final class MainMenu extends Menu {
         // Vejbod
         int sold = plugin.getMarket().count(player.getUniqueId(), Listing.State.SOLD);
         int active = plugin.getMarket().count(player.getUniqueId(), Listing.State.ACTIVE);
-        set(20, new ItemBuilder(Material.BARREL)
+        set(19, new ItemBuilder(Material.BARREL)
                 .name("&6&lVejbod")
                 .lore("&7Sæt dine varer til salg til",
                         "&7andre spillere.",
@@ -102,7 +103,7 @@ public final class MainMenu extends Menu {
 
         // Avisen
         int offers = plugin.getMarket().getNewspaper(player.getUniqueId()).size();
-        set(22, new ItemBuilder(Material.MAP)
+        set(21, new ItemBuilder(Material.MAP)
                 .name("&f&lAvisen")
                 .lore("&7Se hvad andre spillere sælger",
                         "&7i deres vejboder.",
@@ -112,8 +113,11 @@ public final class MainMenu extends Menu {
                         "&e» Klik for at læse")
                 .build(), click -> openLater(new NewspaperMenu(plugin, player, 0)));
 
+        // Skibet
+        set(23, shipIcon(data), click -> openLater(new ShipMenu(plugin, player)));
+
         // Gårdoversigt
-        set(24, farmOverview(now));
+        set(25, farmOverview(now));
 
         // Top
         List<String> topLore = new ArrayList<>();
@@ -154,6 +158,31 @@ public final class MainMenu extends Menu {
                 .build();
     }
 
+    private ItemStack shipIcon(PlayerData data) {
+        ShipManager ship = plugin.getShip();
+        ship.update(player, data);
+        List<String> lore = new ArrayList<>();
+        boolean glow = false;
+        switch (ship.state(data)) {
+            case LOCKED:
+                lore.add("&cLåses op ved level " + plugin.getSettings().shipLevel);
+                break;
+            case AWAY:
+                lore.add("&7Skibet er ude at sejle.");
+                lore.add("&7Tilbage om &f" + Text.timeMillis(ship.timeLeft(data)));
+                break;
+            default:
+                lore.add("&7Skibet er i havn!");
+                lore.add("&7Fyldt: &f" + ship.filled(data) + "&7/&f" + data.getShipCrates().size());
+                lore.add("&7Sejler om &f" + Text.timeMillis(ship.timeLeft(data)));
+                glow = true;
+                break;
+        }
+        lore.add("");
+        lore.add("&e» Klik for at åbne");
+        return new ItemBuilder(Material.OAK_BOAT).name("&9&lSkibet").lore(lore).glow(glow).build();
+    }
+
     private ItemStack farmOverview(long now) {
         List<Field> fields = plugin.getFarm().getFields(player.getUniqueId());
         int empty = 0;
@@ -182,7 +211,7 @@ public final class MainMenu extends Menu {
                 if (type == null) {
                     continue;
                 }
-                if (type.isRoadside()) {
+                if (!type.isProduction()) {
                     lore.add("&8• " + type.getName());
                     continue;
                 }

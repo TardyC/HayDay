@@ -1,11 +1,13 @@
 package dev.tardyc.hayday.gui;
 
 import dev.tardyc.hayday.HayDayPlugin;
+import dev.tardyc.hayday.pack.ResourcePackManager;
 import dev.tardyc.hayday.util.ItemBuilder;
 import dev.tardyc.hayday.util.Sounds;
 import dev.tardyc.hayday.util.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
@@ -30,11 +32,16 @@ public abstract class Menu implements InventoryHolder {
         void onClick(ClickType click);
     }
 
+    /** Usynligt item-model fra resourcepacken - lægges over knapper der er tegnet i baggrunden. */
+    private static final NamespacedKey INVISIBLE = NamespacedKey.fromString("hayday:invisible");
+
     protected final HayDayPlugin plugin;
     protected final Player player;
     private final Inventory inventory;
-    /** ItemsAdder-menuen hvis menuen har Hay Day-tekstur, ellers null. */
+    /** ItemsAdder-menuen hvis menuen har Hay Day-tekstur via ItemsAdder, ellers null. */
     private final Object textured;
+    /** Har menuen baggrund fra HayDays egen resourcepack (i titlen)? */
+    private final boolean ownTexture;
     private final Map<Integer, ClickHandler> handlers = new HashMap<>();
     private ItemStack[] buffer;
 
@@ -44,26 +51,35 @@ public abstract class Menu implements InventoryHolder {
         int size = Math.max(1, Math.min(6, rows)) * 9;
         Object texturedMenu = null;
         Inventory created = null;
-        if (texture != null && plugin.getSettings().itemsAdderMenus && plugin.getItemsAdder().isAvailable()) {
-            // Mørk tekst på pergamentet i stedet for menuens normale farver
-            String plainTitle = Text.color(plugin.getSettings().itemsAdderTitleColor) + Text.strip(title);
-            texturedMenu = plugin.getItemsAdder().createTexturedInventory(this, size, plainTitle,
-                    "hayday:gui_" + texture + "_" + (size / 9));
-            if (texturedMenu != null) {
-                created = plugin.getItemsAdder().getInventory(texturedMenu);
+        boolean own = false;
+        String gui = texture == null ? null : texture + "_" + (size / 9);
+        ResourcePackManager pack = plugin.getPack();
+        // Mørk tekst på pergamentet i stedet for menuens normale farver
+        String plainTitle = Text.color(plugin.getSettings().itemsAdderTitleColor) + Text.strip(title);
+        if (gui != null && plugin.getSettings().texturedMenus && pack.hasPack(player)) {
+            if (pack.getMode() == ResourcePackManager.Mode.ITEMSADDER && plugin.getSettings().itemsAdderMenus) {
+                texturedMenu = plugin.getItemsAdder().createTexturedInventory(this, size, plainTitle, "hayday:gui_" + gui);
+                if (texturedMenu != null) {
+                    created = plugin.getItemsAdder().getInventory(texturedMenu);
+                }
+            } else if (pack.getMode() == ResourcePackManager.Mode.OWN && pack.getGlyphs().hasGui(gui)) {
+                created = Bukkit.createInventory(this, size, pack.getGlyphs().guiTitle(gui, plainTitle));
+                own = true;
             }
         }
         if (created == null) {
             texturedMenu = null;
+            own = false;
             created = Bukkit.createInventory(this, size, Text.color(title));
         }
         this.textured = texturedMenu;
+        this.ownTexture = own;
         this.inventory = created;
     }
 
     /** Har menuen en ItemsAdder-baggrund? Så vises der ingen glasruder. */
     protected boolean isTextured() {
-        return textured != null;
+        return textured != null || ownTexture;
     }
 
     @Override
@@ -187,10 +203,7 @@ public abstract class Menu implements InventoryHolder {
      */
     protected ItemStack button(Material fallback, String name, String... lore) {
         if (isTextured()) {
-            ItemStack invisible = plugin.getItemsAdder().customItem("hayday:invisible");
-            if (invisible != null) {
-                return new ItemBuilder(invisible).name(name).lore(lore).build();
-            }
+            return new ItemBuilder(Material.PAPER).model(INVISIBLE).name(name).lore(lore).build();
         }
         return new ItemBuilder(fallback).name(name).lore(lore).build();
     }

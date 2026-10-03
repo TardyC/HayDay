@@ -37,7 +37,7 @@ public final class NewspaperMenu extends Menu {
         for (int i = 0; i < PER_PAGE && start + i < offers.size(); i++) {
             Listing listing = offers.get(start + i);
             FarmItem item = plugin.getItems().get(listing.getItemId());
-            set(i, item.icon()
+            set(i, item.icon(player)
                     .amount(listing.getAmount())
                     .name("&f" + listing.getAmount() + "x " + item.getName())
                     .lore("&7Sælger: &f" + listing.getSellerName(),

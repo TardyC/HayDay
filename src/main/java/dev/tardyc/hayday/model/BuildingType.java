@@ -17,7 +17,9 @@ public final class BuildingType {
         /** Laver varer ud fra opskrifter. */
         PRODUCTION,
         /** Spillerens vejbod, hvor andre kan købe varer. */
-        ROADSIDE
+        ROADSIDE,
+        /** Havnen, hvor skibet lægger til. */
+        HARBOR
     }
 
     private final String id;
@@ -69,6 +71,15 @@ public final class BuildingType {
 
     public boolean isRoadside() {
         return function == Function.ROADSIDE;
+    }
+
+    public boolean isHarbor() {
+        return function == Function.HARBOR;
+    }
+
+    /** Laver bygningen varer (og har dermed en produktionskø)? */
+    public boolean isProduction() {
+        return function == Function.PRODUCTION;
     }
 
     public Material getBlock() {

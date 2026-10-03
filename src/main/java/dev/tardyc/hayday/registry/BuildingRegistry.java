@@ -57,8 +57,11 @@ public final class BuildingRegistry {
                 }
             }
             BuildingType.Function function = BuildingType.Function.PRODUCTION;
-            if ("roadside".equalsIgnoreCase(section.getString("function", "production"))) {
+            String functionName = section.getString("function", "production");
+            if ("roadside".equalsIgnoreCase(functionName)) {
                 function = BuildingType.Function.ROADSIDE;
+            } else if ("harbor".equalsIgnoreCase(functionName)) {
+                function = BuildingType.Function.HARBOR;
             }
             int level = Math.max(1, section.getInt("level", 1));
             Map<String, Recipe> buildingRecipes = new LinkedHashMap<>();

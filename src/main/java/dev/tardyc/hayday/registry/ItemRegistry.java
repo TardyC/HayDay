@@ -73,6 +73,7 @@ public final class ItemRegistry {
                     Math.max(0, section.getInt("xp", 1)),
                     crop);
             item.setItemsAdderId(section.getString("itemsadder"));
+            item.setModel(section.getString("model"));
             items.put(id, item);
         }
     }

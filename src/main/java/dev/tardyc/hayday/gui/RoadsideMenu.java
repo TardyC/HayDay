@@ -97,7 +97,7 @@ public final class RoadsideMenu extends Menu {
 
     private ItemStack ownerIcon(Listing listing) {
         FarmItem item = plugin.getItems().get(listing.getItemId());
-        ItemBuilder builder = item == null ? new ItemBuilder(Material.CHEST) : item.icon();
+        ItemBuilder builder = item == null ? new ItemBuilder(Material.CHEST) : item.icon(player);
         String name = item == null ? listing.getItemId() : item.getName();
         switch (listing.getState()) {
             case SOLD:
@@ -157,7 +157,7 @@ public final class RoadsideMenu extends Menu {
                 continue;
             }
             if (listing.isActive()) {
-                set(SLOTS[index++], item.icon()
+                set(SLOTS[index++], item.icon(player)
                         .amount(listing.getAmount())
                         .name("&f" + listing.getAmount() + "x " + item.getName())
                         .lore("&7Pris: &6" + money(listing.getPrice()),

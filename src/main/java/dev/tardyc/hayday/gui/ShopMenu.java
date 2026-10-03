@@ -83,6 +83,9 @@ public final class ShopMenu extends Menu {
         if (type.isRoadside()) {
             lore.add("&7Sæt varer til salg, som andre");
             lore.add("&7spillere kan købe - også når du er offline.");
+        } else if (type.isHarbor()) {
+            lore.add("&7Her lægger skibet til kaj.");
+            lore.add("&7Fyld kasserne for store belønninger.");
         } else {
             lore.add("&7Producerer:");
             for (Recipe recipe : type.getRecipes().values()) {

@@ -63,7 +63,7 @@ public final class SeedMenu extends Menu {
             lore.add("&e» Venstreklik &7for at plante her");
             lore.add("&e» Shift-klik &7for at plante på alle");
             lore.add("&7  tomme marker inden for " + radius + " blokke");
-            set(slot, item.icon().amount(Math.max(1, inSilo)).lore(lore).build(), click -> plant(item, click));
+            set(slot, item.icon(player).amount(Math.max(1, inSilo)).lore(lore).build(), click -> plant(item, click));
         }
         set(size() - 5, closeButton(), click -> closeLater());
         fillEmpty();

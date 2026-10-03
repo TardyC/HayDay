@@ -1,0 +1,62 @@
+# Genereret af tools/generate_pack.py - tegn i resourcepackens standard-font
+gui-advance: 193
+gui:
+  'main_4': 'EB00'
+  'silo_6': 'EB01'
+  'barn_6': 'EB02'
+  'sell_3': 'EB03'
+  'building_6': 'EB04'
+  'orders_3': 'EB05'
+  'shop_5': 'EB06'
+  'roadside_4': 'EB07'
+  'listing_6': 'EB08'
+  'news_6': 'EB09'
+  'ship_5': 'EB0A'
+  'seed_3': 'EB0B'
+  'seed_4': 'EB0C'
+  'seed_5': 'EB0D'
+  'seed_6': 'EB0E'
+icons:
+  'clock': 'EB80'
+  'check': 'EB81'
+  'coin': 'EB82'
+  'xp': 'EB83'
+  'star': 'EB84'
+  'crate': 'EB85'
+  'anchor': 'EB86'
+negative:
+  '1': 'EBC0'
+  '2': 'EBC1'
+  '4': 'EBC2'
+  '8': 'EBC3'
+  '16': 'EBC4'
+  '32': 'EBC5'
+  '64': 'EBC6'
+  '128': 'EBC7'
+  '256': 'EBC8'
+positive:
+  '1': 'EBD0'
+  '2': 'EBD1'
+  '4': 'EBD2'
+  '8': 'EBD3'
+  '16': 'EBD4'
+  '32': 'EBD5'
+  '64': 'EBD6'
+  '128': 'EBD7'
+  '256': 'EBD8'
+items:
+  - kyllingefoder
+  - kofoder
+  - grisefoder
+  - faarefoder
+  - maelk
+  - floede
+  - smoer
+  - ost
+  - bacon
+  - sukker
+  - gulerodsjuice
+  - melonjuice
+  - baersaft
+  - uldsweater
+  - uldtaeppe

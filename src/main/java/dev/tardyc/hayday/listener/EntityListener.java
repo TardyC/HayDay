@@ -20,6 +20,8 @@ import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.entity.PlayerLeashEntityEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.vehicle.VehicleDamageEvent;
+import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -137,6 +139,21 @@ public final class EntityListener implements Listener {
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onVehicle(VehicleEnterEvent event) {
         if (isOurs(event.getEntered())) {
+            event.setCancelled(true);
+        }
+    }
+
+    /** Havnens båd kan ikke slås i stykker. */
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onVehicleDamage(VehicleDamageEvent event) {
+        if (isOurs(event.getVehicle())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onVehicleDestroy(VehicleDestroyEvent event) {
+        if (isOurs(event.getVehicle())) {
             event.setCancelled(true);
         }
     }

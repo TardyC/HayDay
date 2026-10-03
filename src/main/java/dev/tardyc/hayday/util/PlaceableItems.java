@@ -44,6 +44,8 @@ public final class PlaceableItems {
         lore.add("");
         if (type.isRoadside()) {
             lore.add("&7Sælg dine varer til andre spillere.");
+        } else if (type.isHarbor()) {
+            lore.add("&7Her lægger skibet til kaj.");
         } else {
             lore.add("&7Producerer:");
             for (Recipe recipe : type.getRecipes().values()) {

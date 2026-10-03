@@ -20,9 +20,14 @@ public final class PlayerData {
     private int barnUpgrades;
     private int fieldsBought;
     private int roadsideSlots;
+    private long firstJoin;
+    private long lastSeen;
     private boolean started;
     private final Map<String, Integer> storage = new LinkedHashMap<>();
     private final List<Order> orders = new ArrayList<>();
+    private final List<ShipCrate> shipCrates = new ArrayList<>();
+    private long shipArrivesAt;
+    private long shipLeavesAt;
 
     private transient boolean dirty;
 
@@ -112,6 +117,24 @@ public final class PlayerData {
         dirty = true;
     }
 
+    public long getFirstJoin() {
+        return firstJoin;
+    }
+
+    public void setFirstJoin(long firstJoin) {
+        this.firstJoin = firstJoin;
+        dirty = true;
+    }
+
+    public long getLastSeen() {
+        return lastSeen;
+    }
+
+    public void setLastSeen(long lastSeen) {
+        this.lastSeen = lastSeen;
+        dirty = true;
+    }
+
     public int getRoadsideSlots() {
         return roadsideSlots;
     }
@@ -178,6 +201,29 @@ public final class PlayerData {
         return orders;
     }
 
+    /** Kasserne på skibet (tom liste = skibet er ude at sejle). */
+    public List<ShipCrate> getShipCrates() {
+        return shipCrates;
+    }
+
+    public long getShipArrivesAt() {
+        return shipArrivesAt;
+    }
+
+    public void setShipArrivesAt(long shipArrivesAt) {
+        this.shipArrivesAt = shipArrivesAt;
+        dirty = true;
+    }
+
+    public long getShipLeavesAt() {
+        return shipLeavesAt;
+    }
+
+    public void setShipLeavesAt(long shipLeavesAt) {
+        this.shipLeavesAt = shipLeavesAt;
+        dirty = true;
+    }
+
     public void reset() {
         level = 1;
         xp = 0;
@@ -189,6 +235,9 @@ public final class PlayerData {
         started = false;
         storage.clear();
         orders.clear();
+        shipCrates.clear();
+        shipArrivesAt = 0;
+        shipLeavesAt = 0;
         dirty = true;
     }
 

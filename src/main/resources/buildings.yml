@@ -2,14 +2,15 @@
 #   Bygninger og opskrifter
 #
 #   block:           blokken der placeres (spilleren får den som item i butikken)
-#   animal:          (valgfri) dyr der står oven på bygningen, fx CHICKEN, COW, PIG, SHEEP
+#   animal:          (valgfri) dyr/entity der står oven på bygningen, fx CHICKEN, COW, PIG, SHEEP, OAK_BOAT
 #   hologram-height: hvor højt over blokken hologrammet sidder
 #   price / level:   pris i butikken og hvilket level den låses op ved
 #   slots:           antal produktionspladser fra start
 #   max-slots:       maks antal pladser (kan købes i bygningens menu)
 #   slot-price:      pris for næste plads = slot-price * (antal købte pladser + 1)
 #   max-per-player:  hvor mange af denne bygning en spiller må have
-#   function:        "production" (standard) eller "roadside" (vejbod - andre spillere kan købe dine varer)
+#   function:        "production" (standard), "roadside" (vejbod - andre spillere kan købe dine varer)
+#                    eller "harbor" (havn - her lægger skibet til, og en båd ligger ved kajen)
 #
 #   recipes.<id>:
 #     output / amount: hvilken vare og hvor mange der laves
@@ -330,6 +331,19 @@ buildings:
     hologram-height: 1.25
     price: 500
     level: 5
+    slots: 1
+    max-slots: 1
+    slot-price: 0
+    max-per-player: 1
+
+  havn:
+    name: "&9Havn"
+    function: harbor
+    block: SPRUCE_PLANKS
+    animal: OAK_BOAT
+    hologram-height: 1.9
+    price: 1500
+    level: 6
     slots: 1
     max-slots: 1
     slot-price: 0

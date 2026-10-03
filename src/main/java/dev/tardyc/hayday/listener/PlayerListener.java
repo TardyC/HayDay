@@ -10,6 +10,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 
@@ -28,9 +29,15 @@ public final class PlayerListener implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         PlayerData data = plugin.getPlayers().get(player);
+        data.setLastSeen(System.currentTimeMillis());
         plugin.getFarm().updateOwnerName(player);
         plugin.getMarket().updateSellerName(player);
         plugin.getLeaderboard().update(data);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (player.isOnline()) {
+                plugin.getPack().send(player);
+            }
+        }, 20L);
         if (!data.isStarted()) {
             return;
         }
@@ -54,8 +61,18 @@ public final class PlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event) {
+        PlayerData data = plugin.getPlayers().getIfLoaded(event.getPlayer().getUniqueId());
+        if (data != null) {
+            data.setLastSeen(System.currentTimeMillis());
+        }
         plugin.getPlayers().unload(event.getPlayer());
         plugin.getClickGuard().forget(event.getPlayer());
+        plugin.getPack().forget(event.getPlayer());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onResourcePack(PlayerResourcePackStatusEvent event) {
+        plugin.getPack().onStatus(event);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

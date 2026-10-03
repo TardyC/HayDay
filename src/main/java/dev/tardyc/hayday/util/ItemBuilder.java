@@ -2,6 +2,7 @@ package dev.tardyc.hayday.util;
 
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -73,6 +74,14 @@ public class ItemBuilder {
             ((PotionMeta) meta).setColor(color);
         } else if (meta instanceof LeatherArmorMeta) {
             ((LeatherArmorMeta) meta).setColor(color);
+        }
+        return this;
+    }
+
+    /** Item-model fra resourcepacken (Minecraft 1.21.4+). */
+    public ItemBuilder model(NamespacedKey model) {
+        if (meta != null && model != null) {
+            meta.setItemModel(model);
         }
         return this;
     }

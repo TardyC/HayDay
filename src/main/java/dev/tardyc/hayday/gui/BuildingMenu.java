@@ -133,7 +133,7 @@ public final class BuildingMenu extends Menu {
         String name = output == null ? entry.getRecipeId() : output.getName();
         int amount = recipe == null ? 1 : recipe.getOutputAmount();
         if (entry.isDone(now)) {
-            ItemBuilder builder = output == null ? new ItemBuilder(Material.CHEST) : output.icon();
+            ItemBuilder builder = output == null ? new ItemBuilder(Material.CHEST) : output.icon(player);
             return builder.amount(amount)
                     .name("&a✔ " + amount + "x " + name)
                     .lore("&7Færdig!", "", "&e» Klik for at hente")
@@ -185,7 +185,7 @@ public final class BuildingMenu extends Menu {
         } else {
             lore.add("&c» Du mangler ingredienser");
         }
-        return output.icon()
+        return output.icon(player)
                 .amount(recipe.getOutputAmount())
                 .name(output.getName() + (recipe.getOutputAmount() > 1 ? " &7x" + recipe.getOutputAmount() : ""))
                 .lore(lore)

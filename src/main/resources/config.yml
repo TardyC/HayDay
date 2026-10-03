@@ -134,6 +134,22 @@ holograms:
       - "&6&l{building}"
       - "{icon_check} &a&l{done} vare(r) klar!"
       - "&7Højreklik for at hente"
+  # Havnen. Pladsholdere: {building} {owner} {filled} {total} {time} {level}
+  harbor:
+    docked:
+      - "&9&l{building}"
+      - "{icon_crate} &e{filled}/{total} kasser fyldt"
+      - "{icon_clock} &7Sejler om &f{time}"
+    away:
+      - "&9&l{building}"
+      - "&7Skibet er ude at sejle"
+      - "{icon_clock} &7Tilbage om &f{time}"
+    locked:
+      - "&9&l{building}"
+      - "&7Skibet låses op ved level {level}"
+    offline:
+      - "&9&l{building}"
+      - "&7{owner}s havn"
   # Vejboden. Pladsholdere: {building} {owner} {active} {sold}
   roadside:
     - "&6&l{building}"
@@ -147,6 +163,29 @@ holograms:
       - ""
     entry: "&e#{rank} &f{name} &8- &aLevel {level} &7({xp} XP)"
     empty: "&8#{rank} ---"
+
+# ==============================================================
+#   Skibet: fyld kasserne med varer og send skibet afsted for en bonus
+# ==============================================================
+ship:
+  enabled: true
+  # Level hvor skibet låses op
+  level: 6
+  # Antal forskellige varer (1-3) og kasser pr. vare (1-3)
+  crate-types: 3
+  crates-per-type: 3
+  crop-amount-min: 4
+  crop-amount-max: 8
+  product-amount-min: 1
+  product-amount-max: 3
+  # Belønning pr. kasse = varernes salgspris * reward-multiplier (XP = xp-værdi * xp-multiplier)
+  reward-multiplier: 1.6
+  xp-multiplier: 1.5
+  # Ekstra bonus (i procent af alle kassers belønning) når alle kasser er fyldt og skibet sendes afsted
+  bonus-percent: 25
+  # Hvor længe skibet ligger i havn, og hvor længe det er væk (sekunder)
+  stay-time: 7200
+  away-time: 1800
 
 # ==============================================================
 #   Vejbod og avis (spillere sælger til hinanden)
@@ -183,6 +222,31 @@ animations:
   ready-sparkles: true
   # Brug ProtocolLib til Minecrafts rigtige "saml op"-animation (kræver ProtocolLib)
   use-protocollib: true
+
+# ==============================================================
+#   Resourcepack - Hay Day-inspirerede menu-baggrunde, egne item-ikoner og ikoner i hologrammer
+# ==============================================================
+resource-pack:
+  # auto       = brug ItemsAdder hvis det er installeret, ellers HayDays egen resourcepack
+  # own        = altid HayDays egen resourcepack
+  # itemsadder = kun via ItemsAdder
+  # none       = ingen resourcepack (almindelige menuer)
+  mode: auto
+  textured-menus: true
+  custom-item-textures: true
+  # Send HayDays resourcepack til spillerne når de logger ind (kun "own")
+  send-on-join: true
+  # Påkrævet: spillere der afviser pakken bliver smidt af. Så kan hologrammerne også bruge ikonerne.
+  required: false
+  prompt: "&aHayDay bruger en resourcepack med farm-grafik. &7Tryk ja for den fulde oplevelse!"
+  # Hoster du selv zip-filen (plugins/HayDay/HayDay-resourcepack.zip), så skriv adressen her.
+  url: ""
+  # Ellers hoster HayDay den selv på denne port. "address" skal være den IP/det domæne spillerne
+  # forbinder til (tom = server-ip fra server.properties). Husk at åbne porten i din firewall.
+  host:
+    enabled: true
+    address: ""
+    port: 8163
 
 # ==============================================================
 #   ItemsAdder (valgfrit) - Hay Day-inspirerede menuer og ikoner

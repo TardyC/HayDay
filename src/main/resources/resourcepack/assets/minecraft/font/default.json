@@ -1,0 +1,225 @@
+{
+  "providers": [
+    {
+      "type": "space",
+      "advances": {
+        "\uebc0": -1,
+        "\uebd0": 1,
+        "\uebc1": -2,
+        "\uebd1": 2,
+        "\uebc2": -4,
+        "\uebd2": 4,
+        "\uebc3": -8,
+        "\uebd3": 8,
+        "\uebc4": -16,
+        "\uebd4": 16,
+        "\uebc5": -32,
+        "\uebd5": 32,
+        "\uebc6": -64,
+        "\uebd6": 64,
+        "\uebc7": -128,
+        "\uebd7": 128,
+        "\uebc8": -256,
+        "\uebd8": 256
+      }
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:gui/main_4.png",
+      "ascent": 47,
+      "height": 134,
+      "chars": [
+        "\ueb00"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:gui/silo_6.png",
+      "ascent": 47,
+      "height": 170,
+      "chars": [
+        "\ueb01"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:gui/barn_6.png",
+      "ascent": 47,
+      "height": 170,
+      "chars": [
+        "\ueb02"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:gui/sell_3.png",
+      "ascent": 47,
+      "height": 116,
+      "chars": [
+        "\ueb03"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:gui/building_6.png",
+      "ascent": 47,
+      "height": 170,
+      "chars": [
+        "\ueb04"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:gui/orders_3.png",
+      "ascent": 47,
+      "height": 116,
+      "chars": [
+        "\ueb05"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:gui/shop_5.png",
+      "ascent": 47,
+      "height": 152,
+      "chars": [
+        "\ueb06"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:gui/roadside_4.png",
+      "ascent": 47,
+      "height": 134,
+      "chars": [
+        "\ueb07"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:gui/listing_6.png",
+      "ascent": 47,
+      "height": 170,
+      "chars": [
+        "\ueb08"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:gui/news_6.png",
+      "ascent": 47,
+      "height": 170,
+      "chars": [
+        "\ueb09"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:gui/ship_5.png",
+      "ascent": 47,
+      "height": 152,
+      "chars": [
+        "\ueb0a"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:gui/seed_3.png",
+      "ascent": 47,
+      "height": 116,
+      "chars": [
+        "\ueb0b"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:gui/seed_4.png",
+      "ascent": 47,
+      "height": 134,
+      "chars": [
+        "\ueb0c"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:gui/seed_5.png",
+      "ascent": 47,
+      "height": 152,
+      "chars": [
+        "\ueb0d"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:gui/seed_6.png",
+      "ascent": 47,
+      "height": 170,
+      "chars": [
+        "\ueb0e"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:icons/clock.png",
+      "ascent": 8,
+      "height": 9,
+      "chars": [
+        "\ueb80"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:icons/check.png",
+      "ascent": 8,
+      "height": 9,
+      "chars": [
+        "\ueb81"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:icons/coin.png",
+      "ascent": 8,
+      "height": 9,
+      "chars": [
+        "\ueb82"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:icons/xp.png",
+      "ascent": 8,
+      "height": 9,
+      "chars": [
+        "\ueb83"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:icons/star.png",
+      "ascent": 8,
+      "height": 9,
+      "chars": [
+        "\ueb84"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:icons/crate.png",
+      "ascent": 8,
+      "height": 9,
+      "chars": [
+        "\ueb85"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:icons/anchor.png",
+      "ascent": 8,
+      "height": 9,
+      "chars": [
+        "\ueb86"
+      ]
+    }
+  ]
+}

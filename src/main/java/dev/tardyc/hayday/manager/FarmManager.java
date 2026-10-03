@@ -11,6 +11,7 @@ import dev.tardyc.hayday.model.CropType;
 import dev.tardyc.hayday.model.FarmItem;
 import dev.tardyc.hayday.model.Field;
 import dev.tardyc.hayday.model.Listing;
+import dev.tardyc.hayday.model.PlayerData;
 import dev.tardyc.hayday.model.QueueEntry;
 import dev.tardyc.hayday.model.Recipe;
 import dev.tardyc.hayday.util.Effects;
@@ -576,8 +577,22 @@ public final class FarmManager {
             }
             return;
         }
+        // Havnens båd ligger kun ved kajen når skibet er i havn
+        if (type.isHarbor()) {
+            PlayerData data = plugin.getPlayers().getIfLoaded(building.getOwner());
+            if (data == null || plugin.getShip().state(data) != ShipManager.State.DOCKED) {
+                removeAnimal(building);
+                return;
+            }
+        }
         Entity animal = building.getAnimal();
         if (animal != null && animal.isValid() && animal.getType() == type.getAnimal()) {
+            // Er den blevet skubbet væk (fx en båd), så sæt den tilbage
+            Location home = building.getPos().toCenter().add(0, 1, 0);
+            if (animal.getLocation().distanceSquared(home) > 0.25) {
+                home.setYaw(animal.getLocation().getYaw());
+                animal.teleport(home);
+            }
             return;
         }
         removeAnimal(building);
@@ -668,7 +683,7 @@ public final class FarmManager {
     private void updateBuildingIcon(Building building, BuildingType type, long now, int lineCount) {
         FarmItem output = null;
         int done = building.countDone(now);
-        if (!type.isRoadside() && !building.getQueue().isEmpty()) {
+        if (type.isProduction() && !building.getQueue().isEmpty()) {
             QueueEntry entry = done > 0 ? building.getQueue().get(0) : building.getActive(now);
             Recipe recipe = entry == null ? null : type.getRecipes().get(entry.getRecipeId());
             output = recipe == null ? null : plugin.getItems().get(recipe.getOutputId());
@@ -722,6 +737,24 @@ public final class FarmManager {
 
     public List<String> buildingLines(Building building, BuildingType type, long now) {
         Settings settings = plugin.getSettings();
+        if (type.isHarbor()) {
+            PlayerData data = plugin.getPlayers().getIfLoaded(building.getOwner());
+            if (data == null) {
+                return replaceAll(settings.harborOffline, "building", type.getName(), "owner", building.getOwnerName());
+            }
+            switch (plugin.getShip().state(data)) {
+                case LOCKED:
+                    return replaceAll(settings.harborLocked, "building", type.getName(), "owner", building.getOwnerName(),
+                            "level", settings.shipLevel);
+                case AWAY:
+                    return replaceAll(settings.harborAway, "building", type.getName(), "owner", building.getOwnerName(),
+                            "time", Text.timeMillis(plugin.getShip().timeLeft(data)));
+                default:
+                    return replaceAll(settings.harborDocked, "building", type.getName(), "owner", building.getOwnerName(),
+                            "filled", plugin.getShip().filled(data), "total", data.getShipCrates().size(),
+                            "time", Text.timeMillis(plugin.getShip().timeLeft(data)));
+            }
+        }
         if (type.isRoadside()) {
             return replaceAll(settings.roadsideLines, "building", type.getName(), "owner", building.getOwnerName(),
                     "active", plugin.getMarket().count(building.getOwner(), Listing.State.ACTIVE),

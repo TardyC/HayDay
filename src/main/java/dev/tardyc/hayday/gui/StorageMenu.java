@@ -30,7 +30,7 @@ public final class StorageMenu extends Menu {
             if (amount <= 0 || slot >= 45) {
                 continue;
             }
-            set(slot++, item.icon()
+            set(slot++, item.icon(player)
                     .amount(amount)
                     .lore("&7Antal: &f" + amount,
                             "&7Salgspris: &6" + money(item.getSellPrice()) + " &7pr. stk.",

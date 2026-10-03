@@ -319,6 +319,13 @@ public final class MarketManager {
         }
     }
 
+    /** Admin reset: fjerner alle en spillers varer i vejboden (varerne går tabt). */
+    public void removeAll(UUID seller) {
+        if (listings.values().removeIf(listing -> listing.getSeller().equals(seller))) {
+            dirty = true;
+        }
+    }
+
     public void updateSellerName(Player player) {
         for (Listing listing : listings.values()) {
             if (listing.getSeller().equals(player.getUniqueId()) && !player.getName().equals(listing.getSellerName())) {

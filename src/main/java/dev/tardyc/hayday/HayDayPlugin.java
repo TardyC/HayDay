@@ -22,8 +22,10 @@ import dev.tardyc.hayday.manager.LevelManager;
 import dev.tardyc.hayday.manager.MarketManager;
 import dev.tardyc.hayday.manager.OrderManager;
 import dev.tardyc.hayday.manager.PlayerManager;
+import dev.tardyc.hayday.manager.ShipManager;
 import dev.tardyc.hayday.manager.StorageManager;
 import dev.tardyc.hayday.model.FarmItem;
+import dev.tardyc.hayday.pack.ResourcePackManager;
 import dev.tardyc.hayday.registry.BuildingRegistry;
 import dev.tardyc.hayday.registry.ItemRegistry;
 import dev.tardyc.hayday.util.ClickGuard;
@@ -66,6 +68,8 @@ public final class HayDayPlugin extends JavaPlugin {
     private AnimationManager animations;
     private ItemsAdderHook itemsAdder;
     private IconService icons;
+    private ResourcePackManager pack;
+    private ShipManager ship;
 
     private BukkitTask tickTask;
     private BukkitTask menuTask;
@@ -77,8 +81,13 @@ public final class HayDayPlugin extends JavaPlugin {
         messages = new Messages(this);
         itemsAdder = new ItemsAdderHook(this);
         icons = new IconService(this);
+        pack = new ResourcePackManager(this);
         FarmItem.setCustomItemResolver(id -> itemsAdder.customItem(id));
-        messages.setPostProcessor(text -> icons.apply(text));
+        FarmItem.setPackPolicy(
+                id -> settings.customItemTextures && pack.getGlyphs().hasItemTexture(id),
+                player -> pack.hasPack(player),
+                () -> pack.globalTextures());
+        messages.setPostProcessor(text -> icons.apply(text), (text, receiver) -> icons.apply(text, receiver));
         loadConfiguration();
 
         economy = new EconomyManager(this);
@@ -92,10 +101,12 @@ public final class HayDayPlugin extends JavaPlugin {
         farm = new FarmManager(this);
         service = new FarmService(this);
         market = new MarketManager(this);
+        ship = new ShipManager(this);
         animations = new AnimationManager(this);
 
         economy.setup();
         itemsAdder.setup();
+        pack.setup();
         animations.setup();
         farm.load();
         market.load();
@@ -166,6 +177,9 @@ public final class HayDayPlugin extends JavaPlugin {
         if (holograms != null) {
             holograms.despawnAll();
         }
+        if (pack != null) {
+            pack.shutdown();
+        }
     }
 
     /** Indlæser config.yml, items.yml, buildings.yml og messages.yml. */
@@ -203,6 +217,7 @@ public final class HayDayPlugin extends JavaPlugin {
         loadConfiguration();
         economy.setup();
         itemsAdder.setup();
+        pack.setup();
         icons.clearCache();
         animations.setup();
         holograms.respawnAll();
@@ -215,6 +230,7 @@ public final class HayDayPlugin extends JavaPlugin {
         int interval = settings.updateInterval;
         tickTask = Bukkit.getScheduler().runTaskTimer(this, () -> {
             market.tick();
+            ship.tick();
             farm.tick();
             adminHolograms.tick();
             holograms.tick();
@@ -321,6 +337,14 @@ public final class HayDayPlugin extends JavaPlugin {
 
     public IconService getIcons() {
         return icons;
+    }
+
+    public ResourcePackManager getPack() {
+        return pack;
+    }
+
+    public ShipManager getShip() {
+        return ship;
     }
 
     /** Pluginets jar-fil (bruges til at kopiere ItemsAdder-indhold ud). */

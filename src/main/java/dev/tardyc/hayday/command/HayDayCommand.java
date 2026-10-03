@@ -6,26 +6,21 @@ import dev.tardyc.hayday.gui.MainMenu;
 import dev.tardyc.hayday.gui.NewspaperMenu;
 import dev.tardyc.hayday.gui.OrdersMenu;
 import dev.tardyc.hayday.gui.RoadsideMenu;
+import dev.tardyc.hayday.gui.ShipMenu;
 import dev.tardyc.hayday.gui.ShopMenu;
 import dev.tardyc.hayday.gui.StorageMenu;
 import dev.tardyc.hayday.hologram.AdminHologramManager;
 import dev.tardyc.hayday.manager.LeaderboardManager;
-import dev.tardyc.hayday.model.Building;
-import dev.tardyc.hayday.model.BuildingType;
-import dev.tardyc.hayday.model.FarmItem;
-import dev.tardyc.hayday.model.Field;
 import dev.tardyc.hayday.model.ItemCategory;
 import dev.tardyc.hayday.model.PlayerData;
-import dev.tardyc.hayday.util.PlaceableItems;
+import dev.tardyc.hayday.pack.ResourcePackManager;
 import dev.tardyc.hayday.util.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,16 +36,16 @@ public final class HayDayCommand implements TabExecutor {
 
     private static final Pattern HOLO_NAME = Pattern.compile("[A-Za-z0-9_-]{1,32}");
     private static final List<String> PLAYER_SUBS = Arrays.asList("hjælp", "silo", "lade", "ordrer", "butik",
-            "vejbod", "avis", "profil", "top");
-    private static final List<String> ADMIN_SUBS = Arrays.asList("give", "take", "item", "xp", "level", "coins", "reset",
-            "info", "fjern", "faerdig", "reload");
+            "vejbod", "avis", "skib", "profil", "top", "pakke");
     private static final List<String> HOLO_SUBS = Arrays.asList("create", "top", "addline", "setline", "removeline",
             "command", "move", "tp", "delete", "list");
 
     private final HayDayPlugin plugin;
+    private final AdminCommand admin;
 
     public HayDayCommand(HayDayPlugin plugin) {
         this.plugin = plugin;
+        this.admin = new AdminCommand(plugin);
     }
 
     private Messages msg() {
@@ -115,6 +110,26 @@ public final class HayDayCommand implements TabExecutor {
                     new NewspaperMenu(plugin, newsPlayer, 0).open();
                 }
                 return true;
+            case "skib":
+            case "ship":
+                Player shipPlayer = requirePlayer(sender);
+                if (shipPlayer != null) {
+                    plugin.getService().ensureStarted(shipPlayer);
+                    new ShipMenu(plugin, shipPlayer).open();
+                }
+                return true;
+            case "pakke":
+            case "pack":
+                Player packPlayer = requirePlayer(sender);
+                if (packPlayer != null) {
+                    if (plugin.getPack().getMode() == ResourcePackManager.Mode.OWN) {
+                        plugin.getPack().send(packPlayer);
+                        msg().send(packPlayer, "pack.sent");
+                    } else {
+                        msg().send(packPlayer, "pack.not-own");
+                    }
+                }
+                return true;
             case "profil":
             case "profile":
                 profile(sender, args);
@@ -124,12 +139,12 @@ public final class HayDayCommand implements TabExecutor {
                 return true;
             case "reload":
                 if (requirePermission(sender, "hayday.admin")) {
-                    reload(sender);
+                    admin.execute(sender, new String[]{"reload"});
                 }
                 return true;
             case "admin":
                 if (requirePermission(sender, "hayday.admin")) {
-                    admin(sender, Arrays.copyOfRange(args, 1, args.length));
+                    admin.execute(sender, Arrays.copyOfRange(args, 1, args.length));
                 }
                 return true;
             case "holo":
@@ -215,213 +230,6 @@ public final class HayDayCommand implements TabExecutor {
             LeaderboardManager.Entry entry = top.get(i);
             sender.sendMessage(Text.color("&e#" + (i + 1) + " &f" + entry.getName() + " &8- &aLevel " + entry.getLevel()
                     + " &7(" + Text.number(entry.getXp()) + " XP)"));
-        }
-    }
-
-    private void reload(CommandSender sender) {
-        plugin.reload();
-        msg().send(sender, "general.reloaded", "items", plugin.getItems().size(), "buildings", plugin.getBuildings().size());
-    }
-
-    // ------------------------------------------------------------------
-    // Admin
-    // ------------------------------------------------------------------
-
-    private void admin(CommandSender sender, String[] args) {
-        if (args.length == 0) {
-            msg().sendList(sender, "admin-help");
-            return;
-        }
-        String sub = args[0].toLowerCase(Locale.ROOT);
-        switch (sub) {
-            case "give":
-            case "take": {
-                if (args.length < 4) {
-                    usage(sender, "/hayday admin " + sub + " <spiller> <vare> <antal>");
-                    return;
-                }
-                Player target = findPlayer(sender, args[1]);
-                FarmItem item = plugin.getItems().get(args[2]);
-                Integer amount = parseInt(sender, args[3]);
-                if (target == null || amount == null) {
-                    return;
-                }
-                if (item == null) {
-                    msg().send(sender, "general.unknown-item", "item", args[2]);
-                    return;
-                }
-                PlayerData data = plugin.getPlayers().get(target);
-                if (sub.equals("give")) {
-                    data.addItem(item.getId(), amount);
-                    msg().send(sender, "admin.storage-given", "amount", amount, "item", item.getName(), "player", target.getName());
-                } else {
-                    int removed = Math.min(amount, data.getAmount(item.getId()));
-                    data.removeItem(item.getId(), removed);
-                    msg().send(sender, "admin.storage-taken", "amount", removed, "item", item.getName(), "player", target.getName());
-                }
-                return;
-            }
-            case "item": {
-                if (args.length < 3) {
-                    usage(sender, "/hayday admin item <spiller> <mark|bygning> [antal]");
-                    return;
-                }
-                Player target = findPlayer(sender, args[1]);
-                Integer amount = args.length >= 4 ? parseInt(sender, args[3]) : Integer.valueOf(1);
-                if (target == null || amount == null) {
-                    return;
-                }
-                ItemStack stack;
-                String name;
-                if (args[2].equalsIgnoreCase("mark") || args[2].equalsIgnoreCase("field")) {
-                    stack = PlaceableItems.field(amount);
-                    name = "&a&lMark";
-                } else {
-                    BuildingType type = plugin.getBuildings().get(args[2]);
-                    if (type == null) {
-                        msg().send(sender, "general.unknown-building", "building", args[2]);
-                        return;
-                    }
-                    stack = PlaceableItems.building(type, plugin.getItems(), amount);
-                    name = type.getName();
-                }
-                PlaceableItems.give(target, stack);
-                msg().send(sender, "admin.item-given", "amount", stack.getAmount(), "item", name, "player", target.getName());
-                return;
-            }
-            case "xp": {
-                if (args.length < 3) {
-                    usage(sender, "/hayday admin xp <spiller> <antal>");
-                    return;
-                }
-                Player target = findPlayer(sender, args[1]);
-                Integer amount = parseInt(sender, args[2]);
-                if (target == null || amount == null) {
-                    return;
-                }
-                plugin.getLevels().addXp(target, amount);
-                msg().send(sender, "admin.xp-given", "amount", amount, "player", target.getName());
-                return;
-            }
-            case "level": {
-                if (args.length < 3) {
-                    usage(sender, "/hayday admin level <spiller> <level>");
-                    return;
-                }
-                Player target = findPlayer(sender, args[1]);
-                Integer level = parseInt(sender, args[2]);
-                if (target == null || level == null) {
-                    return;
-                }
-                PlayerData data = plugin.getPlayers().get(target);
-                plugin.getLevels().setLevel(data, level);
-                msg().send(sender, "admin.level-set", "player", target.getName(), "level", data.getLevel());
-                return;
-            }
-            case "coins": {
-                if (args.length < 3) {
-                    usage(sender, "/hayday admin coins <spiller> <antal>");
-                    return;
-                }
-                Player target = findPlayer(sender, args[1]);
-                Double amount = parseDouble(sender, args[2]);
-                if (target == null || amount == null) {
-                    return;
-                }
-                if (amount >= 0) {
-                    plugin.getEconomy().deposit(target, amount);
-                } else {
-                    plugin.getEconomy().withdraw(target, Math.min(-amount, plugin.getEconomy().getBalance(target)));
-                }
-                msg().send(sender, "admin.coins-given", "amount", plugin.getEconomy().format(amount), "player", target.getName());
-                return;
-            }
-            case "reset": {
-                if (args.length < 2) {
-                    usage(sender, "/hayday admin reset <spiller> [confirm]");
-                    return;
-                }
-                Player target = findPlayer(sender, args[1]);
-                if (target == null) {
-                    return;
-                }
-                if (args.length < 3 || !args[2].equalsIgnoreCase("confirm")) {
-                    msg().send(sender, "admin.reset-confirm", "player", target.getName());
-                    return;
-                }
-                PlayerData data = plugin.getPlayers().get(target);
-                data.reset();
-                data.setCoins(plugin.getSettings().startCoins);
-                plugin.getLeaderboard().update(data);
-                plugin.getPlayers().save(data);
-                msg().send(sender, "admin.reset", "player", target.getName());
-                return;
-            }
-            case "info":
-            case "fjern":
-            case "remove":
-            case "faerdig":
-            case "færdig":
-            case "finish":
-                target(sender, sub);
-                return;
-            case "reload":
-                reload(sender);
-                return;
-            default:
-                msg().sendList(sender, "admin-help");
-        }
-    }
-
-    private void target(CommandSender sender, String action) {
-        Player player = requirePlayer(sender);
-        if (player == null) {
-            return;
-        }
-        Block block = player.getTargetBlockExact(8);
-        Field field = block == null ? null : plugin.getFarm().getFieldAt(block);
-        Building building = block == null || field != null ? null : plugin.getFarm().getBuildingAt(block);
-        if (field == null && building == null) {
-            msg().send(sender, "admin.no-target");
-            return;
-        }
-        long now = System.currentTimeMillis();
-        switch (action) {
-            case "info":
-                if (field != null) {
-                    FarmItem crop = plugin.getItems().get(field.getCropId());
-                    String status = field.isEmpty() ? "tom" : field.isReady(now) ? "klar"
-                            : "gror (" + Text.timeMillis(field.getReadyAt() - now) + ")";
-                    msg().send(sender, "admin.info-field", "owner", field.getOwnerName(),
-                            "crop", crop == null ? "-" : crop.getName(), "status", status);
-                } else {
-                    BuildingType type = plugin.getBuildings().get(building.getTypeId());
-                    msg().send(sender, "admin.info-building", "building", type == null ? building.getTypeId() : type.getName(),
-                            "owner", building.getOwnerName(), "slots", building.getSlots(), "queue", building.getQueue().size());
-                }
-                return;
-            case "faerdig":
-            case "færdig":
-            case "finish":
-                if (field != null) {
-                    field.finish(now);
-                    plugin.getFarm().refresh(field);
-                    msg().send(sender, "admin.finished", "what", "marken");
-                } else {
-                    building.finishAll(now);
-                    plugin.getFarm().refresh(building);
-                    msg().send(sender, "admin.finished", "what", "bygningens kø");
-                }
-                plugin.getFarm().markDirty();
-                return;
-            default:
-                if (field != null) {
-                    plugin.getFarm().removeField(field);
-                    msg().send(sender, "admin.removed", "what", "marken", "owner", field.getOwnerName());
-                } else {
-                    plugin.getFarm().removeBuilding(building);
-                    msg().send(sender, "admin.removed", "what", "bygningen", "owner", building.getOwnerName());
-                }
         }
     }
 
@@ -626,7 +434,7 @@ public final class HayDayCommand implements TabExecutor {
         } else if ((args[0].equalsIgnoreCase("profil") || args[0].equalsIgnoreCase("vejbod")) && args.length == 2) {
             options.addAll(onlineNames());
         } else if (args[0].equalsIgnoreCase("admin") && sender.hasPermission("hayday.admin")) {
-            options.addAll(adminCompletions(args));
+            options.addAll(admin.complete(args));
         } else if ((args[0].equalsIgnoreCase("holo") || args[0].equalsIgnoreCase("hologram")) && sender.hasPermission("hayday.hologram")) {
             if (args.length == 2) {
                 options.addAll(HOLO_SUBS);
@@ -646,37 +454,6 @@ public final class HayDayCommand implements TabExecutor {
             }
         }
         return result;
-    }
-
-    private List<String> adminCompletions(String[] args) {
-        if (args.length == 2) {
-            return ADMIN_SUBS;
-        }
-        String sub = args[1].toLowerCase(Locale.ROOT);
-        List<String> withPlayer = Arrays.asList("give", "take", "item", "xp", "level", "coins", "reset");
-        if (!withPlayer.contains(sub)) {
-            return Collections.emptyList();
-        }
-        if (args.length == 3) {
-            return onlineNames();
-        }
-        if (args.length == 4) {
-            List<String> options = new ArrayList<>();
-            if (sub.equals("give") || sub.equals("take")) {
-                for (FarmItem item : plugin.getItems().all()) {
-                    options.add(item.getId());
-                }
-            } else if (sub.equals("item")) {
-                options.add("mark");
-                for (BuildingType type : plugin.getBuildings().all()) {
-                    options.add(type.getId());
-                }
-            } else if (sub.equals("reset")) {
-                options.add("confirm");
-            }
-            return options;
-        }
-        return Collections.emptyList();
     }
 
     private static List<String> onlineNames() {

@@ -1,8 +1,11 @@
 package dev.tardyc.hayday.manager;
 
 import dev.tardyc.hayday.HayDayPlugin;
+import dev.tardyc.hayday.model.Building;
+import dev.tardyc.hayday.model.Field;
 import dev.tardyc.hayday.model.Order;
 import dev.tardyc.hayday.model.PlayerData;
+import dev.tardyc.hayday.model.ShipCrate;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -10,6 +13,7 @@ import org.bukkit.entity.Player;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -18,7 +22,8 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Indlæser og gemmer spillerdata i plugins/HayDay/players/<uuid>.yml.
+ * Hver spiller har sin egen fil: plugins/HayDay/players/<uuid>.yml med profil, lager, ordrer, skib
+ * og en oversigt over gården. Filerne kan også indlæses for spillere der er offline (admin-kommandoer).
  */
 public final class PlayerManager {
 
@@ -53,6 +58,27 @@ public final class PlayerManager {
         return loaded.get(uuid);
     }
 
+    public boolean hasFile(UUID uuid) {
+        return file(uuid).exists();
+    }
+
+    /**
+     * Data for en spiller der måske er offline. Er spilleren online, returneres de levende data;
+     * ellers læses filen (husk at kalde {@link #save(PlayerData)} efter ændringer).
+     */
+    public PlayerData getOrLoad(UUID uuid, String name) {
+        PlayerData data = loaded.get(uuid);
+        return data != null ? data : load(uuid, name);
+    }
+
+    /** Sletter en spillers fil (bruges af admin reset). */
+    public void deleteFile(UUID uuid) {
+        File file = file(uuid);
+        if (file.exists() && !file.delete()) {
+            plugin.getLogger().warning("Kunne ikke slette " + file.getPath());
+        }
+    }
+
     public Collection<PlayerData> getLoaded() {
         return loaded.values();
     }
@@ -66,10 +92,16 @@ public final class PlayerManager {
         File file = file(uuid);
         if (!file.exists()) {
             data.setCoins(plugin.getSettings().startCoins);
+            data.setFirstJoin(System.currentTimeMillis());
             data.setDirty(true);
             return data;
         }
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+        if (name == null || name.isEmpty()) {
+            data.setName(config.getString("name", "?"));
+        }
+        data.setFirstJoin(config.getLong("first-join", 0));
+        data.setLastSeen(config.getLong("last-seen", 0));
         data.setLevel(config.getInt("level", 1));
         data.setXp(config.getLong("xp", 0));
         data.setCoins(config.getDouble("coins", 0));
@@ -104,13 +136,33 @@ public final class PlayerManager {
                         section.getLong("available-at")));
             }
         }
+        data.setShipArrivesAt(config.getLong("ship.arrives", 0));
+        data.setShipLeavesAt(config.getLong("ship.leaves", 0));
+        ConfigurationSection crates = config.getConfigurationSection("ship.crates");
+        if (crates != null) {
+            for (String key : crates.getKeys(false)) {
+                ConfigurationSection section = crates.getConfigurationSection(key);
+                if (section != null && plugin.getItems().get(section.getString("item")) != null) {
+                    data.getShipCrates().add(new ShipCrate(section.getString("item"), section.getInt("amount", 1),
+                            section.getDouble("coins"), section.getInt("xp"), section.getBoolean("filled")));
+                }
+            }
+        }
         data.setDirty(false);
         return data;
     }
 
     public void save(PlayerData data) {
         YamlConfiguration config = new YamlConfiguration();
+        config.options().setHeader(Arrays.asList(
+                "HayDay - spillerfil for " + data.getName(),
+                "Alt om spilleren: profil, penge (kun HayDay-mønter), lager, ordrer, skib og vejbod-pladser.",
+                "Sektionen 'gaard' er kun en oversigt - marker og bygninger ligger i data/fields.yml og data/buildings.yml.",
+                "Ret kun i filen mens spilleren er offline - eller brug /hayday admin."));
         config.set("name", data.getName());
+        config.set("uuid", data.getUuid().toString());
+        config.set("first-join", data.getFirstJoin());
+        config.set("last-seen", data.getLastSeen());
         config.set("level", data.getLevel());
         config.set("xp", data.getXp());
         config.set("coins", data.getCoins());
@@ -133,6 +185,36 @@ public final class PlayerManager {
             config.set(path + ".xp", order.getXp());
             config.set(path + ".available-at", order.getAvailableAt());
         }
+        config.set("ship.arrives", data.getShipArrivesAt());
+        config.set("ship.leaves", data.getShipLeavesAt());
+        List<ShipCrate> crates = new ArrayList<>(data.getShipCrates());
+        for (int i = 0; i < crates.size(); i++) {
+            ShipCrate crate = crates.get(i);
+            String path = "ship.crates." + i;
+            config.set(path + ".item", crate.getItemId());
+            config.set(path + ".amount", crate.getAmount());
+            config.set(path + ".coins", crate.getCoins());
+            config.set(path + ".xp", crate.getXp());
+            config.set(path + ".filled", crate.isFilled());
+        }
+        // Oversigt over gården (kun til info)
+        List<String> fieldLines = new ArrayList<>();
+        int ready = 0;
+        long now = System.currentTimeMillis();
+        for (Field field : plugin.getFarm().getFields(data.getUuid())) {
+            fieldLines.add(field.getSoil().toString() + (field.getCropId() == null ? " (tom)" : " - " + field.getCropId()));
+            if (field.isReady(now)) {
+                ready++;
+            }
+        }
+        List<String> buildingLines = new ArrayList<>();
+        for (Building building : plugin.getFarm().getBuildings(data.getUuid())) {
+            buildingLines.add(building.getTypeId() + " @ " + building.getPos() + " (kø: " + building.getQueue().size() + ")");
+        }
+        config.set("gaard.marker", fieldLines.size());
+        config.set("gaard.klar-til-hoest", ready);
+        config.set("gaard.mark-liste", fieldLines);
+        config.set("gaard.bygninger", buildingLines);
         try {
             config.save(file(data.getUuid()));
             data.setDirty(false);

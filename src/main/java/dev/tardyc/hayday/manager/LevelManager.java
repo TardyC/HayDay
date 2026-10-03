@@ -55,6 +55,19 @@ public final class LevelManager {
                 "bar", settings.bar(progress(data)));
     }
 
+    /** Giver XP uden beskeder og belønninger (til spillere der er offline). */
+    public void addXpQuietly(PlayerData data, long amount) {
+        if (amount <= 0) {
+            return;
+        }
+        data.setXp(data.getXp() + amount);
+        while (data.getLevel() < plugin.getSettings().maxLevel && data.getXp() >= xpForNext(data.getLevel())) {
+            data.setXp(data.getXp() - xpForNext(data.getLevel()));
+            data.setLevel(data.getLevel() + 1);
+        }
+        plugin.getOrders().ensure(data);
+    }
+
     public void setLevel(PlayerData data, int level) {
         data.setLevel(Math.max(1, Math.min(plugin.getSettings().maxLevel, level)));
         data.setXp(0);

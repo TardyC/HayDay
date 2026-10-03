@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Enumeration;
@@ -28,7 +29,8 @@ import java.util.jar.JarFile;
 public final class ItemsAdderHook {
 
     public static final String NAMESPACE = "hayday";
-    private static final String CONTENT_PREFIX = "itemsadder/hayday/";
+    private static final String CONFIG_PREFIX = "itemsadder/configs/";
+    private static final String ASSET_PREFIX = "resourcepack/assets/hayday/";
     private static final long NEGATIVE_CACHE_MS = 30_000;
 
     private final HayDayPlugin plugin;
@@ -173,23 +175,36 @@ public final class ItemsAdderHook {
     }
 
     /**
-     * Kopierer HayDays ItemsAdder-indhold (teksturer + config) til plugins/ItemsAdder/contents/hayday,
-     * hvis det ikke allerede findes.
+     * Kopierer HayDays indhold til plugins/ItemsAdder/contents/hayday: ItemsAdder-config'en og de rå
+     * resourcepack-filer (teksturer og item-modeller). Gøres igen når HayDay opdateres.
      */
     private void exportContent() {
         File target = new File(plugin.getDataFolder().getParentFile(), "ItemsAdder/contents/" + NAMESPACE);
-        if (target.exists()) {
-            return;
+        File marker = new File(target, ".hayday-version");
+        String version = plugin.getDescription().getVersion();
+        try {
+            if (marker.exists() && version.equals(new String(Files.readAllBytes(marker.toPath()), StandardCharsets.UTF_8).trim())) {
+                return;
+            }
+        } catch (IOException ignored) {
+            // kopiér igen
         }
         int copied = 0;
         try (JarFile jar = new JarFile(plugin.getPluginFile())) {
             Enumeration<JarEntry> entries = jar.entries();
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
-                if (entry.isDirectory() || !entry.getName().startsWith(CONTENT_PREFIX)) {
+                String name = entry.getName();
+                String relative = null;
+                if (name.startsWith(CONFIG_PREFIX)) {
+                    relative = "configs/" + name.substring(CONFIG_PREFIX.length());
+                } else if (name.startsWith(ASSET_PREFIX)) {
+                    relative = "resourcepack/assets/" + NAMESPACE + "/" + name.substring(ASSET_PREFIX.length());
+                }
+                if (entry.isDirectory() || relative == null) {
                     continue;
                 }
-                File out = new File(target, entry.getName().substring(CONTENT_PREFIX.length()));
+                File out = new File(target, relative);
                 File parent = out.getParentFile();
                 if (!parent.exists() && !parent.mkdirs()) {
                     continue;
@@ -199,11 +214,12 @@ public final class ItemsAdderHook {
                     copied++;
                 }
             }
+            Files.write(marker.toPath(), version.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             plugin.getLogger().warning("Kunne ikke kopiere ItemsAdder-indhold: " + e.getMessage());
             return;
         }
-        plugin.getLogger().info("Kopierede " + copied + " ItemsAdder-filer til " + target.getPath());
+        plugin.getLogger().info("Kopierede " + copied + " filer til " + target.getPath());
         if (plugin.getSettings().itemsAdderAutoZip) {
             // Byg ItemsAdders resourcepack igen, når serveren er helt startet
             Bukkit.getScheduler().runTaskLater(plugin, () -> {

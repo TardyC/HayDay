@@ -1,0 +1,12 @@
+{
+  "pack": {
+    "description": "\u00a7a\u00a7lHay\u00a7e\u00a7lDay \u00a77- farmspillet",
+    "pack_format": 46,
+    "supported_formats": {
+      "min_inclusive": 46,
+      "max_inclusive": 999
+    },
+    "min_format": 46,
+    "max_format": 999
+  }
+}

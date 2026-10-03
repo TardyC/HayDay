@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.UnaryOperator;
 
 /**
@@ -25,14 +26,16 @@ public final class Messages {
     private YamlConfiguration config;
     private String prefix = "";
     private UnaryOperator<String> postProcessor = UnaryOperator.identity();
+    private BiFunction<String, CommandSender, String> receiverProcessor = (text, receiver) -> text;
 
     public Messages(JavaPlugin plugin) {
         this.plugin = plugin;
     }
 
     /** Bruges til at indsætte ikoner ({icon_coin} osv.) i alle beskeder. */
-    public void setPostProcessor(UnaryOperator<String> postProcessor) {
+    public void setPostProcessor(UnaryOperator<String> postProcessor, BiFunction<String, CommandSender, String> receiverProcessor) {
         this.postProcessor = postProcessor;
+        this.receiverProcessor = receiverProcessor;
     }
 
     public void load() {
@@ -70,12 +73,12 @@ public final class Messages {
         if (message == null || message.isEmpty()) {
             return;
         }
-        sender.sendMessage(prefix + postProcessor.apply(Text.color(Text.replace(message, placeholders))));
+        sender.sendMessage(prefix + receiverProcessor.apply(Text.color(Text.replace(message, placeholders)), sender));
     }
 
     public void sendList(CommandSender sender, String key, Object... placeholders) {
-        for (String line : list(key, placeholders)) {
-            sender.sendMessage(line);
+        for (String line : config.getStringList(key)) {
+            sender.sendMessage(receiverProcessor.apply(Text.color(Text.replace(line, placeholders)), sender));
         }
     }
 

@@ -54,7 +54,7 @@ public final class ListingMenu extends Menu {
         for (int i = 0; i < owned.size() && i < 36; i++) {
             FarmItem item = owned.get(i);
             boolean isSelected = item == selected;
-            set(i, item.icon()
+            set(i, item.icon(player)
                     .amount(data.getAmount(item.getId()))
                     .lore("&7Du har: &f" + data.getAmount(item.getId()),
                             "",
@@ -78,7 +78,7 @@ public final class ListingMenu extends Menu {
 
             set(37, adjust("&c-5 stk", Material.RED_STAINED_GLASS_PANE), click -> changeAmount(-5));
             set(38, adjust("&c-1 stk", Material.RED_STAINED_GLASS_PANE), click -> changeAmount(-1));
-            set(40, selected.icon()
+            set(40, selected.icon(player)
                     .amount(amount)
                     .name("&f" + amount + "x " + selected.getName())
                     .lore("&7Pris: &6" + money(price),
