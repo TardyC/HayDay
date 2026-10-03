@@ -1,7 +1,8 @@
 # 🌾 HayDay – farm-plugin til Minecraft
 
-Et komplet **Hay Day**-inspireret farmspil til din Minecraft-server: marker, dyr, produktionsbygninger,
-silo og lade, ordretavle, vejbod, avis, levels, hologrammer og animationer. Alt er på dansk og kan konfigureres.
+Et komplet **Hay Day**-inspireret farmspil til din Minecraft-server: hver spiller får sin **egen ø** med stuehus og marker,
+man kan **besøge hinanden**, og der er dyr, produktionsbygninger, silo og lade, ordretavle, skib, vejbod, avis, levels,
+hologrammer og animationer. Alt er på dansk og kan konfigureres.
 
 > Lavet til den nyeste Minecraft (bygget mod Spigot-API 1.21 og virker på 1.21.x og 26.x – Spigot, Paper og Purpur).
 > Kræver Java 21 eller nyere.
@@ -12,6 +13,9 @@ silo og lade, ordretavle, vejbod, avis, levels, hologrammer og animationer. Alt 
 
 | | |
 |---|---|
+| 🏝️ **Egen ø** | Hver spiller får sin egen ø i HayDay-verdenen: grønt græs, sandstrand, turkis hav, et rødt stuehus med røg fra skorstenen, træer, blomster og de første marker. Kun du kan bygge på din ø. |
+| 👋 **Besøg** | Besøg andres gårde fra menuen, avisen eller med `/hayday besoeg <spiller>`. Køb i deres vejbod, hjælp med at fylde deres skib (du får belønningen) og giv gården et ❤ like. Ejeren kan se hvem der er på besøg. |
+| 🔒 **Venner og adgang** | Vælg om gården er åben for alle, kun for venner eller lukket. Tilføj venner, forbyd plageånder og send gæster hjem. Giv gården sit eget navn og sæt dit eget ankomststed. |
 | 🌱 **Marker** | Køb en *Mark* i butikken, placér den på jorden og plant hvede, gulerødder, kartofler, sukkerroer, græskar, søde bær og meloner. Afgrøderne gror synligt blok for blok. |
 | 🐔 **Dyr** | Hønsehus, kostald, svinesti og fårefold – med rigtige (fredelige) dyr der står på bygningen. Fodr dem med foder fra foderfabrikken. |
 | 🏭 **Produktion** | Foderfabrik, bageri, sukkermølle, mejeri, væveri og saftpresse med 30+ opskrifter, produktionskø og pladser du kan købe. |
@@ -36,7 +40,10 @@ silo og lade, ordretavle, vejbod, avis, levels, hologrammer og animationer. Alt 
 1. Download `HayDay-x.y.z.jar` (fra *Actions* → seneste build → *Artifacts*, eller fra *Releases*).
 2. Læg den i `plugins/`-mappen og genstart serveren.
 3. (Valgfrit) Installér **Vault** + et økonomi-plugin, **PlaceholderAPI**, **ProtocolLib** og **ItemsAdder**.
-4. Skriv `/hayday` i spillet – første gang får du startpakken (3 marker og lidt hvede).
+4. Skriv `/hayday` i spillet – første gang får du din egen ø med stuehus, 3 marker og lidt hvede, og bliver sendt derhen.
+
+HayDay laver selv verdenen `hayday` med øerne første gang serveren starter (tager et øjeblik). Midt i verdenen ligger
+**torvet**, hvor et hologram viser vej til de andre gårde.
 
 ### 🎨 Resourcepacken
 HayDay har sin egen resourcepack med menu-baggrunde, item-ikoner og ikoner. Der er to måder at bruge den på
@@ -54,6 +61,14 @@ Spillere uden pakken får almindelige menuer og Minecraft-ikoner, så intet ser 
 Grafikken kan tegnes om med `python3 tools/generate_pack.py` (kræver Pillow).
 Al grafik er original og tegnet til dette projekt – der bruges ingen grafik fra Hay Day/Supercell.
 
+### 🏝️ Øerne
+* Øerne ligger i et gitter i havet (48×48 blokke med 24 blokke vand imellem – kan ændres i `config.yml` før verdenen laves).
+* Marker og bygninger kan kun placeres på din egen ø (`islands.farm-only-on-island`). Admins med `hayday.bypass` kan alt.
+* Vand, lava, ild, stempler, eksplosioner og træer kan ikke gå over på en anden ø. Ingen monstre, ingen vilde dyr, intet regnvejr og ingen PvP (kan slås til).
+* Lukkede øer kan ikke betrædes – heller ikke med ender pearls eller båd.
+* Verdenen kan også bruges med Multiverse/bukkit.yml: `generator: HayDay`.
+* Vil du ikke bruge øer, så sæt `islands.enabled: false` – så placeres marker og bygninger frit som før.
+
 ---
 
 ## 🎮 Sådan spiller man
@@ -63,6 +78,7 @@ Al grafik er original og tegnet til dette projekt – der bruges ingen grafik fr
 * **Bygning:** Højreklik for at hente færdige varer og åbne produktionsmenuen.
 * **Fjern:** Shift + slå på din tomme mark eller bygning (med tom kø) for at samle den op igen.
 * **Hay Day-stil:** Plantning bruger 1 afgrøde fra siloen, og høsten giver 2. Har du ingen, køber du frø.
+* **På besøg:** Højreklik på vejboden for at købe, på havnen for at hjælpe med skibet, og på skiltet ved stranden for at like gården.
 
 ---
 
@@ -80,6 +96,13 @@ Alias: `/hd`, `/farm`, `/gaard`
 | `/hayday avis` | Alle tilbud fra andre spillere |
 | `/hayday skib` | Skibets kasser |
 | `/hayday pakke` | Hent resourcepacken igen |
+| `/hayday hjem` · `torv` | Tag hjem til din ø · til torvet |
+| `/hayday besoeg [spiller]` | Besøgsmenuen – eller besøg en bestemt spiller |
+| `/hayday gaard` | Min gård: adgang, navn, hjem, venner og besøgende |
+| `/hayday gaard navn <navn>` · `adgang <alle\|venner\|ingen>` · `saethjem` | Gårdens indstillinger |
+| `/hayday ven [tilfoej\|fjern] <spiller>` | Venner (kan altid besøge dig) |
+| `/hayday like` | Like gården du står på |
+| `/hayday smidud` · `forbyd` · `tillad <spiller>` | Send en gæst hjem · forbyd/tillad besøg |
 | `/hayday profil [spiller]` · `top` | Profil og top-liste |
 | `/hayday admin spiller <spiller>` | Alt om en spiller (level, penge, lager, gård, skib, vejbod) |
 | `/hayday admin lager <spiller>` | Se spillerens silo og lade |
@@ -90,8 +113,9 @@ Alias: `/hd`, `/farm`, `/gaard`
 | `/hayday admin ordrer <spiller>` | Nye ordrer |
 | `/hayday admin faerdigalle <spiller>` | Gør alle marker og bygninger færdige |
 | `/hayday admin tp <spiller>` | Teleportér til spillerens gård |
+| `/hayday admin oe <spiller> [info\|tp\|nulstil\|slet] [confirm]` | Spillerens ø – nulstil bygger øen forfra, slet frigiver pladsen |
 | `/hayday admin fjernalt <spiller> confirm` | Fjern alle marker og bygninger |
-| `/hayday admin reset <spiller> confirm` | Nulstil alt (data, gård og vejbod) |
+| `/hayday admin reset <spiller> confirm` | Nulstil alt (data, gård, ø og vejbod) |
 | `/hayday admin info · fjern · faerdig` | Mark/bygning du kigger på |
 | `/hayday admin pakke [send]` | Resourcepack-status (og send igen) |
 | `/hayday admin reload` | Genindlæs alle filer |
@@ -119,6 +143,7 @@ Admin-kommandoerne virker også på spillere der er offline – deres fil indlæ
 `%hayday_fields%` `%hayday_fields_max%` `%hayday_fields_ready%` `%hayday_products_ready%`
 `%hayday_silo_used%` `%hayday_silo_capacity%` `%hayday_barn_used%` `%hayday_barn_capacity%`
 `%hayday_orders_ready%` `%hayday_ship_state%` `%hayday_ship_time%` `%hayday_ship_filled%` `%hayday_rank%` `%hayday_top_name_<n>%` `%hayday_top_level_<n>%` `%hayday_top_xp_<n>%`
+`%hayday_island_name%` `%hayday_island_visits%` `%hayday_island_likes%` `%hayday_island_access%` `%hayday_island_visitors%`
 
 ---
 
@@ -126,7 +151,7 @@ Admin-kommandoerne virker også på spillere der er offline – deres fil indlæ
 
 | Fil | Indhold |
 |---|---|
-| `config.yml` | Økonomi, verdener, levels, marker, lager, ordrer, vejbod, hologrammer, animationer, ItemsAdder og ikoner |
+| `config.yml` | Økonomi, øer, levels, marker, lager, ordrer, skib, vejbod, hologrammer, animationer, resourcepack, ItemsAdder og ikoner |
 | `items.yml` | Alle varer og afgrøder (navn, ikon, salgspris, vækstid, vækststadier …) |
 | `buildings.yml` | Bygninger, dyr og opskrifter |
 | `messages.yml` | Alle beskeder |
@@ -135,7 +160,8 @@ Admin-kommandoerne virker også på spillere der er offline – deres fil indlæ
 ### 👤 Spillerfiler
 Hver spiller har sin egen fil: `plugins/HayDay/players/<uuid>.yml`. Den indeholder navn, første login, sidst set,
 level, XP, HayDay-mønter, silo og lade, ordrer, skibets kasser, vejbod-pladser og en oversigt over spillerens
-marker og bygninger. Marker, bygninger og vejbod-varer ligger desuden samlet i `plugins/HayDay/data/`.
+marker, bygninger og ø (navn, adgang, venner, besøg og likes). Marker, bygninger, øer og vejbod-varer ligger desuden
+samlet i `plugins/HayDay/data/`.
 Hologrammer, dyr og animationer bruger ikke-persistente entities, så der aldrig ligger "døde" hologrammer tilbage i verdenen.
 
 ---
@@ -144,7 +170,7 @@ Hologrammer, dyr og animationer bruger ikke-persistente entities, så der aldrig
 
 ```bash
 mvn package
-# -> target/HayDay-1.0.0.jar
+# -> target/HayDay-1.2.0.jar
 ```
 
 GitHub Actions bygger automatisk jar-filen ved hvert push (se fanen *Actions*). Et tag som `v1.0.0` laver en release med jar-filen.
@@ -160,6 +186,7 @@ src/main/java/dev/tardyc/hayday/
 ├── gui/                     Alle menuer
 ├── hologram/                Hologrammer (TextDisplay) og svævende ikoner
 ├── hook/                    ItemsAdder, ProtocolLib, PlaceholderAPI og ikoner
+├── island/                  Øerne: verdens-generator, stuehus, besøg, venner og beskyttelse
 ├── pack/                    Resourcepacken: bygning, hosting og font-tegn
 ├── listener/                Events og beskyttelse af marker/bygninger
 ├── manager/                 Gård, marked, ordrer, levels, animationer, lager …

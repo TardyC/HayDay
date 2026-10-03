@@ -10,6 +10,8 @@ public final class ShipCrate {
     private final double coins;
     private final int xp;
     private boolean filled;
+    /** Navnet på en anden spiller der fyldte kassen (besøg), ellers null. */
+    private String helper;
 
     public ShipCrate(String itemId, int amount, double coins, int xp, boolean filled) {
         this.itemId = itemId;
@@ -41,5 +43,13 @@ public final class ShipCrate {
 
     public void setFilled(boolean filled) {
         this.filled = filled;
+    }
+
+    public String getHelper() {
+        return helper;
+    }
+
+    public void setHelper(String helper) {
+        this.helper = helper;
     }
 }

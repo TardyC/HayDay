@@ -16,6 +16,8 @@ gui:
   'seed_4': 'EB0C'
   'seed_5': 'EB0D'
   'seed_6': 'EB0E'
+  'visit_6': 'EB0F'
+  'island_4': 'EB10'
 icons:
   'clock': 'EB80'
   'check': 'EB81'

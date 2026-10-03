@@ -6,11 +6,11 @@
 
     <groupId>dev.tardyc</groupId>
     <artifactId>HayDay</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <packaging>jar</packaging>
 
     <name>HayDay</name>
-    <description>Hay Day farm-system til Minecraft med marker, dyr, produktion, ordrer, levels og hologrammer.</description>
+    <description>Hay Day farm-system til Minecraft med egne øer, besøg, marker, dyr, produktion, ordrer, levels og hologrammer.</description>
 
     <properties>
         <java.version>21</java.version>

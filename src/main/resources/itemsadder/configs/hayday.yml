@@ -64,6 +64,14 @@ font_images:
     path: gui/seed_6
     suggest_in_command: false
     y_position: 47
+  gui_visit_6:
+    path: gui/visit_6
+    suggest_in_command: false
+    y_position: 47
+  gui_island_4:
+    path: gui/island_4
+    suggest_in_command: false
+    y_position: 47
   icon_clock:
     path: icons/clock
     suggest_in_command: true

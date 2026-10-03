@@ -91,12 +91,31 @@ public final class FarmService {
                 data.addItem(entry.getKey(), entry.getValue());
             }
         }
-        if (settings().starterFields > 0) {
-            PlaceableItems.give(player, PlaceableItems.field(settings().starterFields));
-        }
         plugin.getOrders().ensure(data);
         plugin.getLeaderboard().update(data);
-        msg().sendList(player, "welcome", "fields", settings().starterFields);
+        // Med øer slået til får spilleren sin egen ø med startmarkerne lagt ud
+        int placed = 0;
+        if (plugin.getIslands().isEnabled()) {
+            int before = farm().countFields(player.getUniqueId());
+            if (plugin.getIslands().getOrCreate(player, settings().starterFields) != null) {
+                placed = farm().countFields(player.getUniqueId()) - before;
+            }
+        }
+        if (settings().starterFields > placed) {
+            PlaceableItems.give(player, PlaceableItems.field(settings().starterFields - placed));
+        }
+        if (plugin.getIslands().get(player.getUniqueId()) != null) {
+            msg().sendList(player, "welcome-island", "fields", settings().starterFields);
+            if (settings().islandTeleportOnStart) {
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    if (player.isOnline()) {
+                        plugin.getIslands().teleportHome(player);
+                    }
+                });
+            }
+        } else {
+            msg().sendList(player, "welcome", "fields", settings().starterFields);
+        }
         Sounds.play(player, Sounds.LEVEL_UP, 1.2f);
     }
 
@@ -110,8 +129,7 @@ public final class FarmService {
             msg().send(player, "general.no-permission");
             return false;
         }
-        if (!settings().isWorldAllowed(block.getWorld())) {
-            msg().send(player, "general.world-not-allowed");
+        if (!plugin.getIslands().allowsFarm(player, block)) {
             return false;
         }
         if (!block.getRelative(BlockFace.UP).getType().isAir()) {
@@ -139,8 +157,7 @@ public final class FarmService {
             msg().send(player, "general.no-permission");
             return false;
         }
-        if (!settings().isWorldAllowed(block.getWorld())) {
-            msg().send(player, "general.world-not-allowed");
+        if (!plugin.getIslands().allowsFarm(player, block)) {
             return false;
         }
         if (farm().countBuildings(player.getUniqueId(), type.getId()) >= type.getMaxPerPlayer()) {
@@ -407,6 +424,11 @@ public final class FarmService {
         // Alle må besøge en vejbod og købe varer
         if (type.isRoadside()) {
             new RoadsideMenu(plugin, player, building.getOwner(), building.getOwnerName()).open();
+            return;
+        }
+        // Gæster må hjælpe med at fylde skibets kasser
+        if (type.isHarbor() && !player.getUniqueId().equals(building.getOwner()) && settings().islandHelpShip) {
+            new ShipMenu(plugin, player, building.getOwner(), building.getOwnerName()).open();
             return;
         }
         if (!canUse(player, building.getOwner(), building.getOwnerName())) {

@@ -234,9 +234,10 @@ def gui_main():
     badge(draw, 4, "gold")
     for s in (10, 12, 14, 16, 19, 21, 23, 25):
         badge(draw, s, "green")
-    badge(draw, 29, "gold")
-    badge(draw, 31, "red", "x")
-    badge(draw, 33, "blue")
+    badge(draw, 28, "blue")
+    badge(draw, 30, "gold")
+    badge(draw, 32, "blue")
+    badge(draw, 34, "red", "x")
     ribbon(img, "HAY DAY", "red")
     save_gui(img, "main_4")
 
@@ -392,6 +393,45 @@ def gui_ship():
     badge(draw, 44, "red", "x")
     ribbon(img, "SKIBET", "blue")
     save_gui(img, "ship_5")
+
+
+GRASS = (196, 228, 150)
+GRASS_DARK = (150, 196, 104)
+
+
+def grass_panel(img, rows):
+    draw = panel(img, rows, inner=GRASS, inner_dark=GRASS_DARK)
+    speckle(img, (12, 50, WIDTH - 13, height(rows) - 10), (168, 210, 120), 220)
+    speckle(img, (12, 50, WIDTH - 13, height(rows) - 10), (226, 244, 196), 90)
+    return draw
+
+
+def gui_visit():
+    img = new_gui(6)
+    draw = grass_panel(img, 6)
+    slots(draw, range(0, 45))
+    badge(draw, 45, "orange", "left")
+    badge(draw, 47, "blue", label="?")
+    badge(draw, 48, "blue", "left")
+    badge(draw, 49, "gold")
+    badge(draw, 50, "blue", "right")
+    badge(draw, 51, "green")
+    badge(draw, 53, "red", "x")
+    ribbon(img, "BESØG", "green")
+    save_gui(img, "visit_6")
+
+
+def gui_island():
+    img = new_gui(4)
+    draw = grass_panel(img, 4)
+    badge(draw, 4, "gold")
+    for s in (10, 12, 14, 16, 19, 21, 23, 25):
+        badge(draw, s, "green")
+    badge(draw, 29, "orange", "left")
+    badge(draw, 31, "blue")
+    badge(draw, 33, "red", "x")
+    ribbon(img, "MIN GÅRD", "green")
+    save_gui(img, "island_4")
 
 
 # ===========================================================================
@@ -715,6 +755,11 @@ def main():
     gui_ship()
     for rows in range(3, 7):
         gui_seed(rows)
+    # Nyere menuer kommer til sidst, så de ældre menuer og ikoner beholder deres tegn og tilfældige mønstre
+    state = random.getstate()
+    gui_visit()
+    gui_island()
+    random.setstate(state)
 
     save_icon("clock", paint_clock)
     save_icon("check", paint_check)

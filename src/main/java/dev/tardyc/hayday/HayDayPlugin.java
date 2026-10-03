@@ -10,6 +10,9 @@ import dev.tardyc.hayday.hologram.AdminHologramManager;
 import dev.tardyc.hayday.hologram.HologramManager;
 import dev.tardyc.hayday.hook.IconService;
 import dev.tardyc.hayday.hook.ItemsAdderHook;
+import dev.tardyc.hayday.island.IslandGenerator;
+import dev.tardyc.hayday.island.IslandListener;
+import dev.tardyc.hayday.island.IslandManager;
 import dev.tardyc.hayday.listener.EntityListener;
 import dev.tardyc.hayday.listener.FarmListener;
 import dev.tardyc.hayday.listener.PlayerListener;
@@ -34,6 +37,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -70,6 +74,7 @@ public final class HayDayPlugin extends JavaPlugin {
     private IconService icons;
     private ResourcePackManager pack;
     private ShipManager ship;
+    private IslandManager islands;
 
     private BukkitTask tickTask;
     private BukkitTask menuTask;
@@ -103,11 +108,14 @@ public final class HayDayPlugin extends JavaPlugin {
         market = new MarketManager(this);
         ship = new ShipManager(this);
         animations = new AnimationManager(this);
+        islands = new IslandManager(this);
 
         economy.setup();
         itemsAdder.setup();
         pack.setup();
         animations.setup();
+        // HayDay-verdenen skal findes før markerne indlæses (så de får deres hologrammer)
+        islands.setup();
         farm.load();
         market.load();
         adminHolograms.load();
@@ -119,6 +127,7 @@ public final class HayDayPlugin extends JavaPlugin {
         pm.registerEvents(new ProtectionListener(this), this);
         pm.registerEvents(new EntityListener(this), this);
         pm.registerEvents(new PlayerListener(this), this);
+        pm.registerEvents(new IslandListener(this), this);
 
         PluginCommand command = getCommand("hayday");
         if (command != null) {
@@ -164,6 +173,9 @@ public final class HayDayPlugin extends JavaPlugin {
         }
         if (market != null) {
             market.save(true);
+        }
+        if (islands != null) {
+            islands.shutdown();
         }
         if (animations != null) {
             animations.cleanup();
@@ -211,6 +223,7 @@ public final class HayDayPlugin extends JavaPlugin {
         stopTasks();
         farm.save(true);
         market.save(true);
+        islands.save(true);
         players.saveAll();
         animations.cleanup();
         farm.hideAllIcons();
@@ -222,6 +235,7 @@ public final class HayDayPlugin extends JavaPlugin {
         animations.setup();
         holograms.respawnAll();
         farm.reloadHolograms();
+        islands.reload();
         adminHolograms.load();
         startTasks();
     }
@@ -232,6 +246,7 @@ public final class HayDayPlugin extends JavaPlugin {
             market.tick();
             ship.tick();
             farm.tick();
+            islands.tick();
             adminHolograms.tick();
             holograms.tick();
         }, 20L, interval);
@@ -247,6 +262,7 @@ public final class HayDayPlugin extends JavaPlugin {
         saveTask = Bukkit.getScheduler().runTaskTimer(this, () -> {
             farm.save(false);
             market.save(false);
+            islands.save(false);
             players.saveDirty();
         }, saveTicks, saveTicks);
     }
@@ -345,6 +361,16 @@ public final class HayDayPlugin extends JavaPlugin {
 
     public ShipManager getShip() {
         return ship;
+    }
+
+    public IslandManager getIslands() {
+        return islands;
+    }
+
+    /** Så HayDay-verdenen også kan indlæses via bukkit.yml eller Multiverse ("generator: HayDay"). */
+    @Override
+    public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
+        return new IslandGenerator(IslandManager.readLayout(getDataFolder(), getConfig()));
     }
 
     /** Pluginets jar-fil (bruges til at kopiere ItemsAdder-indhold ud). */

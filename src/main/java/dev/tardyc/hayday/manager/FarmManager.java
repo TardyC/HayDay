@@ -296,7 +296,11 @@ public final class FarmManager {
     }
 
     public Field createField(Player owner, BlockPos soil) {
-        Field field = new Field(UUID.randomUUID(), owner.getUniqueId(), owner.getName(), soil);
+        return createField(owner.getUniqueId(), owner.getName(), soil);
+    }
+
+    public Field createField(UUID owner, String ownerName, BlockPos soil) {
+        Field field = new Field(UUID.randomUUID(), owner, ownerName, soil);
         registerField(field);
         dirty = true;
         return field;

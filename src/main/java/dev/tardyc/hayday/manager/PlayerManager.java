@@ -1,6 +1,7 @@
 package dev.tardyc.hayday.manager;
 
 import dev.tardyc.hayday.HayDayPlugin;
+import dev.tardyc.hayday.island.Island;
 import dev.tardyc.hayday.model.Building;
 import dev.tardyc.hayday.model.Field;
 import dev.tardyc.hayday.model.Order;
@@ -143,8 +144,10 @@ public final class PlayerManager {
             for (String key : crates.getKeys(false)) {
                 ConfigurationSection section = crates.getConfigurationSection(key);
                 if (section != null && plugin.getItems().get(section.getString("item")) != null) {
-                    data.getShipCrates().add(new ShipCrate(section.getString("item"), section.getInt("amount", 1),
-                            section.getDouble("coins"), section.getInt("xp"), section.getBoolean("filled")));
+                    ShipCrate crate = new ShipCrate(section.getString("item"), section.getInt("amount", 1),
+                            section.getDouble("coins"), section.getInt("xp"), section.getBoolean("filled"));
+                    crate.setHelper(section.getString("helper", null));
+                    data.getShipCrates().add(crate);
                 }
             }
         }
@@ -156,8 +159,8 @@ public final class PlayerManager {
         YamlConfiguration config = new YamlConfiguration();
         config.options().setHeader(Arrays.asList(
                 "HayDay - spillerfil for " + data.getName(),
-                "Alt om spilleren: profil, penge (kun HayDay-mønter), lager, ordrer, skib og vejbod-pladser.",
-                "Sektionen 'gaard' er kun en oversigt - marker og bygninger ligger i data/fields.yml og data/buildings.yml.",
+                "Alt om spilleren: profil, penge (kun HayDay-mønter), lager, ordrer, skib, vejbod-pladser og øen.",
+                "Sektionen 'gaard' er kun en oversigt - marker, bygninger og øer ligger i data/fields.yml, data/buildings.yml og data/islands.yml.",
                 "Ret kun i filen mens spilleren er offline - eller brug /hayday admin."));
         config.set("name", data.getName());
         config.set("uuid", data.getUuid().toString());
@@ -196,6 +199,7 @@ public final class PlayerManager {
             config.set(path + ".coins", crate.getCoins());
             config.set(path + ".xp", crate.getXp());
             config.set(path + ".filled", crate.isFilled());
+            config.set(path + ".helper", crate.getHelper());
         }
         // Oversigt over gården (kun til info)
         List<String> fieldLines = new ArrayList<>();
@@ -215,6 +219,15 @@ public final class PlayerManager {
         config.set("gaard.klar-til-hoest", ready);
         config.set("gaard.mark-liste", fieldLines);
         config.set("gaard.bygninger", buildingLines);
+        Island island = plugin.getIslands().get(data.getUuid());
+        if (island != null) {
+            config.set("gaard.oe.navn", plugin.getIslands().farmName(island));
+            config.set("gaard.oe.plads", island.getGridX() + ", " + island.getGridZ());
+            config.set("gaard.oe.adgang", island.getAccess().id());
+            config.set("gaard.oe.besoeg", island.getVisits());
+            config.set("gaard.oe.likes", island.getLikes().size());
+            config.set("gaard.oe.venner", new ArrayList<>(island.getFriends().values()));
+        }
         try {
             config.save(file(data.getUuid()));
             data.setDirty(false);

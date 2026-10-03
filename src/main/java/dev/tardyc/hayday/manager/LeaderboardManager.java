@@ -67,6 +67,11 @@ public final class LeaderboardManager {
         dirty = true;
     }
 
+    /** Top-liste-data for en spiller (også offline), eller null. */
+    public Entry get(UUID uuid) {
+        return entries.get(uuid);
+    }
+
     /** Finder en spillers UUID ud fra navnet (også offline spillere der har en HayDay-fil). */
     public Entry findByName(String name) {
         for (Entry entry : entries.values()) {

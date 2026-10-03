@@ -1,6 +1,7 @@
 package dev.tardyc.hayday.hook;
 
 import dev.tardyc.hayday.HayDayPlugin;
+import dev.tardyc.hayday.island.Island;
 import dev.tardyc.hayday.manager.LeaderboardManager;
 import dev.tardyc.hayday.model.ItemCategory;
 import dev.tardyc.hayday.model.PlayerData;
@@ -125,6 +126,28 @@ public final class HayDayExpansion extends PlaceholderExpansion {
                 return plugin.getShip().filled(data) + "/" + data.getShipCrates().size();
             case "rank":
                 return String.valueOf(plugin.getLeaderboard().rank(player.getUniqueId()));
+            case "island_name":
+            case "island_visits":
+            case "island_likes":
+            case "island_access":
+            case "island_visitors": {
+                Island island = plugin.getIslands().get(player.getUniqueId());
+                if (island == null) {
+                    return key.equals("island_name") || key.equals("island_access") ? "-" : "0";
+                }
+                switch (key) {
+                    case "island_name":
+                        return plugin.getIslands().farmName(island);
+                    case "island_visits":
+                        return String.valueOf(island.getVisits());
+                    case "island_likes":
+                        return String.valueOf(island.getLikes().size());
+                    case "island_access":
+                        return Text.strip(plugin.getIslands().accessName(island.getAccess()));
+                    default:
+                        return String.valueOf(plugin.getIslands().visitors(island).size());
+                }
+            }
             default:
                 return null;
         }

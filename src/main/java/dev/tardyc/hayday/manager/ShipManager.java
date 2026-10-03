@@ -137,35 +137,61 @@ public final class ShipManager {
         depart(data, System.currentTimeMillis());
     }
 
+    /** Ejeren fylder selv en kasse. */
     public void fill(Player player, int index) {
-        PlayerData data = plugin.getPlayers().get(player);
-        if (index < 0 || index >= data.getShipCrates().size()) {
+        fill(player, plugin.getPlayers().get(player), index);
+    }
+
+    /**
+     * Fylder en kasse på {@code owner}s skib med {@code player}s egne varer. Er det en gæst der hjælper,
+     * får gæsten belønningen og ejeren får kassen fyldt - ligesom at hjælpe en nabo i Hay Day.
+     */
+    public void fill(Player player, PlayerData owner, int index) {
+        PlayerData filler = plugin.getPlayers().get(player);
+        boolean helping = !owner.getUuid().equals(player.getUniqueId());
+        if (state(owner) != State.DOCKED || index < 0 || index >= owner.getShipCrates().size()) {
             return;
         }
-        ShipCrate crate = data.getShipCrates().get(index);
+        ShipCrate crate = owner.getShipCrates().get(index);
         FarmItem item = plugin.getItems().get(crate.getItemId());
         if (crate.isFilled() || item == null) {
             plugin.getMessages().send(player, "ship.already-filled");
             return;
         }
-        if (!data.removeItem(item.getId(), crate.getAmount())) {
-            int missing = crate.getAmount() - data.getAmount(item.getId());
+        if (!filler.removeItem(item.getId(), crate.getAmount())) {
+            int missing = crate.getAmount() - filler.getAmount(item.getId());
             plugin.getMessages().send(player, "orders.missing", "missing", missing + "x " + item.getName());
             Sounds.play(player, Sounds.ERROR);
             return;
         }
         crate.setFilled(true);
-        data.setDirty(true);
+        crate.setHelper(helping ? player.getName() : null);
+        owner.setDirty(true);
         plugin.getEconomy().deposit(player, crate.getCoins());
-        plugin.getMessages().send(player, "ship.filled", "amount", crate.getAmount(), "item", item.getName(),
-                "coins", plugin.getEconomy().format(crate.getCoins()), "xp", crate.getXp());
+        String coins = plugin.getEconomy().format(crate.getCoins());
+        if (helping) {
+            plugin.getMessages().send(player, "island.helped-ship", "owner", owner.getName(), "coins", coins, "xp", crate.getXp());
+        } else {
+            plugin.getMessages().send(player, "ship.filled", "amount", crate.getAmount(), "item", item.getName(),
+                    "coins", coins, "xp", crate.getXp());
+        }
         Sounds.play(player, Sounds.PLACE, 1.2f);
-        plugin.getAnimations().floatingText(player.getLocation().add(0, 2.3, 0),
-                "&6+" + plugin.getEconomy().format(crate.getCoins()) + " &b+" + crate.getXp() + " XP");
+        plugin.getAnimations().floatingText(player.getLocation().add(0, 2.3, 0), "&6+" + coins + " &b+" + crate.getXp() + " XP");
         plugin.getLevels().addXp(player, crate.getXp());
-        if (allFilled(data)) {
-            plugin.getMessages().send(player, "ship.all-filled");
-            Sounds.play(player, Sounds.LEVEL_UP, 1.6f);
+
+        Player ownerPlayer = Bukkit.getPlayer(owner.getUuid());
+        if (helping) {
+            if (ownerPlayer != null) {
+                plugin.getMessages().send(ownerPlayer, "island.helped-ship-notify", "player", player.getName(),
+                        "amount", crate.getAmount(), "item", item.getName());
+                Sounds.play(ownerPlayer, Sounds.SUCCESS, 1.3f);
+            } else {
+                plugin.getPlayers().save(owner);
+            }
+        }
+        if (allFilled(owner) && ownerPlayer != null) {
+            plugin.getMessages().send(ownerPlayer, "ship.all-filled");
+            Sounds.play(ownerPlayer, Sounds.LEVEL_UP, 1.6f);
         }
     }
 

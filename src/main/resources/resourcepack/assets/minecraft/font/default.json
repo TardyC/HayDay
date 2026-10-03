@@ -160,6 +160,24 @@
     },
     {
       "type": "bitmap",
+      "file": "hayday:gui/visit_6.png",
+      "ascent": 47,
+      "height": 170,
+      "chars": [
+        "\ueb0f"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "hayday:gui/island_4.png",
+      "ascent": 47,
+      "height": 134,
+      "chars": [
+        "\ueb10"
+      ]
+    },
+    {
+      "type": "bitmap",
       "file": "hayday:icons/clock.png",
       "ascent": 8,
       "height": 9,

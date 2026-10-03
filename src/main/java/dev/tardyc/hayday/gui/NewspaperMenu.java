@@ -1,17 +1,20 @@
 package dev.tardyc.hayday.gui;
 
 import dev.tardyc.hayday.HayDayPlugin;
+import dev.tardyc.hayday.island.Island;
 import dev.tardyc.hayday.model.FarmItem;
 import dev.tardyc.hayday.model.Listing;
 import dev.tardyc.hayday.util.ItemBuilder;
 import dev.tardyc.hayday.util.Text;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 
 /**
- * Avisen: alle varer som andre spillere har til salg. Klik for at købe, shift-klik for at besøge vejboden.
+ * Avisen: alle varer som andre spillere har til salg. Klik for at købe, shift-klik for at se vejboden og
+ * højreklik for at besøge sælgerens gård.
  */
 public final class NewspaperMenu extends Menu {
 
@@ -45,10 +48,21 @@ public final class NewspaperMenu extends Menu {
                             "&7Sat til salg for &f" + Text.timeMillis(System.currentTimeMillis() - listing.getCreatedAt()) + " &7siden",
                             "",
                             "&e» Klik for at købe",
-                            "&7» Shift-klik for at besøge vejboden")
+                            "&7» Shift-klik for at se vejboden",
+                            plugin.getIslands().isEnabled() ? "&7» Højreklik for at besøge gården" : "")
                     .build(), click -> {
                 if (click.isShiftClick()) {
                     openLater(new RoadsideMenu(plugin, player, listing.getSeller(), listing.getSellerName()));
+                    return;
+                }
+                if (click.isRightClick() && plugin.getIslands().isEnabled()) {
+                    Island island = plugin.getIslands().get(listing.getSeller());
+                    if (island == null) {
+                        plugin.getMessages().send(player, "island.no-island", "player", listing.getSellerName());
+                        return;
+                    }
+                    closeLater();
+                    Bukkit.getScheduler().runTask(plugin, () -> plugin.getIslands().visit(player, island));
                     return;
                 }
                 plugin.getMarket().buy(player, listing);

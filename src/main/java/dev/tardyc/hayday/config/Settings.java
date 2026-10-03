@@ -118,6 +118,27 @@ public final class Settings {
     public List<String> harborLocked;
     public List<String> harborOffline;
 
+    // Øer (HayDay-verdenen)
+    public boolean islandsEnabled;
+    public String islandWorld;
+    public int islandSize;
+    public int islandGap;
+    public int islandHeight;
+    public boolean islandStarterLayout;
+    public boolean islandFarmOnly;
+    public boolean islandTeleportOnStart;
+    public String islandDefaultAccess;
+    public String islandDefaultName;
+    public boolean islandHelpShip;
+    public String islandDifficulty;
+    public boolean islandAlwaysDay;
+    public boolean islandNoWeather;
+    public boolean islandPvp;
+    public boolean islandMonsters;
+    public boolean islandFireSpread;
+    public List<String> islandHologram;
+    public List<String> islandSpawnHologram;
+
     // Animationer
     public boolean animations;
     public boolean animHarvest;
@@ -252,6 +273,26 @@ public final class Settings {
         harborAway = lines(c, "holograms.harbor.away");
         harborLocked = lines(c, "holograms.harbor.locked");
         harborOffline = lines(c, "holograms.harbor.offline");
+
+        islandsEnabled = c.getBoolean("islands.enabled", true);
+        islandWorld = c.getString("islands.world", "hayday");
+        islandSize = c.getInt("islands.size", 48);
+        islandGap = c.getInt("islands.gap", 24);
+        islandHeight = c.getInt("islands.height", 64);
+        islandStarterLayout = c.getBoolean("islands.starter-layout", true);
+        islandFarmOnly = c.getBoolean("islands.farm-only-on-island", true);
+        islandTeleportOnStart = c.getBoolean("islands.teleport-on-start", true);
+        islandDefaultAccess = c.getString("islands.default-access", "alle");
+        islandDefaultName = c.getString("islands.default-name", "{owner}s gård");
+        islandHelpShip = c.getBoolean("islands.visitors-can-help-ship", true);
+        islandDifficulty = c.getString("islands.difficulty", "peaceful");
+        islandAlwaysDay = c.getBoolean("islands.always-day", false);
+        islandNoWeather = c.getBoolean("islands.no-weather", true);
+        islandPvp = c.getBoolean("islands.pvp", false);
+        islandMonsters = c.getBoolean("islands.monsters", false);
+        islandFireSpread = c.getBoolean("islands.fire-spread", false);
+        islandHologram = lines(c, "islands.hologram");
+        islandSpawnHologram = lines(c, "islands.spawn-hologram");
 
         animations = c.getBoolean("animations.enabled", true);
         animHarvest = animations && c.getBoolean("animations.harvest", true);

@@ -6,6 +6,7 @@ import dev.tardyc.hayday.manager.ShipManager;
 import dev.tardyc.hayday.model.Building;
 import dev.tardyc.hayday.model.BuildingType;
 import dev.tardyc.hayday.model.Field;
+import dev.tardyc.hayday.island.Island;
 import dev.tardyc.hayday.model.ItemCategory;
 import dev.tardyc.hayday.model.Listing;
 import dev.tardyc.hayday.model.PlayerData;
@@ -24,8 +25,8 @@ import java.util.List;
  * <pre>
  *  . . . . P . . . .     P = profil
  *  . S . L . O . B .     S = silo, L = lade, O = ordretavle, B = butik
- *  . V . A . K . G .     V = vejbod, A = avisen, K = skibet, G = min gård
- *  . . T . X . H . .     T = top, X = luk, H = hjælp
+ *  . V . A . K . G .     V = vejbod, A = avisen, K = skibet, G = min gård (øen)
+ *  . E . T . H . X .     E = besøg andre, T = top, H = hjælp, X = luk
  * </pre>
  */
 public final class MainMenu extends Menu {
@@ -116,8 +117,16 @@ public final class MainMenu extends Menu {
         // Skibet
         set(23, shipIcon(data), click -> openLater(new ShipMenu(plugin, player)));
 
-        // Gårdoversigt
-        set(25, farmOverview(now));
+        // Min gård (øen)
+        if (plugin.getIslands().isEnabled()) {
+            set(25, farmOverview(now), click -> openLater(new FarmMenu(plugin, player)));
+        } else {
+            set(25, farmOverview(now));
+        }
+
+        // Besøg andre
+        set(28, visitIcon(), click -> openLater(plugin.getIslands().isEnabled()
+                ? new VisitMenu(plugin, player, 0) : new NewspaperMenu(plugin, player, 0)));
 
         // Top
         List<String> topLore = new ArrayList<>();
@@ -129,19 +138,41 @@ public final class MainMenu extends Menu {
         if (topLore.isEmpty()) {
             topLore.add("&7Ingen farmere endnu.");
         }
-        set(29, new ItemBuilder(Material.GOLD_INGOT).name("&6&lTop farmere").lore(topLore).build());
-
-        set(31, closeButton(), click -> closeLater());
+        set(30, new ItemBuilder(Material.GOLD_INGOT).name("&6&lTop farmere").lore(topLore).build());
 
         // Hjælp
-        set(33, new ItemBuilder(Material.BOOK)
+        set(32, new ItemBuilder(Material.BOOK)
                 .name("&f&lHjælp")
                 .lore("&7Sådan spiller du HayDay.", "", "&e» Klik for at læse")
                 .build(), click -> {
             closeLater();
             plugin.getMessages().sendList(player, "help");
         });
+
+        set(34, closeButton(), click -> closeLater());
         fillEmpty();
+    }
+
+    private ItemStack visitIcon() {
+        if (!plugin.getIslands().isEnabled()) {
+            return new ItemBuilder(Material.COMPASS)
+                    .name("&b&lBesøg andre")
+                    .lore("&7Find andre spilleres vejboder", "&7i avisen.", "", "&e» Klik for at åbne")
+                    .build();
+        }
+        Island own = plugin.getIslands().get(player.getUniqueId());
+        int farms = plugin.getIslands().count() - (own == null ? 0 : 1);
+        return new ItemBuilder(Material.COMPASS)
+                .name("&b&lBesøg andre")
+                .lore("&7Tag på besøg på andre spilleres",
+                        "&7gårde, køb i deres vejbod og",
+                        "&7hjælp med deres skib.",
+                        "",
+                        "&7Gårde: &f" + farms,
+                        own == null ? "" : "&7Din gård: &c❤ &f" + own.getLikes().size() + " &7· &f" + own.getVisits() + " &7besøg",
+                        "",
+                        "&e» Klik for at åbne")
+                .build();
     }
 
     private ItemStack storageIcon(Material material, String name, PlayerData data, ItemCategory category, String what) {
@@ -219,6 +250,10 @@ public final class MainMenu extends Menu {
                 String status = done > 0 ? "&a" + done + " klar" : building.getQueue().isEmpty() ? "&7inaktiv" : "&eproducerer";
                 lore.add("&8• " + type.getName() + " &8- " + status);
             }
+        }
+        if (plugin.getIslands().isEnabled()) {
+            lore.add("");
+            lore.add("&e» Klik for at åbne din gård");
         }
         return new ItemBuilder(Material.GRASS_BLOCK).name("&2&lMin gård").lore(lore).glow(ready > 0).build();
     }

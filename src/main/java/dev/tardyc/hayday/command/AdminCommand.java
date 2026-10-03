@@ -2,6 +2,9 @@ package dev.tardyc.hayday.command;
 
 import dev.tardyc.hayday.HayDayPlugin;
 import dev.tardyc.hayday.config.Messages;
+import dev.tardyc.hayday.island.Island;
+import dev.tardyc.hayday.island.IslandLayout;
+import dev.tardyc.hayday.island.IslandManager;
 import dev.tardyc.hayday.manager.LeaderboardManager;
 import dev.tardyc.hayday.manager.ShipManager;
 import dev.tardyc.hayday.model.Building;
@@ -36,9 +39,9 @@ import java.util.UUID;
 final class AdminCommand {
 
     static final List<String> SUBS = Arrays.asList("spiller", "lager", "give", "take", "item", "xp", "level", "coins",
-            "skib", "ordrer", "faerdigalle", "tp", "fjernalt", "reset", "info", "fjern", "faerdig", "pakke", "reload");
+            "skib", "ordrer", "faerdigalle", "tp", "oe", "fjernalt", "reset", "info", "fjern", "faerdig", "pakke", "reload");
     private static final List<String> WITH_PLAYER = Arrays.asList("spiller", "lager", "give", "take", "item", "xp", "level",
-            "coins", "skib", "ordrer", "faerdigalle", "tp", "fjernalt", "reset");
+            "coins", "skib", "ordrer", "faerdigalle", "tp", "oe", "fjernalt", "reset");
 
     private final HayDayPlugin plugin;
 
@@ -162,6 +165,9 @@ final class AdminCommand {
                 return;
             case "tp":
                 teleport(sender, target);
+                return;
+            case "oe":
+                island(sender, target, args);
                 return;
             case "fjernalt":
                 if (args.length < 3 || !args[2].equalsIgnoreCase("confirm")) {
@@ -388,7 +394,10 @@ final class AdminCommand {
         Location location = null;
         List<Field> fields = plugin.getFarm().getFields(target.uuid);
         List<Building> buildings = plugin.getFarm().getBuildings(target.uuid);
-        if (!fields.isEmpty() && fields.get(0).getSoil().getWorld() != null) {
+        Island island = plugin.getIslands().get(target.uuid);
+        if (island != null) {
+            location = plugin.getIslands().home(island);
+        } else if (!fields.isEmpty() && fields.get(0).getSoil().getWorld() != null) {
             location = fields.get(0).getSoil().toCenter().add(0, 1, 0);
         } else if (!buildings.isEmpty() && buildings.get(0).getPos().getWorld() != null) {
             location = buildings.get(0).getPos().toCenter().add(1.5, 0, 0);
@@ -399,6 +408,66 @@ final class AdminCommand {
         }
         ((Player) sender).teleport(location);
         msg().send(sender, "admin.teleported", "player", target.name);
+    }
+
+    private void island(CommandSender sender, Target target, String[] args) {
+        IslandManager islands = plugin.getIslands();
+        if (!islands.isEnabled()) {
+            msg().send(sender, "island.disabled");
+            return;
+        }
+        Island island = islands.get(target.uuid);
+        if (island == null) {
+            msg().send(sender, "island.no-island", "player", target.name);
+            return;
+        }
+        String action = args.length >= 3 ? args[2].toLowerCase(Locale.ROOT) : "info";
+        boolean confirmed = args.length >= 4 && args[3].equalsIgnoreCase("confirm");
+        switch (action) {
+            case "tp":
+                if (!(sender instanceof Player)) {
+                    msg().send(sender, "general.player-only");
+                    return;
+                }
+                ((Player) sender).teleport(islands.home(island));
+                msg().send(sender, "admin.teleported", "player", target.name);
+                return;
+            case "nulstil":
+            case "reset":
+                if (!confirmed) {
+                    msg().send(sender, "admin.island-reset-confirm", "player", target.name);
+                    return;
+                }
+                msg().send(sender, "admin.island-working", "player", target.name);
+                islands.reset(island, false, () -> msg().send(sender, "admin.island-reset", "player", target.name));
+                return;
+            case "slet":
+            case "delete":
+                if (!confirmed) {
+                    msg().send(sender, "admin.island-delete-confirm", "player", target.name);
+                    return;
+                }
+                msg().send(sender, "admin.island-working", "player", target.name);
+                islands.reset(island, true, () -> msg().send(sender, "admin.island-deleted", "player", target.name));
+                return;
+            default:
+                IslandLayout layout = islands.getLayout();
+                SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.ROOT);
+                List<String> lines = new ArrayList<>();
+                lines.add("&a&l» Ø: &f" + islands.farmName(island) + " &7(" + target.name + ")");
+                lines.add("&7Plads: &f" + island.getGridX() + ", " + island.getGridZ() + " &8(x " + layout.minX(island.getGridX())
+                        + ".." + layout.maxX(island.getGridX()) + ", z " + layout.minZ(island.getGridZ()) + ".."
+                        + layout.maxZ(island.getGridZ()) + ")");
+                lines.add("&7Adgang: " + islands.accessName(island.getAccess()) + "  &c❤ &f" + island.getLikes().size()
+                        + "  &7Besøg: &f" + island.getVisits());
+                lines.add("&7Venner: &f" + (island.getFriends().isEmpty() ? "ingen" : String.join(", ", island.getFriends().values())));
+                lines.add("&7Forbudte: &f" + (island.getBanned().isEmpty() ? "ingen" : String.join(", ", island.getBanned().values())));
+                lines.add("&7Oprettet: &f" + (island.getCreated() > 0 ? format.format(new Date(island.getCreated())) : "-")
+                        + "  &7Besøgende nu: &f" + islands.visitors(island).size());
+                for (String line : lines) {
+                    sender.sendMessage(Text.color(line));
+                }
+        }
     }
 
     private int[] removeFarm(UUID uuid) {
@@ -420,6 +489,10 @@ final class AdminCommand {
         }
         removeFarm(target.uuid);
         plugin.getMarket().removeAll(target.uuid);
+        Island island = plugin.getIslands().get(target.uuid);
+        if (island != null) {
+            plugin.getIslands().reset(island, true, () -> { });
+        }
         target.data.reset();
         target.data.setCoins(plugin.getSettings().startCoins);
         plugin.getPlayers().save(target.data);
@@ -524,6 +597,9 @@ final class AdminCommand {
             }
             return names;
         }
+        if (args.length == 5 && sub.equals("oe")) {
+            return Collections.singletonList("confirm");
+        }
         if (args.length == 4) {
             List<String> options = new ArrayList<>();
             switch (sub) {
@@ -546,6 +622,9 @@ final class AdminCommand {
                 case "reset":
                 case "fjernalt":
                     options.add("confirm");
+                    break;
+                case "oe":
+                    options.addAll(Arrays.asList("info", "tp", "nulstil", "slet"));
                     break;
                 default:
                     break;

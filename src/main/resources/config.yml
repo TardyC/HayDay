@@ -18,6 +18,7 @@ economy:
 
 general:
   # Verdener hvor man må placere marker og bygninger. Tom liste = alle verdener.
+  # (Bruges kun når øerne er slået fra, eller islands.farm-only-on-island er false.)
   allowed-worlds: []
   # Hvor ofte data gemmes automatisk (minutter)
   autosave-minutes: 5
@@ -163,6 +164,52 @@ holograms:
       - ""
     entry: "&e#{rank} &f{name} &8- &aLevel {level} &7({xp} XP)"
     empty: "&8#{rank} ---"
+
+# ==============================================================
+#   Øer: hver spiller får sin egen ø i HayDay-verdenen
+# ==============================================================
+islands:
+  # Slå øerne til/fra (kræver genstart)
+  enabled: true
+  # Navnet på HayDay-verdenen. Den oprettes automatisk med græsøer i et turkis hav.
+  # (Med Multiverse/bukkit.yml kan generatoren også bruges som "generator: HayDay")
+  world: hayday
+  # Størrelse på hver ø og hvor mange blokke hav der er imellem dem.
+  # OBS: kan ikke ændres når verdenen først er lavet.
+  size: 48
+  gap: 24
+  # Højden græsset ligger i
+  height: 64
+  # Byg et rødt stuehus, sti, træer, blomster og startmarker på nye øer
+  starter-layout: true
+  # Marker og bygninger må kun placeres på spillerens egen ø (admins med hayday.bypass undtaget)
+  farm-only-on-island: true
+  # Send nye spillere til deres ø første gang de bruger /hayday
+  teleport-on-start: true
+  # Hvem må besøge en ny ø: alle, venner eller ingen (spilleren kan selv ændre det)
+  default-access: alle
+  # Gårdens navn hvis spilleren ikke har valgt et selv
+  default-name: "{owner}s gård"
+  # Gæster må fylde kasser på andres skib (de får selv belønningen) - som at hjælpe en nabo i Hay Day
+  visitors-can-help-ship: true
+  # Sværhedsgrad i HayDay-verdenen (peaceful = ingen monstre og ingen sult)
+  difficulty: peaceful
+  always-day: false
+  no-weather: true
+  pvp: false
+  monsters: false
+  fire-spread: false
+  # Hologram ved indgangen til hver ø. Ejeren klikker for at åbne "Min gård", gæster klikker for at like.
+  # Pladsholdere: {farm} {owner} {level} {likes} {visits} {access}
+  hologram:
+    - "&a&l{farm}"
+    - "&7Level &f{level} &8| &c❤ &f{likes} &8| &7{visits} besøg"
+    - "&8Klik for at like ❤"
+  # Hologram midt på torvet (verdenens spawn). Klik for at besøge en gård.
+  spawn-hologram:
+    - "&a&lVelkommen til HayDay!"
+    - "&7Hver farmer har sin egen ø"
+    - "&eKlik her for at besøge en gård"
 
 # ==============================================================
 #   Skibet: fyld kasserne med varer og send skibet afsted for en bonus
