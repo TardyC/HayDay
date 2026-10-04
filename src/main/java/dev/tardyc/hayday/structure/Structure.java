@@ -59,6 +59,56 @@ public final class Structure {
         }
     }
 
+    /** En 3D-model ved huset: position relativt til ankerets midte (før drejning). */
+    public static final class PropDef {
+        public final String model;
+        public final double dx;
+        public final double dy;
+        public final double dz;
+        public final float yaw;
+        public final float scale;
+        public final float spin;
+
+        PropDef(String model, double dx, double dy, double dz, float yaw, float scale, float spin) {
+            this.model = model;
+            this.dx = dx;
+            this.dy = dy;
+            this.dz = dz;
+            this.yaw = yaw;
+            this.scale = scale;
+            this.spin = spin;
+        }
+
+        /** "model dx dy dz [yaw] [scale] [spin]" */
+        static PropDef parse(String line) {
+            String[] parts = line.trim().split("\\s+");
+            if (parts.length < 4) {
+                return null;
+            }
+            try {
+                return new PropDef(parts[0], Double.parseDouble(parts[1]), Double.parseDouble(parts[2]),
+                        Double.parseDouble(parts[3]),
+                        parts.length > 4 ? Float.parseFloat(parts[4]) : 0f,
+                        parts.length > 5 ? Float.parseFloat(parts[5]) : 1f,
+                        parts.length > 6 ? Float.parseFloat(parts[6]) : 0f);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+
+        /** {x, z, yaw} efter drejning. */
+        public double[] rotated(int rotation) {
+            double x = dx;
+            double z = dz;
+            for (int i = 0; i < (rotation & 3); i++) {
+                double t = x;
+                x = -z;
+                z = t;
+            }
+            return new double[]{x, z, yaw + 90.0 * (rotation & 3)};
+        }
+    }
+
     private final String id;
     private final int width;
     private final int height;
@@ -69,6 +119,7 @@ public final class Structure {
     private final int anchorY;
     private final int anchorZ;
     private final double hologramHeight;
+    private final List<PropDef> props = new ArrayList<>();
     @SuppressWarnings("unchecked")
     private final List<Cell>[] rotated = new List[4];
     private final Map<String, BlockData> dataCache = new HashMap<>();
@@ -144,7 +195,18 @@ public final class Structure {
                 }
             }
         }
-        return new Structure(id, cells, palette, anchor, section.getDouble("hologram-height", height));
+        Structure structure = new Structure(id, cells, palette, anchor, section.getDouble("hologram-height", height));
+        for (String line : section.getStringList("props")) {
+            PropDef prop = PropDef.parse(line);
+            if (prop != null) {
+                structure.props.add(prop);
+            }
+        }
+        return structure;
+    }
+
+    public List<PropDef> getProps() {
+        return Collections.unmodifiableList(props);
     }
 
     public String getId() {

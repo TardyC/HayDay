@@ -8,7 +8,7 @@
 #   Bygningerne drejes automatisk så forsiden vender mod spilleren der placerer dem.
 #   Navnet på en bygning her skal matche id'et i buildings.yml (eller 'structure:' der).
 # ==============================================================
-version: 1
+version: 2
 structures:
   farmhouse:
     hologram-height: 13.5
@@ -19,9 +19,9 @@ structures:
       - "A=azalea_leaves[persistent=true]"
       - "B=bricks"
       - "C=campfire[lit=true,signal_fire=false]"
-      - "E=mangrove_stairs[facing=south]"
-      - "I=mangrove_stairs[facing=north]"
-      - "J=oxeye_daisy"
+      - "E=poppy"
+      - "I=mangrove_stairs[facing=south]"
+      - "J=mangrove_stairs[facing=north]"
       - "K=bookshelf"
       - "L=stripped_dark_oak_log[axis=y]"
       - "M=red_bed[facing=north,part=foot]"
@@ -29,8 +29,8 @@ structures:
       - "O=red_tulip"
       - "Q=red_bed[facing=north,part=head]"
       - "R=rooted_dirt"
-      - "U=azure_bluet"
-      - "V=poppy"
+      - "U=oxeye_daisy"
+      - "V=azure_bluet"
       - "W=birch_planks"
       - "X=stripped_dark_oak_log[axis=x]"
       - "Y=flowering_azalea_leaves[persistent=true]"
@@ -75,7 +75,7 @@ structures:
         - " LWWW1WWWL "
         - "Y         A"
         - "Afff   fffY"
-        - " UJV   OOO "
+        - " VUE   OOO "
       -
         - "           "
         - " LWgWLWgWL "
@@ -149,7 +149,7 @@ structures:
         - "           "
         - "           "
       -
-        - "EEEEEEEEEEE"
+        - "IIIIIIIIIII"
         - " W       W "
         - " W      BW "
         - " W       W "
@@ -157,29 +157,29 @@ structures:
         - " W       W "
         - " W       W "
         - " W       W "
-        - "IIIIIIIIIII"
+        - "JJJJJJJJJJJ"
         - "           "
         - "           "
       -
         - "           "
-        - "EEEEEEEEEEE"
+        - "IIIIIIIIIII"
         - " W      BW "
         - " W       W "
         - " g       g "
         - " W       W "
         - " W       W "
-        - "IIIIIIIIIII"
+        - "JJJJJJJJJJJ"
         - "           "
         - "           "
         - "           "
       -
         - "           "
         - "           "
-        - "EEEEEEEEBEE"
+        - "IIIIIIIIBII"
         - " W       W "
         - " W       W "
         - " W       W "
-        - "IIIIIIIIIII"
+        - "JJJJJJJJJJJ"
         - "           "
         - "           "
         - "           "
@@ -188,9 +188,9 @@ structures:
         - "           "
         - "           "
         - "        B  "
-        - "EEEEEEEEEEE"
-        - " W       W "
         - "IIIIIIIIIII"
+        - " W       W "
+        - "JJJJJJJJJJJ"
         - "           "
         - "           "
         - "           "
@@ -876,11 +876,15 @@ structures:
         - "       "
   foderfabrik:
     hologram-height: 6.4
+    props:
+      - "feed_sack -1 0 0 15 0.9"
+      - "feed_sack 1 0 0 -20 0.9"
+      - "windmill 0 4.4 0.7 0 1.6 40"
     palette:
       - ".=air"
       - "@=barrel"
-      - "A=spruce_stairs[facing=south]"
-      - "B=spruce_stairs[facing=north]"
+      - "A=spruce_stairs[facing=north]"
+      - "B=spruce_stairs[facing=south]"
       - "L=stripped_spruce_log[axis=y]"
       - "^=lantern[hanging=true]"
       - "b=barrel[facing=up]"
@@ -921,26 +925,26 @@ structures:
         - "       "
         - "       "
       -
-        - "AAAAAAA"
-        - " p   p "
-        - " p   p "
-        - " p   p "
-        - " p   p "
         - "BBBBBBB"
+        - " p   p "
+        - " p   p "
+        - " p   p "
+        - " p   p "
+        - "AAAAAAA"
         - "       "
       -
         - "       "
-        - "AAAAAAA"
-        - " p   p "
-        - " p   p "
         - "BBBBBBB"
+        - " p   p "
+        - " p   p "
+        - "AAAAAAA"
         - "       "
         - "       "
       -
         - "       "
         - "       "
-        - "AAAAAAA"
         - "BBBBBBB"
+        - "AAAAAAA"
         - "       "
         - "       "
         - "       "
@@ -962,6 +966,8 @@ structures:
         - "       "
   hoensehus:
     hologram-height: 3.3
+    props:
+      - "feed_sack 2 0 -1 10 0.8"
     palette:
       - "*=lantern[hanging=false]"
       - ".=air"
@@ -1028,11 +1034,13 @@ structures:
         - "       "
   bageri:
     hologram-height: 6.2
+    props:
+      - "bread_basket -1 0 1 0 0.8"
     palette:
       - "@=smoker"
-      - "A=deepslate_tile_stairs[facing=south]"
+      - "A=deepslate_tile_stairs[facing=north]"
       - "B=bricks"
-      - "E=deepslate_tile_stairs[facing=north]"
+      - "E=deepslate_tile_stairs[facing=south]"
       - "L=stripped_oak_log[axis=y]"
       - "S=stone_bricks"
       - "b=barrel[facing=up]"
@@ -1073,26 +1081,26 @@ structures:
         - " ttttt "
         - "       "
       -
-        - "AAAAAAA"
-        - " B   B "
-        - " B   B "
-        - " B   B "
-        - " B   B "
         - "EEEEEEE"
+        - " B   B "
+        - " B   B "
+        - " B   B "
+        - " B   B "
+        - "AAAAAAA"
         - "       "
       -
         - "       "
-        - "AAAAABA"
+        - "EEEEEBE"
         - " B   B "
         - " B   B "
-        - "EEEEEEE"
+        - "AAAAAAA"
         - "       "
         - "       "
       -
         - "       "
         - "     B "
-        - "AAAAAAA"
         - "EEEEEEE"
+        - "AAAAAAA"
         - "       "
         - "       "
         - "       "
@@ -1114,6 +1122,9 @@ structures:
         - "       "
   kostald:
     hologram-height: 3.3
+    props:
+      - "hay_stack -1 0 -2 90 1.0"
+      - "milk_churn 2 0 -1 0 0.8"
     palette:
       - "*=lantern[hanging=false]"
       - "@=moss_block"
@@ -1167,11 +1178,13 @@ structures:
         - "       "
   sukkermoelle:
     hologram-height: 6.4
+    props:
+      - "windmill 0 4.4 1.7 0 1.6 40"
     palette:
       - ".=air"
       - "@=grindstone"
-      - "A=stone_brick_stairs[facing=south]"
-      - "B=stone_brick_stairs[facing=north]"
+      - "A=stone_brick_stairs[facing=north]"
+      - "B=stone_brick_stairs[facing=south]"
       - "M=mossy_stone_bricks"
       - "S=stone_bricks"
       - "^=lantern[hanging=true]"
@@ -1211,26 +1224,26 @@ structures:
         - "       "
         - "       "
       -
-        - "AAAAAAA"
-        - " S   S "
-        - " S   S "
-        - " S   S "
-        - " S   S "
         - "BBBBBBB"
+        - " S   S "
+        - " S   S "
+        - " S   S "
+        - " S   S "
+        - "AAAAAAA"
         - "       "
       -
         - "       "
-        - "AAAAAAA"
-        - " S   S "
-        - " S   S "
         - "BBBBBBB"
+        - " S   S "
+        - " S   S "
+        - "AAAAAAA"
         - "       "
         - "       "
       -
         - "       "
         - "       "
-        - "AAAAAAA"
         - "BBBBBBB"
+        - "AAAAAAA"
         - "       "
         - "       "
         - "       "
@@ -1252,11 +1265,15 @@ structures:
         - "       "
   mejeri:
     hologram-height: 6.4
+    props:
+      - "milk_churn -1 0 1 0 0.8"
+      - "milk_churn 1 0 1 30 0.8"
+      - "cheese_wheel -1 1 -2 0 0.7"
     palette:
       - ".=air"
       - "@=cauldron"
-      - "A=prismarine_brick_stairs[facing=south]"
-      - "B=prismarine_brick_stairs[facing=north]"
+      - "A=prismarine_brick_stairs[facing=north]"
+      - "B=prismarine_brick_stairs[facing=south]"
       - "L=stripped_birch_log[axis=y]"
       - "S=stone_bricks"
       - "W=white_concrete"
@@ -1298,26 +1315,26 @@ structures:
         - "       "
         - "       "
       -
-        - "AAAAAAA"
-        - " W   W "
-        - " W   W "
-        - " W   W "
-        - " W   W "
         - "BBBBBBB"
+        - " W   W "
+        - " W   W "
+        - " W   W "
+        - " W   W "
+        - "AAAAAAA"
         - "       "
       -
         - "       "
-        - "AAAAAAA"
-        - " W   W "
-        - " W   W "
         - "BBBBBBB"
+        - " W   W "
+        - " W   W "
+        - "AAAAAAA"
         - "       "
         - "       "
       -
         - "       "
         - "       "
-        - "AAAAAAA"
         - "BBBBBBB"
+        - "AAAAAAA"
         - "       "
         - "       "
         - "       "
@@ -1339,6 +1356,8 @@ structures:
         - "       "
   svinesti:
     hologram-height: 3.3
+    props:
+      - "wheelbarrow 2 0 -1 -30 0.9"
     palette:
       - "*=lantern[hanging=false]"
       - "@=mud"
@@ -1393,6 +1412,8 @@ structures:
         - "       "
   faarefold:
     hologram-height: 3.3
+    props:
+      - "hay_stack -2 0 -1 90 1.0"
     palette:
       - "*=lantern[hanging=false]"
       - "@=grass_block"
@@ -1447,14 +1468,16 @@ structures:
         - "       "
   vaeveri:
     hologram-height: 6.4
+    props:
+      - "crate_produce 1 0 1 0 0.8"
     palette:
       - ".=air"
       - "1=white_wool"
       - "2=pink_wool"
       - "3=light_blue_wool"
       - "@=loom"
-      - "A=spruce_stairs[facing=south]"
-      - "B=spruce_stairs[facing=north]"
+      - "A=spruce_stairs[facing=north]"
+      - "B=spruce_stairs[facing=south]"
       - "L=stripped_spruce_log[axis=y]"
       - "P=oak_planks"
       - "^=lantern[hanging=true]"
@@ -1494,26 +1517,26 @@ structures:
         - "       "
         - "       "
       -
-        - "AAAAAAA"
-        - " P   P "
-        - " P   P "
-        - " P   P "
-        - " P   P "
         - "BBBBBBB"
+        - " P   P "
+        - " P   P "
+        - " P   P "
+        - " P   P "
+        - "AAAAAAA"
         - "       "
       -
         - "       "
-        - "AAAAAAA"
-        - " P   P "
-        - " P   P "
         - "BBBBBBB"
+        - " P   P "
+        - " P   P "
+        - "AAAAAAA"
         - "       "
         - "       "
       -
         - "       "
         - "       "
-        - "AAAAAAA"
         - "BBBBBBB"
+        - "AAAAAAA"
         - "       "
         - "       "
         - "       "
@@ -1535,6 +1558,8 @@ structures:
         - "       "
   saftpresse:
     hologram-height: 4.0
+    props:
+      - "crate_produce -2 0 1 0 0.8"
     palette:
       - "1=orange_wool"
       - "2=white_wool"
@@ -1577,6 +1602,8 @@ structures:
         - "1212121"
   vejbod:
     hologram-height: 4.0
+    props:
+      - "crate_produce 2.7 0 0.2 15 0.8"
     palette:
       - "1=red_wool"
       - "2=white_wool"

@@ -23,6 +23,42 @@ import java.util.Random;
  */
 final class IslandBuilder {
 
+    /** En 3D-model på gården: lokal position (48x48-ø), højde over græsset, drejning og størrelse. */
+    static final class FarmProp {
+        final String model;
+        final double x;
+        final double z;
+        final double dy;
+        final float yaw;
+        final float scale;
+
+        FarmProp(String model, double x, double z, double dy, float yaw, float scale) {
+            this.model = model;
+            this.x = x;
+            this.z = z;
+            this.dy = dy;
+            this.yaw = yaw;
+            this.scale = scale;
+        }
+    }
+
+    /** Lastbilen ved ordretavlen, høballer, mælkejunger, sække, trillebør, fugleskræmsel ... */
+    static final FarmProp[] FARM_PROPS = {
+            new FarmProp("truck", 35.5, 23.5, 0, 0, 1.6f),
+            new FarmProp("hay_stack", 20.5, 12.0, 0, 0, 1.0f),
+            new FarmProp("hay_stack", 20.5, 13.0, 0, 0, 1.0f),
+            new FarmProp("hay_stack", 20.5, 12.5, 0.62, 0, 1.0f),
+            new FarmProp("wheelbarrow", 21.5, 27.5, 0, 30, 1.0f),
+            new FarmProp("milk_churn", 37.5, 18.5, 0, 0, 0.8f),
+            new FarmProp("milk_churn", 38.3, 18.9, 0, 40, 0.8f),
+            new FarmProp("feed_sack", 27.5, 18.5, 0, 20, 0.9f),
+            new FarmProp("feed_sack", 28.4, 18.7, 0, -15, 0.9f),
+            new FarmProp("crate_produce", 20.5, 41.5, 0, 10, 0.9f),
+            new FarmProp("scarecrow", 6.5, 26.5, 0, 0, 1.0f),
+    };
+    /** Skibet ligger ved bryggen når det er i havn. */
+    static final FarmProp SHIP = new FarmProp("ship", 28.5, 52.5, -2.4, 0, 2.5f);
+
     /** Strukturerne den realistiske gård er bygget af. */
     private static final String[] FARM_STRUCTURES = {"farmhouse", "barn", "silo", "orderboard", "mailbox", "fieldpatch",
             "pond", "dock"};

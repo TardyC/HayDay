@@ -37,6 +37,8 @@ public final class PlayerListener implements Listener {
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             if (player.isOnline()) {
                 plugin.getPack().send(player);
+                // Med ItemsAdder har spilleren allerede pakken - vis 3D-modellerne med det samme
+                plugin.getProps().showAll(player);
             }
         }, 20L);
         if (!data.isStarted()) {
@@ -75,8 +77,9 @@ public final class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onResourcePack(PlayerResourcePackStatusEvent event) {
         plugin.getPack().onStatus(event);
-        // HayDay-itemet får sin egen tekstur når pakken er indlæst
+        // HayDay-itemet får sin egen tekstur og 3D-modellerne vises når pakken er indlæst
         plugin.getMenuItem().update(event.getPlayer());
+        plugin.getProps().showAll(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

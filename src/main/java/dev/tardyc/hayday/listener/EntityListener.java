@@ -161,6 +161,7 @@ public final class EntityListener implements Listener {
     @EventHandler
     public void onEntitiesLoad(EntitiesLoadEvent event) {
         plugin.getHolograms().removeStray(event.getEntities());
+        plugin.getProps().removeStray(event.getEntities());
         plugin.getFarm().removeStray(event.getEntities());
         for (Entity entity : event.getEntities()) {
             // Animationer gemmes aldrig, så alt med dette mærke er rester efter et nedbrud

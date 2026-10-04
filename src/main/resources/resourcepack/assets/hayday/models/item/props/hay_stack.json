@@ -1,0 +1,155 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "s": "minecraft:block/hay_block_side",
+    "e": "minecraft:block/hay_block_top",
+    "particle": "minecraft:block/hay_block_side"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        2.5,
+        2
+      ],
+      "to": [
+        16,
+        14.5,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#s",
+          "uv": [
+            0,
+            0,
+            16,
+            12.0
+          ]
+        },
+        "south": {
+          "texture": "#s",
+          "uv": [
+            0,
+            0,
+            16,
+            12.0
+          ]
+        },
+        "east": {
+          "texture": "#e",
+          "uv": [
+            0,
+            0,
+            12,
+            12.0
+          ]
+        },
+        "west": {
+          "texture": "#e",
+          "uv": [
+            0,
+            0,
+            12,
+            12.0
+          ]
+        },
+        "up": {
+          "texture": "#s",
+          "uv": [
+            0,
+            0,
+            16,
+            12
+          ]
+        },
+        "down": {
+          "texture": "#s",
+          "uv": [
+            0,
+            0,
+            16,
+            12
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        2.5,
+        2
+      ],
+      "to": [
+        16,
+        14.5,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#s",
+          "uv": [
+            0,
+            0,
+            16,
+            12.0
+          ]
+        },
+        "south": {
+          "texture": "#s",
+          "uv": [
+            0,
+            0,
+            16,
+            12.0
+          ]
+        },
+        "east": {
+          "texture": "#e",
+          "uv": [
+            0,
+            0,
+            12,
+            12.0
+          ]
+        },
+        "west": {
+          "texture": "#e",
+          "uv": [
+            0,
+            0,
+            12,
+            12.0
+          ]
+        },
+        "up": {
+          "texture": "#s",
+          "uv": [
+            0,
+            0,
+            16,
+            12
+          ]
+        },
+        "down": {
+          "texture": "#s",
+          "uv": [
+            0,
+            0,
+            16,
+            12
+          ]
+        }
+      },
+      "rotation": {
+        "angle": 45,
+        "axis": "x",
+        "origin": [
+          8,
+          8.5,
+          8
+        ]
+      }
+    }
+  ]
+}

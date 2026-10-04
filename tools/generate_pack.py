@@ -808,6 +808,10 @@ def main():
     paint_pack_icon()
     write_pack_files()
     write_itemsadder_config()
+    # 3D-modellerne (lastbil, skib, høballer ...) - til sidst, så alt andet er uændret
+    import props
+    names = props.write(ASSETS, os.path.join(RESOURCES, "itemsadder", "configs"))
+    print("3D-modeller: %s" % ", ".join(names))
     print("Resourcepack: %d menuer, %d ikoner, %d items -> %s" % (len(GUIS), len(ICONS), len(ITEMS), os.path.normpath(PACK)))
 
 

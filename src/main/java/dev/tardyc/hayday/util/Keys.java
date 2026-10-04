@@ -18,6 +18,8 @@ public final class Keys {
     public static NamespacedKey ANIMATION;
     /** Markerer HayDay-itemet i hotbaren. */
     public static NamespacedKey MENU_ITEM;
+    /** Markerer 3D-modeller (props). */
+    public static NamespacedKey PROP;
 
     private Keys() {
     }
@@ -28,5 +30,6 @@ public final class Keys {
         ANIMAL = new NamespacedKey(plugin, "animal");
         ANIMATION = new NamespacedKey(plugin, "animation");
         MENU_ITEM = new NamespacedKey(plugin, "menu_item");
+        PROP = new NamespacedKey(plugin, "prop");
     }
 }

@@ -18,6 +18,7 @@ hologrammer og animationer. Alt er på dansk og kan konfigureres.
 | 🔒 **Venner og adgang** | Vælg om gården er åben for alle, kun for venner eller lukket. Tilføj venner, forbyd plageånder og send gæster hjem. Giv gården sit eget navn og sæt dit eget ankomststed. |
 | 🏡 **Rigtig gård** | Nye øer får et stuehus i to etager med veranda, en rød lade, en silo, en ordretavle, en postkasse, en indhegnet mark med vandkanaler og fugleskræmsel, en dam med åkander, lygtepæle, træer, buske og en anløbsbro. **Klik på laden, siloen, ordretavlen og postkassen** for at åbne lager, ordrer og avis – præcis som i Hay Day. |
 | 🏗️ **Bygninger som huse** | Hver bygning bygges som et rigtigt hus eller en indhegning (bageri med skorsten, hønsehus med hønsegård, kostald med fold, vejbod med markise ...). Forsiden vender mod dig når du sætter den, og du kan klikke hvor som helst på huset. Alt ligger i `structures.yml` og kan ændres. |
+| 🚚 **3D-modeller** | Egne 3D-modeller formet som tingene: Hay Day-lastbilen ved ordretavlen, fragtskibet ved bryggen når det er i havn, vindmøllevinger der drejer på foderfabrikken og sukkermøllen, runde høballer, fodersække, mælkejunger, trillebør, fugleskræmsel, brødkurv og ostehjul. Kan også placeres som ItemsAdder-møbler (`/iaget hayday:truck`). |
 | 🎉 **Events** | Dobbelt penge, dobbelt XP, hurtig vækst, dobbelt høst og dobbelt produktion – med bossbar, titel og nedtælling. Startes af en admin eller automatisk. |
 | 🌾 **HayDay-item** | Et fast item i hotbaren der åbner menuen (shift-klik = tag hjem). Kan ikke smides, flyttes eller mistes. |
 | 🌱 **Marker** | Køb en *Mark* i butikken og sæt den på jorden – den lægges ned i jorden som en rigtig mark. Plant hvede, gulerødder, kartofler, sukkerroer, græskar, søde bær og meloner. Afgrøderne gror synligt blok for blok. |
@@ -59,6 +60,9 @@ HayDay har sin egen resourcepack med menu-baggrunde, item-ikoner og ikoner. Der 
   Sæt `required: true` hvis alle *skal* have pakken (så bruger hologrammerne også ikonerne).
 * **Med ItemsAdder** (`itemsadder`, vælges automatisk): Indholdet kopieres til
   `plugins/ItemsAdder/contents/hayday/`, og `/iazip` køres automatisk. Pakken sendes af ItemsAdder.
+  Vil du gøre det i hånden, så hent **HayDay-ItemsAdder.zip** (fra *Actions* → *Artifacts* eller *Releases*,
+  eller lav den med `python3 tools/make_itemsadder_zip.py`), pak mappen `hayday` ud i
+  `plugins/ItemsAdder/contents/` og kør `/iazip`.
   Står der `127.0.0.1` eller `127.0.1.1` i ItemsAdders "URL:" efter `/iazip`, så skriv serverens rigtige IP/domæne
   under `server: address:` i `plugins/ItemsAdder/config.yml` og kør `/iazip` igen.
 
@@ -188,7 +192,7 @@ Hologrammer, dyr og animationer bruger ikke-persistente entities, så der aldrig
 
 ```bash
 mvn package
-# -> target/HayDay-1.3.0.jar
+# -> target/HayDay-1.4.0.jar
 ```
 
 GitHub Actions bygger automatisk jar-filen ved hvert push (se fanen *Actions*). Et tag som `v1.0.0` laver en release med jar-filen.
@@ -215,4 +219,6 @@ src/main/java/dev/tardyc/hayday/
 └── util/                    Hjælpere
 tools/generate_pack.py       Tegner hele resourcepacken (menuer, items, ikoner, font)
 tools/build_structures.py    Tegner husene og gårdens pynt -> structures.yml
+tools/props.py               3D-modellerne (lastbil, skib, høballer ...) - bruges af generate_pack.py
+tools/make_itemsadder_zip.py Laver HayDay-ItemsAdder.zip
 ```

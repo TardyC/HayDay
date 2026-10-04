@@ -36,6 +36,7 @@ public final class Settings {
     public boolean joinSummary;
     public boolean buildingStructures;
     public boolean fieldsInGround;
+    public boolean propsEnabled;
 
     // Levels
     public int maxLevel;
@@ -214,6 +215,7 @@ public final class Settings {
         joinSummary = c.getBoolean("general.join-summary", true);
         buildingStructures = c.getBoolean("general.building-structures", true);
         fieldsInGround = c.getBoolean("general.fields-in-ground", true);
+        propsEnabled = c.getBoolean("general.3d-models", true);
 
         maxLevel = Math.max(1, c.getInt("levels.max-level", 50));
         xpBase = Math.max(1, c.getLong("levels.xp-base", 20));

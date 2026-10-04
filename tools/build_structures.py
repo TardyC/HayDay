@@ -815,6 +815,20 @@ def main():
                      ("fountain", fountain)):
         bp, extra = fn()
         structures[name] = (bp, extra)
+    # 3D-modeller ved husene: "model dx dy dz [drejning] [størrelse] [grader/sek]" - relativt til bygningens blok
+    props = {
+        "foderfabrik": ["feed_sack -1 0 0 15 0.9", "feed_sack 1 0 0 -20 0.9", "windmill 0 4.4 0.7 0 1.6 40"],
+        "hoensehus": ["feed_sack 2 0 -1 10 0.8"],
+        "bageri": ["bread_basket -1 0 1 0 0.8"],
+        "kostald": ["hay_stack -1 0 -2 90 1.0", "milk_churn 2 0 -1 0 0.8"],
+        "sukkermoelle": ["windmill 0 4.4 1.7 0 1.6 40"],
+        "mejeri": ["milk_churn -1 0 1 0 0.8", "milk_churn 1 0 1 30 0.8", "cheese_wheel -1 1 -2 0 0.7"],
+        "svinesti": ["wheelbarrow 2 0 -1 -30 0.9"],
+        "faarefold": ["hay_stack -2 0 -1 90 1.0"],
+        "vaeveri": ["crate_produce 1 0 1 0 0.8"],
+        "saftpresse": ["crate_produce -2 0 1 0 0.8"],
+        "vejbod": ["crate_produce 2.7 0 0.2 15 0.8"],
+    }
     buildings = {
         "foderfabrik": (feed_mill, 6.4),
         "hoensehus": (chicken_coop, 3.3),
@@ -829,7 +843,7 @@ def main():
         "vejbod": (roadside, 4.0),
     }
     for name, (fn, height) in buildings.items():
-        structures[name] = (fn(), {"hologram-height": height})
+        structures[name] = (fn(), {"hologram-height": height, "props": props.get(name, [])})
 
     lines = [
         "# ==============================================================",
@@ -842,13 +856,19 @@ def main():
         "#   Bygningerne drejes automatisk så forsiden vender mod spilleren der placerer dem.",
         "#   Navnet på en bygning her skal matche id'et i buildings.yml (eller 'structure:' der).",
         "# ==============================================================",
-        "version: 1",
+        "version: 2",
         "structures:",
     ]
     for name, (bp, extra) in structures.items():
         layers, palette = resolve(bp)
         lines.append("  %s:" % name)
         for key, value in extra.items():
+            if isinstance(value, list):
+                if value:
+                    lines.append("    %s:" % key)
+                    for entry in value:
+                        lines.append("      - %s" % yaml_str(entry))
+                continue
             lines.append("    %s: %s" % (key, value))
         lines.append("    palette:")
         for ch in sorted(palette):

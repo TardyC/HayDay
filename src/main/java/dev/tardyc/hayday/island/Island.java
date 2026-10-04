@@ -1,11 +1,14 @@
 package dev.tardyc.hayday.island;
 
 import dev.tardyc.hayday.hologram.Hologram;
+import dev.tardyc.hayday.hologram.PropManager;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -71,6 +74,8 @@ public final class Island {
 
     private transient Hologram hologram;
     private final transient Map<Landmark, Hologram> landmarkHolograms = new EnumMap<>(Landmark.class);
+    private final transient List<PropManager.Prop> props = new ArrayList<>();
+    private transient PropManager.Prop ship;
 
     public Island(UUID owner, String ownerName, int gridX, int gridZ) {
         this.owner = owner;
@@ -187,6 +192,19 @@ public final class Island {
 
     public Map<Landmark, Hologram> getLandmarkHolograms() {
         return landmarkHolograms;
+    }
+
+    public List<PropManager.Prop> getProps() {
+        return props;
+    }
+
+    /** Skibet ved bryggen (vises kun når ejerens skib er i havn). */
+    public PropManager.Prop getShip() {
+        return ship;
+    }
+
+    public void setShip(PropManager.Prop ship) {
+        this.ship = ship;
     }
 
     public Hologram getHologram() {

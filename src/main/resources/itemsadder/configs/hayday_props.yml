@@ -1,0 +1,132 @@
+# Genereret af tools/generate_pack.py - HayDays 3D-modeller som ItemsAdder-møbler
+# Få dem med /iaget hayday:<navn> - fx /iaget hayday:truck
+info:
+  namespace: hayday
+
+items:
+  feed_sack:
+    display_name: "&fFodersæk"
+    resource:
+      material: PAPER
+      generate: false
+      model_path: item/props/feed_sack
+    behaviours:
+      furniture:
+        entity: item_display
+        solid: true
+        hitbox:
+          length: 1
+          width: 1
+          height: 1
+  hay_stack:
+    display_name: "&fRund høballe"
+    resource:
+      material: PAPER
+      generate: false
+      model_path: item/props/hay_stack
+    behaviours:
+      furniture:
+        entity: item_display
+        solid: true
+        hitbox:
+          length: 1
+          width: 1
+          height: 1
+  milk_churn:
+    display_name: "&fMælkejunge"
+    resource:
+      material: PAPER
+      generate: false
+      model_path: item/props/milk_churn
+    behaviours:
+      furniture:
+        entity: item_display
+        solid: true
+        hitbox:
+          length: 1
+          width: 1
+          height: 1
+  crate_produce:
+    display_name: "&fKasse med grønt"
+    resource:
+      material: PAPER
+      generate: false
+      model_path: item/props/crate_produce
+    behaviours:
+      furniture:
+        entity: item_display
+        solid: true
+        hitbox:
+          length: 1
+          width: 1
+          height: 1
+  wheelbarrow:
+    display_name: "&fTrillebør"
+    resource:
+      material: PAPER
+      generate: false
+      model_path: item/props/wheelbarrow
+    behaviours:
+      furniture:
+        entity: item_display
+        solid: true
+        hitbox:
+          length: 1
+          width: 1
+          height: 1
+  scarecrow:
+    display_name: "&fFugleskræmsel"
+    resource:
+      material: PAPER
+      generate: false
+      model_path: item/props/scarecrow
+    behaviours:
+      furniture:
+        entity: item_display
+        solid: true
+        hitbox:
+          length: 1
+          width: 1
+          height: 2
+  bread_basket:
+    display_name: "&fBrødkurv"
+    resource:
+      material: PAPER
+      generate: false
+      model_path: item/props/bread_basket
+    behaviours:
+      furniture:
+        entity: item_display
+        solid: true
+        hitbox:
+          length: 1
+          width: 1
+          height: 1
+  cheese_wheel:
+    display_name: "&fOstehjul"
+    resource:
+      material: PAPER
+      generate: false
+      model_path: item/props/cheese_wheel
+    behaviours:
+      furniture:
+        entity: item_display
+        solid: true
+        hitbox:
+          length: 1
+          width: 1
+          height: 1
+  truck:
+    display_name: "&fLastbil"
+    resource:
+      material: PAPER
+      generate: false
+      model_path: item/props/truck
+    behaviours:
+      furniture:
+        entity: item_display
+        solid: true
+        hitbox:
+          length: 2
+          width: 3
+          height: 2

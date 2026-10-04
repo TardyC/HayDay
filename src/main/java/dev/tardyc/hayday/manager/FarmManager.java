@@ -254,10 +254,16 @@ public final class FarmManager {
         Structure structure = plugin.getStructures().get(building.getStructureId());
         building.getStructureBlocks().clear();
         building.getGroundBlocks().clear();
+        plugin.getProps().removeAll(building.getProps());
         if (structure == null) {
             return;
         }
         BlockPos core = building.getPos();
+        for (Structure.PropDef def : structure.getProps()) {
+            double[] offset = def.rotated(building.getRotation());
+            building.getProps().add(plugin.getProps().create(core.getWorldName(), core.getX() + 0.5 + offset[0],
+                    core.getY() + def.dy, core.getZ() + 0.5 + offset[1], (float) offset[2], def.scale, def.model, def.spin));
+        }
         for (Structure.Cell cell : structure.cells(building.getRotation())) {
             if (cell.isAnchor() || cell.ch == Structure.AIR) {
                 continue;
@@ -398,6 +404,7 @@ public final class FarmManager {
         if (block != null) {
             block.setType(Material.AIR, false);
         }
+        plugin.getProps().removeAll(building.getProps());
         // Riv huset ned: jorden bliver til græs, resten til luft
         for (BlockPos pos : building.getStructureBlocks()) {
             structureBlocks.remove(pos);

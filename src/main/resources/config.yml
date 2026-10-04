@@ -33,6 +33,9 @@ general:
   building-structures: true
   # Marker lægges ned i jorden (som en rigtig mark) når man sætter dem på græs/jord
   fields-in-ground: true
+  # 3D-modeller fra resourcepacken: lastbil, skib, vindmøllevinger, høballer, sække, mælkejunger ...
+  # Kun spillere med pakken kan se dem (andre ser bare husene).
+  3d-models: true
 
 levels:
   max-level: 50

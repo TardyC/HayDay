@@ -2,6 +2,7 @@ package dev.tardyc.hayday.model;
 
 import dev.tardyc.hayday.hologram.FloatingIcon;
 import dev.tardyc.hayday.hologram.Hologram;
+import dev.tardyc.hayday.hologram.PropManager;
 import org.bukkit.entity.Entity;
 
 import java.util.ArrayList;
@@ -32,6 +33,8 @@ public final class Building {
     private transient List<BlockPos> structureBlocks = new ArrayList<>();
     /** Strukturens jord-blokke (bliver til græs igen når bygningen fjernes). */
     private transient List<BlockPos> groundBlocks = new ArrayList<>();
+    /** 3D-modeller ved huset (sække, vindmøllevinger ...). */
+    private final transient List<PropManager.Prop> props = new ArrayList<>();
 
     public Building(UUID id, UUID owner, String ownerName, String typeId, BlockPos pos, int slots) {
         this.id = id;
@@ -177,5 +180,9 @@ public final class Building {
 
     public List<BlockPos> getGroundBlocks() {
         return groundBlocks;
+    }
+
+    public List<PropManager.Prop> getProps() {
+        return props;
     }
 }

@@ -8,7 +8,9 @@ import dev.tardyc.hayday.gui.OrdersMenu;
 import dev.tardyc.hayday.gui.StorageMenu;
 import dev.tardyc.hayday.gui.VisitMenu;
 import dev.tardyc.hayday.hologram.Hologram;
+import dev.tardyc.hayday.hologram.PropManager;
 import dev.tardyc.hayday.manager.LeaderboardManager;
+import dev.tardyc.hayday.manager.ShipManager;
 import dev.tardyc.hayday.model.BlockPos;
 import dev.tardyc.hayday.model.Building;
 import dev.tardyc.hayday.model.BuildingType;
@@ -604,6 +606,7 @@ public final class IslandManager {
             return;
         }
         if (island.getStyle() >= 2) {
+            createProps(island);
             for (Landmark landmark : Landmark.values()) {
                 Location location = landmarkHologramLocation(island, landmark);
                 if (location != null) {
@@ -631,6 +634,26 @@ public final class IslandManager {
             plugin.getHolograms().remove(hologram);
         }
         island.getLandmarkHolograms().clear();
+        plugin.getProps().removeAll(island.getProps());
+        island.setShip(null);
+    }
+
+    /** 3D-modellerne på gården (kun synlige for spillere med resourcepacken). */
+    private void createProps(Island island) {
+        double ground = layout.getHeight() + 1;
+        for (IslandBuilder.FarmProp prop : IslandBuilder.FARM_PROPS) {
+            island.getProps().add(createProp(island, prop, ground));
+        }
+        PropManager.Prop ship = createProp(island, IslandBuilder.SHIP, ground);
+        ship.setEnabled(false);
+        island.getProps().add(ship);
+        island.setShip(ship);
+    }
+
+    private PropManager.Prop createProp(Island island, IslandBuilder.FarmProp prop, double ground) {
+        double x = layout.centerX(island.getGridX()) + (prop.x - 24);
+        double z = layout.centerZ(island.getGridZ()) + (prop.z - 24);
+        return plugin.getProps().create(world.getName(), x, ground + prop.dy, z, prop.yaw, prop.scale, prop.model, 0f);
     }
 
     public List<String> hologramLines(Island island) {
@@ -1093,6 +1116,13 @@ public final class IslandManager {
         if (tickCount % 5 == 0) {
             for (Island island : byOwner.values()) {
                 refreshHologram(island);
+            }
+        }
+        // Skibet ligger ved bryggen når ejerens skib er i havn
+        for (Island island : byOwner.values()) {
+            if (island.getShip() != null) {
+                PlayerData data = plugin.getPlayers().getIfLoaded(island.getOwner());
+                island.getShip().setEnabled(data != null && plugin.getShip().state(data) == ShipManager.State.DOCKED);
             }
         }
         if (tickCount % 600 == 0) {

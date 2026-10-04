@@ -9,6 +9,7 @@ import dev.tardyc.hayday.gui.Menu;
 import dev.tardyc.hayday.gui.MenuListener;
 import dev.tardyc.hayday.hologram.AdminHologramManager;
 import dev.tardyc.hayday.hologram.HologramManager;
+import dev.tardyc.hayday.hologram.PropManager;
 import dev.tardyc.hayday.hook.IconService;
 import dev.tardyc.hayday.hook.ItemsAdderHook;
 import dev.tardyc.hayday.island.IslandGenerator;
@@ -70,6 +71,7 @@ public final class HayDayPlugin extends JavaPlugin {
     private OrderManager orders;
     private LeaderboardManager leaderboard;
     private HologramManager holograms;
+    private PropManager props;
     private AdminHologramManager adminHolograms;
     private FarmManager farm;
     private FarmService service;
@@ -110,6 +112,7 @@ public final class HayDayPlugin extends JavaPlugin {
         orders = new OrderManager(this);
         leaderboard = new LeaderboardManager(this);
         holograms = new HologramManager(this);
+        props = new PropManager(this);
         adminHolograms = new AdminHologramManager(this);
         farm = new FarmManager(this);
         service = new FarmService(this);
@@ -206,6 +209,9 @@ public final class HayDayPlugin extends JavaPlugin {
         if (holograms != null) {
             holograms.despawnAll();
         }
+        if (props != null) {
+            props.despawnAll();
+        }
         if (pack != null) {
             pack.shutdown();
         }
@@ -271,6 +277,7 @@ public final class HayDayPlugin extends JavaPlugin {
             events.tick();
             adminHolograms.tick();
             holograms.tick();
+            props.tick(interval);
         }, 20L, interval);
         menuTask = Bukkit.getScheduler().runTaskTimer(this, () -> {
             // HayDay-itemet kommer tilbage hvis det fx er blevet ryddet med /clear
@@ -355,6 +362,10 @@ public final class HayDayPlugin extends JavaPlugin {
 
     public HologramManager getHolograms() {
         return holograms;
+    }
+
+    public PropManager getProps() {
+        return props;
     }
 
     public AdminHologramManager getAdminHolograms() {

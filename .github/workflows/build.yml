@@ -25,14 +25,25 @@ jobs:
       - name: Byg med Maven
         run: mvn -B package
 
+      - name: Lav ItemsAdder-zip
+        run: python3 tools/make_itemsadder_zip.py target/HayDay-ItemsAdder.zip
+
       - name: Upload jar
         uses: actions/upload-artifact@v4
         with:
           name: HayDay
           path: target/HayDay-*.jar
 
+      - name: Upload ItemsAdder-zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: HayDay-ItemsAdder
+          path: target/HayDay-ItemsAdder.zip
+
       - name: Lav release (kun for tags)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: target/HayDay-*.jar
+          files: |
+            target/HayDay-*.jar
+            target/HayDay-ItemsAdder.zip
