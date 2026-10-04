@@ -27,6 +27,7 @@ import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
@@ -42,6 +43,7 @@ import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.weather.ThunderChangeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.event.world.StructureGrowEvent;
+import org.bukkit.inventory.EquipmentSlot;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -127,6 +129,25 @@ public final class IslandListener implements Listener {
         if (block == null || !islands().isIslandWorld(block.getWorld())) {
             return;
         }
+        // Markjord kan ikke trampes i stykker
+        if (event.getAction() == Action.PHYSICAL && block.getType() == Material.FARMLAND) {
+            event.setCancelled(true);
+            return;
+        }
+        // Laden, siloen, ordretavlen og postkassen åbner menuerne (shift + blok i hånden = byg som normalt)
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            Player player = event.getPlayer();
+            boolean building = player.isSneaking() && event.getItem() != null && event.getItem().getType().isBlock();
+            Landmark landmark = building ? null : islands().landmarkAt(block);
+            if (landmark != null) {
+                event.setCancelled(true);
+                Island island = islands().getAt(block.getX(), block.getZ());
+                if (island != null && event.getHand() == EquipmentSlot.HAND && plugin.getClickGuard().tryClick(player)) {
+                    islands().useLandmark(player, island, landmark);
+                }
+                return;
+            }
+        }
         // Marker og bygninger styres af FarmListener (vejboden og havnen må besøgende gerne bruge)
         if (plugin.getFarm().isFarmBlock(block) || islands().canBuild(event.getPlayer(), block.getX(), block.getZ())) {
             return;
@@ -141,6 +162,13 @@ public final class IslandListener implements Listener {
             if (block.getType().isInteractable()) {
                 warnNoBuild(event.getPlayer(), block.getX(), block.getZ());
             }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onEntityTrample(EntityInteractEvent event) {
+        if (event.getBlock().getType() == Material.FARMLAND && islands().isIslandWorld(event.getBlock().getWorld())) {
+            event.setCancelled(true);
         }
     }
 

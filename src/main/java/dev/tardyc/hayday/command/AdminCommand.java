@@ -41,7 +41,7 @@ import java.util.UUID;
 final class AdminCommand {
 
     static final List<String> SUBS = Arrays.asList("spiller", "lager", "give", "take", "item", "xp", "level", "coins",
-            "skib", "ordrer", "faerdigalle", "tp", "oe", "fjernalt", "reset", "info", "fjern", "faerdig", "pakke", "event", "reload");
+            "skib", "ordrer", "faerdigalle", "tp", "oe", "fjernalt", "reset", "info", "fjern", "faerdig", "pakke", "event", "torv", "reload");
     private static final List<String> WITH_PLAYER = Arrays.asList("spiller", "lager", "give", "take", "item", "xp", "level",
             "coins", "skib", "ordrer", "faerdigalle", "tp", "oe", "fjernalt", "reset");
 
@@ -118,6 +118,14 @@ final class AdminCommand {
             case "event":
             case "events":
                 event(sender, args);
+                return;
+            case "torv":
+                if (!plugin.getIslands().isEnabled()) {
+                    msg().send(sender, "island.disabled");
+                    return;
+                }
+                plugin.getIslands().rebuildSpawn();
+                msg().send(sender, "admin.spawn-rebuilt");
                 return;
             default:
                 break;

@@ -54,6 +54,7 @@ building:
   placed: "&aDu har placeret &f{building}&a! Højreklik på den for at starte produktion."
   already-owned: "&cDu har allerede &f{building}&c."
   need-air: "&cDer skal være fri luft over bygningen, så dyret har plads."
+  no-room: "&cDer er ikke plads til {building} &chér. &7Huset skal stå på fast jord med fri luft omkring (og på din egen ø)."
   remove-hint: "&7Tip: &fShift + slå &7på bygningen for at samle den op (køen skal være tom)."
   locked: "&f{building} &cbliver låst op ved level &f{level}&c."
   removed: "&e{building} &eblev fjernet og lagt i dit inventory."
@@ -163,6 +164,15 @@ island:
   like-own: "&7Du kan ikke like din egen gård - men andre kan!"
   like-notify: "&c❤ &f{player} &alikede din gård!"
   helped-ship: "&aDu hjalp &f{owner} &amed skibet! &6+{coins} &b+{xp} XP"
+  landmark-visitor: "&7Det er &f{owner}&7s {landmark}&7."
+  landmark-names:
+    barn: "&6lade"
+    silo: "&esilo"
+    orderboard: "&bordretavle"
+    mailbox: "&fpostkasse"
+  rebuild-confirm: "&eByg din gård om i den nye stil (stuehus, lade, silo, mark og dam)? Dine marker og bygninger lægges i dit inventory, og afgrøder/kø går tabt. Skriv &f/hayday gaard ombyg confirm&e."
+  rebuilding: "&7Din gård bliver bygget om - det tager et par sekunder..."
+  rebuilt: "&aDin gård er bygget om! &7Dine marker og bygninger ligger i dit inventory."
   helped-ship-notify: "&d{player} &ahjalp med at fylde en kasse på dit skib! &7({amount}x {item})"
 
 events:
@@ -230,6 +240,7 @@ admin:
   island-working: "&7Øen bliver tegnet om - det tager et par sekunder..."
   island-reset: "&a{player}s ø er bygget forfra."
   island-deleted: "&a{player}s ø er slettet, og pladsen er fri igen."
+  spawn-rebuilt: "&aTorvets springvand, boder, lygter og bro er bygget."
   pack-sent: "&aResourcepacken blev sendt til &f{count} &aspillere."
   pack-status:
     - "&a&l» Resourcepack"
@@ -276,7 +287,7 @@ help:
   - "&f/hayday pakke &7- Hent HayDays resourcepack igen"
   - "&f/hayday hjem &7- Tag hjem til din ø &8| &f/hayday torv &7- Til torvet"
   - "&f/hayday besoeg [spiller] &7- Besøg andre gårde"
-  - "&f/hayday gaard &7- Din gård: adgang, navn, hjem og venner"
+  - "&f/hayday gaard &7- Din gård: adgang, navn, hjem og venner &8(ombyg = ny stil)"
   - "&f/hayday ven tilfoej|fjern <spiller> &7- Venner kan altid besøge dig"
   - "&f/hayday like &7- Like gården du står på"
   - "&f/hayday events &7- Se hvilke events der kører (dobbelt penge, XP ...)"
@@ -286,6 +297,7 @@ help:
   - "&7Højreklik på en &fmark &7for at plante/høste. &fShift+højreklik &7høster alle marker tæt på."
   - "&7Højreklik på en &fbygning &7for at producere varer."
   - "&7Shift + slå på din tomme mark/bygning for at samle den op igen."
+  - "&7Klik på din &6lade&7, &esilo&7, &bordretavle &7og &fpostkasse &7for at åbne dem."
   - "&7Hos andre: køb i vejboden, fyld skibets kasser og klik på skiltet for at like."
 
 admin-help:
@@ -300,6 +312,7 @@ admin-help:
   - "&f/hayday admin faerdigalle <spiller> &7- Gør alle marker og bygninger færdige"
   - "&f/hayday admin tp <spiller> &7- Teleportér til spillerens gård"
   - "&f/hayday admin oe <spiller> [info|tp|nulstil|slet] &7- Spillerens ø"
+  - "&f/hayday admin torv &7- Byg torvets springvand og pynt"
   - "&f/hayday admin fjernalt <spiller> confirm &7- Fjern alle marker og bygninger"
   - "&f/hayday admin reset <spiller> confirm &7- Nulstil alt"
   - "&f/hayday admin info &7| &ffjern &7| &ffaerdig &7- Mark/bygning du kigger på"

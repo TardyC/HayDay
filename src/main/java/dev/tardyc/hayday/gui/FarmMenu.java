@@ -12,6 +12,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -67,6 +69,9 @@ public final class FarmMenu extends Menu {
                         "&7Besøg i alt: &f" + island.getVisits(),
                         "&7Besøgende lige nu: &f" + visitors.size(),
                         "&7Adgang: " + islands.accessName(island.getAccess()))
+                .lore(island.getStyle() < 2
+                        ? Arrays.asList("", "&e★ Ny gård-stil med lade og silo:", "&f/hayday gaard ombyg")
+                        : Collections.<String>emptyList())
                 .build());
 
         set(10, button(Material.OAK_DOOR, "&a&lTag hjem", "&7Teleportér til din gård.", "", "&e» Klik"), click -> {

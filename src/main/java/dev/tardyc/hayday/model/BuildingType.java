@@ -35,6 +35,8 @@ public final class BuildingType {
     private final double slotPrice;
     private final int maxPerPlayer;
     private final Map<String, Recipe> recipes;
+    /** Navnet på bygningens struktur i structures.yml ("none" = kun én blok). */
+    private String structureId;
 
     public BuildingType(String id, String name, Function function, Material block, EntityType animal, double hologramHeight, double price, int level,
                         int baseSlots, int maxSlots, double slotPrice, int maxPerPlayer, Map<String, Recipe> recipes) {
@@ -120,5 +122,13 @@ public final class BuildingType {
 
     public Map<String, Recipe> getRecipes() {
         return recipes;
+    }
+
+    public String getStructureId() {
+        return structureId;
+    }
+
+    public void setStructureId(String structureId) {
+        this.structureId = structureId == null || structureId.equalsIgnoreCase("none") ? null : structureId;
     }
 }

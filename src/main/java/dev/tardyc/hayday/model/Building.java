@@ -20,11 +20,18 @@ public final class Building {
     private final BlockPos pos;
     private int slots;
     private final List<QueueEntry> queue = new ArrayList<>();
+    /** Strukturen bygningen er bygget som (null = én blok) og dens drejning (0-3). */
+    private String structureId;
+    private int rotation;
 
     private transient Hologram hologram;
     private transient FloatingIcon icon;
     private transient Entity animal;
     private transient int notifiedDone;
+    /** Alle strukturens blokke (til klik, beskyttelse og fjernelse). */
+    private transient List<BlockPos> structureBlocks = new ArrayList<>();
+    /** Strukturens jord-blokke (bliver til græs igen når bygningen fjernes). */
+    private transient List<BlockPos> groundBlocks = new ArrayList<>();
 
     public Building(UUID id, UUID owner, String ownerName, String typeId, BlockPos pos, int slots) {
         this.id = id;
@@ -146,5 +153,29 @@ public final class Building {
 
     public void setNotifiedDone(int notifiedDone) {
         this.notifiedDone = notifiedDone;
+    }
+
+    public String getStructureId() {
+        return structureId;
+    }
+
+    public void setStructureId(String structureId) {
+        this.structureId = structureId;
+    }
+
+    public int getRotation() {
+        return rotation;
+    }
+
+    public void setRotation(int rotation) {
+        this.rotation = rotation & 3;
+    }
+
+    public List<BlockPos> getStructureBlocks() {
+        return structureBlocks;
+    }
+
+    public List<BlockPos> getGroundBlocks() {
+        return groundBlocks;
     }
 }

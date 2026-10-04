@@ -34,6 +34,7 @@ import dev.tardyc.hayday.model.FarmItem;
 import dev.tardyc.hayday.pack.ResourcePackManager;
 import dev.tardyc.hayday.registry.BuildingRegistry;
 import dev.tardyc.hayday.registry.ItemRegistry;
+import dev.tardyc.hayday.structure.StructureManager;
 import dev.tardyc.hayday.util.ClickGuard;
 import dev.tardyc.hayday.util.Keys;
 import org.bukkit.Bukkit;
@@ -60,6 +61,7 @@ public final class HayDayPlugin extends JavaPlugin {
     private final ItemRegistry items = new ItemRegistry();
     private final BuildingRegistry buildings = new BuildingRegistry();
     private final ClickGuard clickGuard = new ClickGuard();
+    private final StructureManager structures = new StructureManager(this);
     private Messages messages;
     private EconomyManager economy;
     private PlayerManager players;
@@ -217,6 +219,7 @@ public final class HayDayPlugin extends JavaPlugin {
         messages.load();
         items.load(loadYaml("items.yml"), getLogger());
         buildings.load(loadYaml("buildings.yml"), items, getLogger());
+        structures.load();
     }
 
     private YamlConfiguration loadYaml(String name) {
@@ -249,6 +252,7 @@ public final class HayDayPlugin extends JavaPlugin {
         icons.clearCache();
         animations.setup();
         holograms.respawnAll();
+        farm.reloadStructures();
         farm.reloadHolograms();
         islands.reload();
         events.reload();
@@ -315,6 +319,10 @@ public final class HayDayPlugin extends JavaPlugin {
 
     public BuildingRegistry getBuildings() {
         return buildings;
+    }
+
+    public StructureManager getStructures() {
+        return structures;
     }
 
     public ClickGuard getClickGuard() {

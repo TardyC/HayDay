@@ -112,10 +112,19 @@ public final class IslandLayout {
 
     /** Blokken som verdenen genereres med på (x, y, z), eller null for luft. */
     public Material material(int x, int y, int z) {
-        return material(edgeDistance(x, z), isSpawnPath(x, z), y);
+        return material(x, z, edgeDistance(x, z), isSpawnPath(x, z), y);
     }
 
-    Material material(int edge, boolean spawnPath, int y) {
+    /** Fast "tilfældigt" tal 0-1023 for en kolonne, så havbunden ser naturlig ud (og altid ens). */
+    private static int noise(int x, int z) {
+        long h = x * 341873128712L + z * 132897987541L;
+        h ^= h >>> 29;
+        h *= 0x5DEECE66DL;
+        h ^= h >>> 17;
+        return (int) (h & 1023);
+    }
+
+    Material material(int x, int z, int edge, boolean spawnPath, int y) {
         int bottom = getBottom();
         if (y < bottom || y > height) {
             return null;
@@ -127,11 +136,30 @@ public final class IslandLayout {
             return Material.STONE;
         }
         if (edge < 0) {
-            // Havet: sandbund og 5 blokke vand
-            if (y <= height - 7) {
+            // Havet: sandbund med grus og ler, søgræs og tang - og 5 blokke vand
+            int n = noise(x, z);
+            if (y <= height - 8) {
                 return Material.SAND;
             }
-            return y <= height - 2 ? Material.WATER : null;
+            if (y == height - 7) {
+                return n < 90 ? Material.GRAVEL : n < 130 ? Material.CLAY : Material.SAND;
+            }
+            if (y > height - 2) {
+                return null;
+            }
+            if (n >= 300 && n < 430 && y == height - 6) {
+                return Material.SEAGRASS;
+            }
+            if (n >= 430 && n < 452) {
+                int top = height - 6 + n % 3;
+                if (y < top) {
+                    return Material.KELP_PLANT;
+                }
+                if (y == top) {
+                    return Material.KELP;
+                }
+            }
+            return Material.WATER;
         }
         if (edge == 0) {
             return y <= height - 1 ? Material.SAND : null;
@@ -150,7 +178,7 @@ public final class IslandLayout {
         int edge = edgeDistance(x, z);
         boolean path = isSpawnPath(x, z);
         for (int y = minY; y <= maxY; y++) {
-            Material material = material(edge, path, y);
+            Material material = material(x, z, edge, path, y);
             if (material != null) {
                 sink.set(y, material);
             }

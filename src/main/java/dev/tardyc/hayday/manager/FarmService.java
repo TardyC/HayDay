@@ -16,6 +16,7 @@ import dev.tardyc.hayday.model.Field;
 import dev.tardyc.hayday.model.PlayerData;
 import dev.tardyc.hayday.model.QueueEntry;
 import dev.tardyc.hayday.model.Recipe;
+import dev.tardyc.hayday.structure.Structure;
 import dev.tardyc.hayday.util.Effects;
 import dev.tardyc.hayday.util.PlaceableItems;
 import dev.tardyc.hayday.util.Sounds;
@@ -168,10 +169,58 @@ public final class FarmService {
             msg().send(player, "building.need-air");
             return false;
         }
+        // Bygningen bygges som et rigtigt hus/en indhegning, med forsiden mod spilleren
+        Structure structure = plugin.getStructures().forBuilding(type);
+        int rotation = 0;
+        if (structure != null) {
+            int direction = Math.round(player.getLocation().getYaw() / 90f) & 3;
+            rotation = (direction + 2) & 3;
+            if (!hasRoom(player, structure, block, rotation)) {
+                msg().send(player, "building.no-room", "building", type.getName());
+                Sounds.play(player, Sounds.ERROR);
+                return false;
+            }
+        }
         ensureStarted(player);
-        farm().createBuilding(player, type, BlockPos.of(block));
+        farm().createBuilding(player, type, BlockPos.of(block), structure == null ? null : structure.getId(), rotation);
+        if (structure != null) {
+            structure.paste(block.getWorld(), block.getX(), block.getY(), block.getZ(), rotation, false);
+            Effects.produce(block.getLocation().add(0.5, 1.5, 0.5));
+        }
         msg().send(player, "building.placed", "building", type.getName());
         Sounds.play(player, Sounds.PLACE);
+        return true;
+    }
+
+    /**
+     * Er der plads til bygningens hus? Over jorden skal der være fri luft (græs og blomster må gerne fjernes),
+     * jorden under skal være fast, alt skal ligge på spillerens egen ø og må ikke ramme andre marker/bygninger.
+     */
+    private boolean hasRoom(Player player, Structure structure, Block core, int rotation) {
+        boolean islandWorld = plugin.getIslands().isIslandWorld(core.getWorld());
+        for (Structure.Cell cell : structure.cells(rotation)) {
+            if (cell.isAnchor()) {
+                continue;
+            }
+            int y = core.getY() + cell.dy;
+            if (y < core.getWorld().getMinHeight() || y >= core.getWorld().getMaxHeight()) {
+                return false;
+            }
+            Block block = core.getWorld().getBlockAt(core.getX() + cell.dx, y, core.getZ() + cell.dz);
+            if (islandWorld && !plugin.getIslands().canBuild(player, block.getX(), block.getZ())) {
+                return false;
+            }
+            if (farm().isFarmBlock(block)) {
+                return false;
+            }
+            if (cell.isGround()) {
+                if (!block.getType().isSolid()) {
+                    return false;
+                }
+            } else if (!block.getType().isAir() && !(block.isPassable() && !block.isLiquid())) {
+                return false;
+            }
+        }
         return true;
     }
 

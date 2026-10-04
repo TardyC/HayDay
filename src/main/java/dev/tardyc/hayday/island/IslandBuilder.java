@@ -3,6 +3,7 @@ package dev.tardyc.hayday.island;
 import dev.tardyc.hayday.HayDayPlugin;
 import dev.tardyc.hayday.model.BlockPos;
 import dev.tardyc.hayday.model.Field;
+import dev.tardyc.hayday.structure.Structure;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -11,6 +12,9 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -19,6 +23,9 @@ import java.util.Random;
  */
 final class IslandBuilder {
 
+    /** Strukturerne den realistiske gård er bygget af. */
+    private static final String[] FARM_STRUCTURES = {"farmhouse", "barn", "silo", "orderboard", "mailbox", "fieldpatch",
+            "pond", "dock"};
     private static final String[] FLOWERS = {"poppy", "dandelion", "cornflower", "oxeye_daisy", "azure_bluet",
             "red_tulip", "orange_tulip", "pink_tulip", "white_tulip", "short_grass", "short_grass", "short_grass"};
     /** Så mange blokke tjekkes pr. tick når en ø tegnes om. */
@@ -36,12 +43,35 @@ final class IslandBuilder {
 
     /** Signet ved stranden hvor øens hologram svæver. */
     static Location signLocation(World world, IslandLayout layout, Island island) {
-        return new Location(world, layout.centerX(island.getGridX()) + 2.5, layout.getHeight() + 3.0,
+        return new Location(world, layout.centerX(island.getGridX()) + 2.5, layout.getHeight() + 4.4,
                 layout.maxZ(island.getGridZ()) - 5.5);
     }
 
     /** Bygger startgården og returnerer hvor mange marker der blev lagt. */
     int buildStarter(World world, IslandLayout layout, Island island, int fields) {
+        if (canBuildFarm(layout)) {
+            island.setStyle(2);
+            return buildFarm(world, layout, island, fields);
+        }
+        island.setStyle(1);
+        return buildSimple(world, layout, island, fields);
+    }
+
+    /** Den realistiske gård kræver en ø på mindst 44x44 og at bygningerne findes i structures.yml. */
+    boolean canBuildFarm(IslandLayout layout) {
+        if (layout.getSize() < 44) {
+            return false;
+        }
+        for (String id : FARM_STRUCTURES) {
+            if (plugin.getStructures().get(id) == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Den første, simple gård (små øer eller hvis structures.yml mangler noget). */
+    private int buildSimple(World world, IslandLayout layout, Island island, int fields) {
         int h = layout.getHeight();
         int gx = island.getGridX();
         int gz = island.getGridZ();
@@ -62,8 +92,7 @@ final class IslandBuilder {
             replaceGrass(world, cx, h, z, "dirt_path");
         }
         // Skilt med lygte ved indgangen
-        set(world, cx + 2, h + 1, maxZ - 6, "spruce_fence");
-        set(world, cx + 2, h + 2, maxZ - 6, "lantern");
+        lamp(world, cx + 2, h, maxZ - 6);
 
         // Startmarker ved siden af stien
         int placed = 0;
@@ -160,29 +189,228 @@ final class IslandBuilder {
     }
 
     // ------------------------------------------------------------------
+    // Den realistiske gård (stil 2)
+    // ------------------------------------------------------------------
+
+    /** Lokale koordinater er tegnet til en 48x48-ø; på større øer rykkes alt ind mod midten. */
+    static int x(IslandLayout layout, Island island, int local) {
+        return layout.centerX(island.getGridX()) + (local - 24);
+    }
+
+    static int z(IslandLayout layout, Island island, int local) {
+        return layout.centerZ(island.getGridZ()) + (local - 24);
+    }
+
+    private void paste(World world, String id, int x, int y, int z) {
+        Structure structure = plugin.getStructures().get(id);
+        if (structure != null) {
+            structure.paste(world, x, y, z, 0, true);
+        }
+    }
+
+    private int buildFarm(World world, IslandLayout layout, Island island, int fields) {
+        int h = layout.getHeight();
+        Random random = new Random(island.key() * 31 + 11);
+
+        // Stier først, så bygningerne kan stå oven på kanterne
+        for (int lz = 19; lz <= 44; lz++) {
+            for (int lx = 23; lx <= 25; lx++) {
+                path(world, x(layout, island, lx), h, z(layout, island, lz), random, 0.12);
+            }
+            if (random.nextDouble() < 0.3) {
+                path(world, x(layout, island, random.nextBoolean() ? 22 : 26), h, z(layout, island, lz), random, 0.5);
+            }
+        }
+        for (int lx = 11; lx <= 30; lx++) {
+            for (int lz = 18; lz <= 20; lz++) {
+                path(world, x(layout, island, lx), h, z(layout, island, lz), random, 0.35);
+            }
+        }
+        for (int lx = 20; lx <= 22; lx++) {
+            path(world, x(layout, island, lx), h, z(layout, island, 30), random, 0.2);
+        }
+
+        // Gårdens bygninger
+        paste(world, "farmhouse", x(layout, island, 12), h, z(layout, island, 16));
+        for (Landmark landmark : Landmark.values()) {
+            paste(world, landmark.structure(), x(layout, island, landmark.x()), h, z(layout, island, landmark.z()));
+        }
+        paste(world, "fieldpatch", x(layout, island, 19), h, z(layout, island, 30));
+        paste(world, "pond", x(layout, island, 35), h, z(layout, island, 32));
+        paste(world, "dock", x(layout, island, 24), h, z(layout, island, 45));
+
+        // Startmarker på den pløjede jord, tættest på lågen først
+        int placed = 0;
+        Structure patch = plugin.getStructures().get("fieldpatch");
+        if (patch != null && fields > 0) {
+            int ax = x(layout, island, 19);
+            int az = z(layout, island, 30);
+            List<Structure.Cell> spots = new ArrayList<>();
+            for (Structure.Cell cell : patch.cells(0)) {
+                if (cell.ch == Structure.FIELD) {
+                    spots.add(cell);
+                }
+            }
+            spots.sort(Comparator.comparingInt(cell -> Math.abs(cell.dz) * 3 - cell.dx));
+            for (Structure.Cell cell : spots) {
+                if (placed >= Math.min(12, fields)) {
+                    break;
+                }
+                Block soil = world.getBlockAt(ax + cell.dx, h + cell.dy, az + cell.dz);
+                if (plugin.getFarm().getFieldAt(soil) != null) {
+                    continue;
+                }
+                Field field = plugin.getFarm().createField(island.getOwner(), island.getOwnerName(), BlockPos.of(soil));
+                plugin.getFarm().refresh(field);
+                placed++;
+            }
+        }
+
+        // Lygtepæle langs vejen og skiltet ved bryggen
+        int[][] lamps = {{22, 26}, {26, 26}, {22, 34}, {26, 34}};
+        for (int[] lamp : lamps) {
+            lamp(world, x(layout, island, lamp[0]), h, z(layout, island, lamp[1]));
+        }
+        lamp(world, layout.centerX(island.getGridX()) + 2, h, layout.maxZ(island.getGridZ()) - 6);
+
+        // Natur: træer, buske, blomster, højt græs, sten og drivtømmer
+        int[][] oaks = {{6, 21}, {43, 25}, {20, 5}, {5, 6}};
+        int[][] birches = {{9, 42}, {41, 42}};
+        for (int[] tree : oaks) {
+            tree(world, x(layout, island, tree[0]), h + 1, z(layout, island, tree[1]), TreeType.TREE);
+        }
+        for (int[] tree : birches) {
+            tree(world, x(layout, island, tree[0]), h + 1, z(layout, island, tree[1]), TreeType.BIRCH);
+        }
+        int[][] bushes = {{6, 10}, {6, 14}, {18, 9}, {25, 8}, {26, 14}, {44, 18}, {17, 38}, {3, 30}, {44, 36}};
+        for (int[] bush : bushes) {
+            bush(world, x(layout, island, bush[0]), h, z(layout, island, bush[1]), random);
+        }
+        int[][] meadows = {{10, 23}, {44, 31}, {15, 41}, {33, 44}, {4, 24}, {39, 20}};
+        for (int[] meadow : meadows) {
+            for (int i = 0; i < 9; i++) {
+                flower(world, x(layout, island, meadow[0]) + random.nextInt(5) - 2, h,
+                        z(layout, island, meadow[1]) + random.nextInt(5) - 2, FLOWERS[random.nextInt(FLOWERS.length)]);
+            }
+        }
+        int minX = layout.minX(island.getGridX());
+        int minZ = layout.minZ(island.getGridZ());
+        for (int i = 0; i < 220; i++) {
+            int gx = minX + 3 + random.nextInt(layout.getSize() - 6);
+            int gz = minZ + 3 + random.nextInt(layout.getSize() - 6);
+            if (layout.edgeDistance(gx, gz) < 3) {
+                continue;
+            }
+            double roll = random.nextDouble();
+            if (roll < 0.18) {
+                tallGrass(world, gx, h, gz);
+            } else {
+                flower(world, gx, h, gz, roll < 0.25 ? "fern" : "short_grass");
+            }
+        }
+        for (int i = 0; i < 60; i++) {
+            int gx = minX + random.nextInt(layout.getSize());
+            int gz = minZ + random.nextInt(layout.getSize());
+            int edge = layout.edgeDistance(gx, gz);
+            if (edge < 1 || edge > 2 || !world.getBlockAt(gx, h + 1, gz).getType().isAir()
+                    || world.getBlockAt(gx, h, gz).getType() != Material.SAND) {
+                continue;
+            }
+            double roll = random.nextDouble();
+            String rock = roll < 0.35 ? "cobblestone" : roll < 0.6 ? "mossy_cobblestone" : roll < 0.8 ? "andesite"
+                    : roll < 0.9 ? "stripped_oak_log[axis=x]" : "dead_bush";
+            set(world, gx, h + 1, gz, rock);
+        }
+        return placed;
+    }
+
+    /** Sti: jordsti med lidt grus og grov jord, kun hvor der er græs. */
+    private void path(World world, int x, int y, int z, Random random, double rough) {
+        Material ground = world.getBlockAt(x, y, z).getType();
+        if (ground != Material.GRASS_BLOCK && ground != Material.DIRT) {
+            return;
+        }
+        double roll = random.nextDouble();
+        set(world, x, y, z, roll < rough * 0.6 ? "coarse_dirt" : roll < rough ? "gravel" : "dirt_path");
+        Material above = world.getBlockAt(x, y + 1, z).getType();
+        if (!above.isAir() && world.getBlockAt(x, y + 1, z).isPassable()) {
+            set(world, x, y + 1, z, "air");
+        }
+    }
+
+    private void lamp(World world, int x, int y, int z) {
+        set(world, x, y + 1, z, "spruce_fence");
+        set(world, x, y + 2, z, "spruce_fence");
+        set(world, x, y + 3, z, "lantern");
+    }
+
+    /** En lille busk af blade (1-3 blokke). */
+    private void bush(World world, int x, int y, int z, Random random) {
+        String leaves = random.nextBoolean() ? "azalea_leaves[persistent=true]" : "flowering_azalea_leaves[persistent=true]";
+        if (world.getBlockAt(x, y, z).getType() != Material.GRASS_BLOCK || !world.getBlockAt(x, y + 1, z).getType().isAir()) {
+            return;
+        }
+        set(world, x, y + 1, z, leaves);
+        if (random.nextBoolean() && world.getBlockAt(x + 1, y + 1, z).getType().isAir()
+                && world.getBlockAt(x + 1, y, z).getType() == Material.GRASS_BLOCK) {
+            set(world, x + 1, y + 1, z, "oak_leaves[persistent=true]");
+        }
+        if (random.nextInt(3) == 0 && world.getBlockAt(x, y + 2, z).getType().isAir()) {
+            set(world, x, y + 2, z, "oak_leaves[persistent=true]");
+        }
+    }
+
+    private void tallGrass(World world, int x, int groundY, int z) {
+        if (world.getBlockAt(x, groundY, z).getType() == Material.GRASS_BLOCK
+                && world.getBlockAt(x, groundY + 1, z).getType().isAir()
+                && world.getBlockAt(x, groundY + 2, z).getType().isAir()) {
+            set(world, x, groundY + 1, z, "tall_grass[half=lower]");
+            set(world, x, groundY + 2, z, "tall_grass[half=upper]");
+        }
+    }
+
+    // ------------------------------------------------------------------
     // Torvet (spawn)
     // ------------------------------------------------------------------
 
     void buildSpawn(World world, IslandLayout layout) {
         int h = layout.getHeight();
         int c = layout.centerX(0);
-        for (int dx = -3; dx <= 3; dx += 6) {
-            for (int dz = -3; dz <= 3; dz += 6) {
-                set(world, c + dx, h + 1, c + dz, "spruce_fence");
-                set(world, c + dx, h + 2, c + dz, "lantern");
+        Random random = new Random(42);
+        if (plugin.getStructures().get("fountain") != null) {
+            paste(world, "fountain", c, h, c);
+        } else {
+            set(world, c, h + 1, c, "hay_block");
+        }
+        for (int dx = -5; dx <= 5; dx += 10) {
+            for (int dz = -5; dz <= 5; dz += 10) {
+                lamp(world, c + dx, h, c + dz);
             }
         }
-        set(world, c, h + 1, c, "hay_block");
-        tree(world, c - 12, h + 1, c - 12);
-        tree(world, c + 12, h + 1, c - 12);
-        tree(world, c - 12, h + 1, c + 12);
-        tree(world, c + 12, h + 1, c + 12);
-        Random random = new Random(42);
-        for (int i = 0; i < 50; i++) {
+        Structure stall = plugin.getStructures().get("vejbod");
+        if (stall != null) {
+            stall.paste(world, c - 9, h + 1, c + 5, 0, true);
+            stall.paste(world, c + 9, h + 1, c + 5, 0, true);
+        }
+        paste(world, "dock", c, h, layout.maxZ(0) - 2);
+        tree(world, c - 12, h + 1, c - 12, TreeType.TREE);
+        tree(world, c + 12, h + 1, c - 12, TreeType.BIRCH);
+        tree(world, c - 12, h + 1, c + 12, TreeType.BIRCH);
+        tree(world, c + 12, h + 1, c + 12, TreeType.TREE);
+        for (int i = 0; i < 160; i++) {
             int x = c - 20 + random.nextInt(41);
             int z = c - 20 + random.nextInt(41);
-            if (Math.abs(x - c) > 2 && Math.abs(z - c) > 2 && layout.edgeDistance(x, z) >= 4) {
+            if (Math.abs(x - c) <= 7 && Math.abs(z - c) <= 7 || Math.abs(x - c) <= 1 || Math.abs(z - c) <= 1
+                    || layout.edgeDistance(x, z) < 4) {
+                continue;
+            }
+            double roll = random.nextDouble();
+            if (roll < 0.35) {
                 flower(world, x, h, z, FLOWERS[random.nextInt(FLOWERS.length)]);
+            } else if (roll < 0.45) {
+                tallGrass(world, x, h, z);
+            } else {
+                flower(world, x, h, z, "short_grass");
             }
         }
     }
@@ -262,8 +490,12 @@ final class IslandBuilder {
     }
 
     private void tree(World world, int x, int y, int z) {
+        tree(world, x, y, z, TreeType.TREE);
+    }
+
+    private void tree(World world, int x, int y, int z, TreeType type) {
         if (world.getBlockAt(x, y - 1, z).getType() == Material.GRASS_BLOCK && world.getBlockAt(x, y, z).getType().isAir()) {
-            world.generateTree(new Location(world, x + 0.5, y, z + 0.5), TreeType.TREE);
+            world.generateTree(new Location(world, x + 0.5, y, z + 0.5), type);
         }
     }
 }

@@ -14,6 +14,7 @@ import dev.tardyc.hayday.model.Listing;
 import dev.tardyc.hayday.model.PlayerData;
 import dev.tardyc.hayday.model.QueueEntry;
 import dev.tardyc.hayday.model.Recipe;
+import dev.tardyc.hayday.structure.Structure;
 import dev.tardyc.hayday.util.Effects;
 import dev.tardyc.hayday.util.Keys;
 import dev.tardyc.hayday.util.Text;
@@ -64,6 +65,8 @@ public final class FarmManager {
     private final Map<UUID, Building> buildings = new LinkedHashMap<>();
     private final Map<BlockPos, Building> buildingsByPos = new HashMap<>();
     private final Map<UUID, Building> animals = new HashMap<>();
+    /** Alle blokke i bygningernes strukturer (huse, hegn, tage ...) -> bygningen. */
+    private final Map<BlockPos, Building> structureBlocks = new HashMap<>();
     /** Bygninger med en type der ikke findes i buildings.yml længere - gemmes uændret så intet data går tabt. */
     private final Map<String, ConfigurationSection> unknownBuildings = new LinkedHashMap<>();
 
@@ -144,6 +147,8 @@ public final class FarmManager {
                             }
                         }
                         building.setNotifiedDone(building.countDone(now));
+                        building.setStructureId(section.getString("structure", null));
+                        building.setRotation(section.getInt("rotation", 0));
                         registerBuilding(building);
                     } catch (IllegalArgumentException e) {
                         plugin.getLogger().warning("Ugyldig bygning i buildings.yml: " + key);
@@ -184,6 +189,8 @@ public final class FarmManager {
             buildingConfig.set(path + ".type", building.getTypeId());
             buildingConfig.set(path + ".pos", building.getPos().serialize());
             buildingConfig.set(path + ".slots", building.getSlots());
+            buildingConfig.set(path + ".structure", building.getStructureId());
+            buildingConfig.set(path + ".rotation", building.getStructureId() == null ? null : building.getRotation());
             List<String> queue = new ArrayList<>();
             for (QueueEntry entry : building.getQueue()) {
                 queue.add(entry.serialize());
@@ -235,10 +242,47 @@ public final class FarmManager {
     private void registerBuilding(Building building) {
         buildings.put(building.getId(), building);
         buildingsByPos.put(building.getPos(), building);
+        registerStructure(building);
         World world = building.getPos().getWorld();
         if (world != null) {
             createBuildingHologram(building);
         }
+    }
+
+    /** Registrerer alle blokke i bygningens struktur, så klik, beskyttelse og fjernelse virker på hele huset. */
+    private void registerStructure(Building building) {
+        Structure structure = plugin.getStructures().get(building.getStructureId());
+        building.getStructureBlocks().clear();
+        building.getGroundBlocks().clear();
+        if (structure == null) {
+            return;
+        }
+        BlockPos core = building.getPos();
+        for (Structure.Cell cell : structure.cells(building.getRotation())) {
+            if (cell.isAnchor() || cell.ch == Structure.AIR) {
+                continue;
+            }
+            BlockPos pos = core.offset(cell.dx, cell.dy, cell.dz);
+            building.getStructureBlocks().add(pos);
+            if (cell.isGround()) {
+                building.getGroundBlocks().add(pos);
+            }
+            structureBlocks.put(pos, building);
+        }
+    }
+
+    /** Efter /hayday reload: blueprints kan være ændret. */
+    public void reloadStructures() {
+        structureBlocks.clear();
+        for (Building building : buildings.values()) {
+            registerStructure(building);
+        }
+    }
+
+    /** Hvor højt over bygningens blok hologrammet svæver (over taget hvis bygningen er et hus). */
+    public double hologramHeight(Building building, BuildingType type) {
+        Structure structure = plugin.getStructures().get(building.getStructureId());
+        return structure != null ? structure.getHologramHeight() : type.getHologramHeight();
     }
 
     private void createFieldHologram(Field field) {
@@ -255,7 +299,7 @@ public final class FarmManager {
         if (building.getHologram() != null || type == null) {
             return;
         }
-        Location location = building.getPos().toCenter().add(0, type.getHologramHeight(), 0);
+        Location location = building.getPos().toCenter().add(0, hologramHeight(building, type), 0);
         building.setHologram(plugin.getHolograms().create(location, buildingLines(building, type, System.currentTimeMillis()), null));
     }
 
@@ -328,7 +372,13 @@ public final class FarmManager {
     }
 
     public Building createBuilding(Player owner, BuildingType type, BlockPos pos) {
+        return createBuilding(owner, type, pos, null, 0);
+    }
+
+    public Building createBuilding(Player owner, BuildingType type, BlockPos pos, String structureId, int rotation) {
         Building building = new Building(UUID.randomUUID(), owner.getUniqueId(), owner.getName(), type.getId(), pos, type.getBaseSlots());
+        building.setStructureId(structureId);
+        building.setRotation(rotation);
         registerBuilding(building);
         dirty = true;
         return building;
@@ -348,6 +398,16 @@ public final class FarmManager {
         if (block != null) {
             block.setType(Material.AIR, false);
         }
+        // Riv huset ned: jorden bliver til græs, resten til luft
+        for (BlockPos pos : building.getStructureBlocks()) {
+            structureBlocks.remove(pos);
+            Block part = pos.getBlock();
+            if (part != null) {
+                part.setType(building.getGroundBlocks().contains(pos) ? Material.GRASS_BLOCK : Material.AIR, false);
+            }
+        }
+        building.getStructureBlocks().clear();
+        building.getGroundBlocks().clear();
         dirty = true;
     }
 
@@ -374,15 +434,25 @@ public final class FarmManager {
     }
 
     public Building getBuildingAt(Block block) {
-        return buildings.isEmpty() ? null : buildingsByPos.get(BlockPos.of(block));
+        if (buildings.isEmpty()) {
+            return null;
+        }
+        BlockPos pos = BlockPos.of(block);
+        Building building = buildingsByPos.get(pos);
+        return building != null ? building : structureBlocks.get(pos);
+    }
+
+    /** Er positionen optaget af en mark eller en bygning (inkl. bygningens hus)? */
+    public boolean isOccupied(BlockPos pos) {
+        return fieldsBySoil.containsKey(pos) || fieldsByCrop.containsKey(pos) || buildingsByPos.containsKey(pos)
+                || structureBlocks.containsKey(pos);
     }
 
     public boolean isFarmBlock(Block block) {
         if (fields.isEmpty() && buildings.isEmpty()) {
             return false;
         }
-        BlockPos pos = BlockPos.of(block);
-        return fieldsBySoil.containsKey(pos) || fieldsByCrop.containsKey(pos) || buildingsByPos.containsKey(pos);
+        return isOccupied(BlockPos.of(block));
     }
 
     public boolean hasFields() {
@@ -699,7 +769,7 @@ public final class FarmManager {
         if (building.getIcon() == null) {
             building.setIcon(new FloatingIcon(plugin));
         }
-        Location location = building.getPos().toCenter().add(0, type.getHologramHeight() + iconOffset(lineCount), 0);
+        Location location = building.getPos().toCenter().add(0, hologramHeight(building, type) + iconOffset(lineCount), 0);
         building.getIcon().show(location, output.getDisplayStack(), 0.6f, done > 0);
     }
 
@@ -821,7 +891,8 @@ public final class FarmManager {
         for (Building building : buildings.values()) {
             BuildingType type = plugin.getBuildings().get(building.getTypeId());
             if (building.getHologram() != null && type != null && building.getPos().getWorld() != null) {
-                plugin.getHolograms().move(building.getHologram(), building.getPos().toCenter().add(0, type.getHologramHeight(), 0));
+                plugin.getHolograms().move(building.getHologram(),
+                        building.getPos().toCenter().add(0, hologramHeight(building, type), 0));
             }
         }
     }

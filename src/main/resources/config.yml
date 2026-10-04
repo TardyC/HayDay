@@ -28,6 +28,11 @@ general:
   notify-ready: true
   # Vis en oversigt over gården når man logger ind
   join-summary: true
+  # Bygninger bygges som rigtige huse og indhegninger (structures.yml) i stedet for én blok.
+  # Forsiden vender mod spilleren der placerer bygningen. Der skal være plads (fri luft og fast jord).
+  building-structures: true
+  # Marker lægges ned i jorden (som en rigtig mark) når man sætter dem på græs/jord
+  fields-in-ground: true
 
 levels:
   max-level: 50
@@ -205,6 +210,21 @@ islands:
     - "&a&l{farm}"
     - "&7Level &f{level} &8| &c❤ &f{likes} &8| &7{visits} besøg"
     - "&8Klik for at like ❤"
+  # Hologrammer over gårdens faste bygninger (klik på bygningen åbner menuen)
+  # Pladsholdere: {owner} {used} {capacity} {ready} {offers}
+  landmarks:
+    barn:
+      - "&6&lLade"
+      - "&7{used}/{capacity} produkter"
+    silo:
+      - "&e&lSilo"
+      - "&7{used}/{capacity} afgrøder"
+    orderboard:
+      - "&b&lOrdretavle"
+      - "&a{ready} &7klar til levering"
+    mailbox:
+      - "&f&lAvisen"
+      - "&7{offers} tilbud"
   # Hologram midt på torvet (verdenens spawn). Klik for at besøge en gård.
   spawn-hologram:
     - "&a&lVelkommen til HayDay!"

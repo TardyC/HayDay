@@ -3,13 +3,20 @@ package dev.tardyc.hayday.island;
 import dev.tardyc.hayday.HayDayPlugin;
 import dev.tardyc.hayday.config.Settings;
 import dev.tardyc.hayday.gui.FarmMenu;
+import dev.tardyc.hayday.gui.NewspaperMenu;
+import dev.tardyc.hayday.gui.OrdersMenu;
+import dev.tardyc.hayday.gui.StorageMenu;
 import dev.tardyc.hayday.gui.VisitMenu;
 import dev.tardyc.hayday.hologram.Hologram;
 import dev.tardyc.hayday.manager.LeaderboardManager;
 import dev.tardyc.hayday.model.BlockPos;
 import dev.tardyc.hayday.model.Building;
+import dev.tardyc.hayday.model.BuildingType;
 import dev.tardyc.hayday.model.Field;
+import dev.tardyc.hayday.model.ItemCategory;
 import dev.tardyc.hayday.model.PlayerData;
+import dev.tardyc.hayday.structure.Structure;
+import dev.tardyc.hayday.util.PlaceableItems;
 import dev.tardyc.hayday.util.Sounds;
 import dev.tardyc.hayday.util.Text;
 import org.bukkit.Bukkit;
@@ -21,6 +28,7 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.io.IOException;
@@ -178,7 +186,8 @@ public final class IslandManager {
     }
 
     private void createSpawnHologram() {
-        Location location = new Location(world, layout.centerX(0) + 0.5, layout.getHeight() + 3.2, layout.centerZ(0) + 0.5);
+        double height = plugin.getStructures().get("fountain") != null ? 5.4 : 3.2;
+        Location location = new Location(world, layout.centerX(0) + 0.5, layout.getHeight() + height, layout.centerZ(0) + 0.5);
         spawnHologram = plugin.getHolograms().create(location, settings().islandSpawnHologram,
                 player -> new VisitMenu(plugin, player, 0).open());
     }
@@ -252,6 +261,7 @@ public final class IslandManager {
                 island.setLikes(likes);
                 island.setVisits(section.getInt("visits", 0));
                 island.setCreated(section.getLong("created", 0));
+                island.setStyle(section.getInt("style", 1));
                 if (byGrid.containsKey(island.key())) {
                     plugin.getLogger().warning("To øer har samme plads (" + island.getGridX() + ", " + island.getGridZ() + ") - "
                             + key + " springes over.");
@@ -336,6 +346,7 @@ public final class IslandManager {
             config.set(path + ".likes", likes);
             config.set(path + ".visits", island.getVisits());
             config.set(path + ".created", island.getCreated());
+            config.set(path + ".style", island.getStyle());
         }
         String data = config.saveToString();
         if (sync) {
@@ -592,6 +603,15 @@ public final class IslandManager {
         if (!enabled || island.getHologram() != null) {
             return;
         }
+        if (island.getStyle() >= 2) {
+            for (Landmark landmark : Landmark.values()) {
+                Location location = landmarkHologramLocation(island, landmark);
+                if (location != null) {
+                    island.getLandmarkHolograms().put(landmark, plugin.getHolograms().create(location,
+                            landmarkLines(island, landmark), player -> useLandmark(player, island, landmark)));
+                }
+            }
+        }
         Location location = IslandBuilder.signLocation(world, layout, island);
         island.setHologram(plugin.getHolograms().create(location, hologramLines(island), player -> {
             if (island.isOwner(player.getUniqueId())) {
@@ -607,6 +627,10 @@ public final class IslandManager {
             plugin.getHolograms().remove(island.getHologram());
             island.setHologram(null);
         }
+        for (Hologram hologram : island.getLandmarkHolograms().values()) {
+            plugin.getHolograms().remove(hologram);
+        }
+        island.getLandmarkHolograms().clear();
     }
 
     public List<String> hologramLines(Island island) {
@@ -623,6 +647,156 @@ public final class IslandManager {
         if (island.getHologram() != null) {
             island.getHologram().setLines(hologramLines(island));
         }
+        for (Map.Entry<Landmark, Hologram> entry : island.getLandmarkHolograms().entrySet()) {
+            entry.getValue().setLines(landmarkLines(island, entry.getKey()));
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Gårdens faste bygninger: lade, silo, ordretavle og postkasse
+    // ------------------------------------------------------------------
+
+    private int landmarkX(Island island, Landmark landmark) {
+        return IslandBuilder.x(layout, island, landmark.x());
+    }
+
+    private int landmarkZ(Island island, Landmark landmark) {
+        return IslandBuilder.z(layout, island, landmark.z());
+    }
+
+    /** Hvilken af gårdens faste bygninger blokken hører til (null hvis ingen). */
+    public Landmark landmarkAt(Block block) {
+        if (!enabled || !isIslandWorld(block.getWorld())) {
+            return null;
+        }
+        Island island = getAt(block.getX(), block.getZ());
+        if (island == null || island.getStyle() < 2) {
+            return null;
+        }
+        for (Landmark landmark : Landmark.values()) {
+            Structure structure = plugin.getStructures().get(landmark.structure());
+            if (structure != null && structure.contains(block.getX() - landmarkX(island, landmark),
+                    block.getY() - layout.getHeight(), block.getZ() - landmarkZ(island, landmark), 0)) {
+                return landmark;
+            }
+        }
+        return null;
+    }
+
+    private Location landmarkHologramLocation(Island island, Landmark landmark) {
+        Structure structure = plugin.getStructures().get(landmark.structure());
+        if (structure == null) {
+            return null;
+        }
+        double x = landmarkX(island, landmark) + 0.5;
+        double z = landmarkZ(island, landmark) + 0.5;
+        if (landmark == Landmark.BARN || landmark == Landmark.ORDERS) {
+            z -= 1.0;
+        }
+        return new Location(world, x, layout.getHeight() + structure.getHologramHeight(), z);
+    }
+
+    private List<String> landmarkLines(Island island, Landmark landmark) {
+        List<String> template = settings().islandLandmarkLines.get(landmark.id());
+        if (template == null) {
+            return Collections.singletonList("");
+        }
+        PlayerData data = plugin.getPlayers().getIfLoaded(island.getOwner());
+        String used = "-";
+        String capacity = "-";
+        String ready = "-";
+        if (data != null) {
+            if (landmark == Landmark.BARN || landmark == Landmark.SILO) {
+                ItemCategory category = landmark == Landmark.BARN ? ItemCategory.PRODUCT : ItemCategory.CROP;
+                used = String.valueOf(plugin.getStorage().used(data, category));
+                capacity = String.valueOf(plugin.getStorage().capacity(data, category));
+            } else if (landmark == Landmark.ORDERS) {
+                ready = String.valueOf(plugin.getOrders().countReady(data));
+            }
+        }
+        int offers = landmark == Landmark.MAILBOX ? plugin.getMarket().getNewspaper(island.getOwner()).size() : 0;
+        List<String> lines = new ArrayList<>();
+        for (String line : template) {
+            lines.add(Text.replace(line, "owner", island.getOwnerName(), "used", used, "capacity", capacity,
+                    "ready", ready, "offers", offers));
+        }
+        return lines;
+    }
+
+    /** Klik på laden, siloen, ordretavlen eller postkassen. */
+    public void useLandmark(Player player, Island island, Landmark landmark) {
+        if (landmark == Landmark.MAILBOX) {
+            plugin.getService().ensureStarted(player);
+            new NewspaperMenu(plugin, player, 0).open();
+            return;
+        }
+        if (!island.isOwner(player.getUniqueId())) {
+            plugin.getMessages().send(player, "island.landmark-visitor", "owner", island.getOwnerName(),
+                    "landmark", plugin.getMessages().get("island.landmark-names." + landmark.id()));
+            return;
+        }
+        plugin.getService().ensureStarted(player);
+        switch (landmark) {
+            case BARN:
+                new StorageMenu(plugin, player, ItemCategory.PRODUCT).open();
+                break;
+            case SILO:
+                new StorageMenu(plugin, player, ItemCategory.CROP).open();
+                break;
+            default:
+                new OrdersMenu(plugin, player).open();
+                break;
+        }
+        Sounds.play(player, Sounds.CLICK);
+    }
+
+    /**
+     * Ejeren bygger sin gård om i den nye stil. Marker og bygninger lægges i ejerens inventory,
+     * og øen tegnes forfra med stuehus, lade, silo osv.
+     */
+    public boolean rebuild(Player player) {
+        Island island = byOwner.get(player.getUniqueId());
+        if (island == null || busy.contains(island.key())) {
+            return false;
+        }
+        int fields = 0;
+        for (Field field : plugin.getFarm().getFields(player.getUniqueId())) {
+            if (contains(island, field.getSoil())) {
+                fields++;
+            }
+        }
+        List<ItemStack> refund = new ArrayList<>();
+        if (fields > 0) {
+            refund.add(PlaceableItems.field(fields));
+        }
+        for (Building building : plugin.getFarm().getBuildings(player.getUniqueId())) {
+            BuildingType type = plugin.getBuildings().get(building.getTypeId());
+            if (type != null && contains(island, building.getPos())) {
+                refund.add(PlaceableItems.building(type, plugin.getItems(), 1));
+            }
+        }
+        reset(island, false, () -> {
+            if (player.isOnline()) {
+                for (ItemStack stack : refund) {
+                    PlaceableItems.give(player, stack);
+                }
+                plugin.getMessages().send(player, "island.rebuilt", "farm", farmName(island));
+                teleportHome(player);
+            }
+        });
+        return true;
+    }
+
+    /** Admin: byg torvets pynt igen (fx efter en opdatering). */
+    public void rebuildSpawn() {
+        if (!enabled) {
+            return;
+        }
+        builder.buildSpawn(world, layout);
+        if (spawnHologram != null) {
+            plugin.getHolograms().remove(spawnHologram);
+        }
+        createSpawnHologram();
     }
 
     // ------------------------------------------------------------------
@@ -889,6 +1063,7 @@ public final class IslandManager {
                 if (settings().islandStarterLayout) {
                     builder.buildStarter(world, layout, island, 0);
                 }
+                dirty = true;
                 createHologram(island);
             }
             done.run();

@@ -404,6 +404,16 @@ public final class HayDayCommand implements TabExecutor {
                 msg().send(player, "island.access-set", "access", islands.accessName(access));
                 return;
             }
+            case "ombyg":
+            case "rebuild":
+                if (args.length < 3 || !args[2].equalsIgnoreCase("confirm")) {
+                    msg().send(player, "island.rebuild-confirm");
+                    return;
+                }
+                if (islands.rebuild(player)) {
+                    msg().send(player, "island.rebuilding");
+                }
+                return;
             case "saethjem":
             case "sæthjem":
             case "sethome":
@@ -415,7 +425,7 @@ public final class HayDayCommand implements TabExecutor {
                 msg().send(player, "island.home-set");
                 return;
             default:
-                usage(sender, "/hayday gaard [navn <navn> | adgang <alle|venner|ingen> | saethjem]");
+                usage(sender, "/hayday gaard [navn <navn> | adgang <alle|venner|ingen> | saethjem | ombyg]");
         }
     }
 
@@ -750,7 +760,7 @@ public final class HayDayCommand implements TabExecutor {
         } else if (NAME_SUBS.contains(args[0].toLowerCase(Locale.ROOT)) && args.length == 2) {
             options.addAll(onlineNames());
         } else if ((args[0].equalsIgnoreCase("gaard") || args[0].equalsIgnoreCase("gård")) && args.length == 2) {
-            options.addAll(Arrays.asList("navn", "adgang", "saethjem"));
+            options.addAll(Arrays.asList("navn", "adgang", "saethjem", "ombyg"));
         } else if ((args[0].equalsIgnoreCase("gaard") || args[0].equalsIgnoreCase("gård")) && args.length == 3
                 && args[1].equalsIgnoreCase("adgang")) {
             options.addAll(Arrays.asList("alle", "venner", "ingen"));

@@ -3,6 +3,7 @@ package dev.tardyc.hayday.island;
 import dev.tardyc.hayday.hologram.Hologram;
 
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -65,8 +66,11 @@ public final class Island {
     private final Set<UUID> likes = new HashSet<>();
     private int visits;
     private long created;
+    /** 1 = den første simple gård, 2 = den realistiske gård med lade, silo osv. */
+    private int style = 1;
 
     private transient Hologram hologram;
+    private final transient Map<Landmark, Hologram> landmarkHolograms = new EnumMap<>(Landmark.class);
 
     public Island(UUID owner, String ownerName, int gridX, int gridZ) {
         this.owner = owner;
@@ -171,6 +175,18 @@ public final class Island {
 
     public void setCreated(long created) {
         this.created = created;
+    }
+
+    public int getStyle() {
+        return style;
+    }
+
+    public void setStyle(int style) {
+        this.style = style;
+    }
+
+    public Map<Landmark, Hologram> getLandmarkHolograms() {
+        return landmarkHolograms;
     }
 
     public Hologram getHologram() {

@@ -16,7 +16,11 @@ hologrammer og animationer. Alt er på dansk og kan konfigureres.
 | 🏝️ **Egen ø** | Hver spiller får sin egen ø i HayDay-verdenen: grønt græs, sandstrand, turkis hav, et rødt stuehus med røg fra skorstenen, træer, blomster og de første marker. Kun du kan bygge på din ø. |
 | 👋 **Besøg** | Besøg andres gårde fra menuen, avisen eller med `/hayday besoeg <spiller>`. Køb i deres vejbod, hjælp med at fylde deres skib (du får belønningen) og giv gården et ❤ like. Ejeren kan se hvem der er på besøg. |
 | 🔒 **Venner og adgang** | Vælg om gården er åben for alle, kun for venner eller lukket. Tilføj venner, forbyd plageånder og send gæster hjem. Giv gården sit eget navn og sæt dit eget ankomststed. |
-| 🌱 **Marker** | Køb en *Mark* i butikken, placér den på jorden og plant hvede, gulerødder, kartofler, sukkerroer, græskar, søde bær og meloner. Afgrøderne gror synligt blok for blok. |
+| 🏡 **Rigtig gård** | Nye øer får et stuehus i to etager med veranda, en rød lade, en silo, en ordretavle, en postkasse, en indhegnet mark med vandkanaler og fugleskræmsel, en dam med åkander, lygtepæle, træer, buske og en anløbsbro. **Klik på laden, siloen, ordretavlen og postkassen** for at åbne lager, ordrer og avis – præcis som i Hay Day. |
+| 🏗️ **Bygninger som huse** | Hver bygning bygges som et rigtigt hus eller en indhegning (bageri med skorsten, hønsehus med hønsegård, kostald med fold, vejbod med markise ...). Forsiden vender mod dig når du sætter den, og du kan klikke hvor som helst på huset. Alt ligger i `structures.yml` og kan ændres. |
+| 🎉 **Events** | Dobbelt penge, dobbelt XP, hurtig vækst, dobbelt høst og dobbelt produktion – med bossbar, titel og nedtælling. Startes af en admin eller automatisk. |
+| 🌾 **HayDay-item** | Et fast item i hotbaren der åbner menuen (shift-klik = tag hjem). Kan ikke smides, flyttes eller mistes. |
+| 🌱 **Marker** | Køb en *Mark* i butikken og sæt den på jorden – den lægges ned i jorden som en rigtig mark. Plant hvede, gulerødder, kartofler, sukkerroer, græskar, søde bær og meloner. Afgrøderne gror synligt blok for blok. |
 | 🐔 **Dyr** | Hønsehus, kostald, svinesti og fårefold – med rigtige (fredelige) dyr der står på bygningen. Fodr dem med foder fra foderfabrikken. |
 | 🏭 **Produktion** | Foderfabrik, bageri, sukkermølle, mejeri, væveri og saftpresse med 30+ opskrifter, produktionskø og pladser du kan købe. |
 | 🏚️ **Silo & lade** | Afgrøder i siloen, produkter i laden. Begge kan opgraderes. Sælg varer direkte fra lageret. |
@@ -54,12 +58,19 @@ HayDay har sin egen resourcepack med menu-baggrunde, item-ikoner og ikoner. Der 
   IP/domæne og åbn porten – eller upload zip-filen et andet sted og skriv adressen i `resource-pack.url`.
   Sæt `required: true` hvis alle *skal* have pakken (så bruger hologrammerne også ikonerne).
 * **Med ItemsAdder** (`itemsadder`, vælges automatisk): Indholdet kopieres til
-  `plugins/ItemsAdder/contents/hayday/`, og `/iazip` køres automatisk.
+  `plugins/ItemsAdder/contents/hayday/`, og `/iazip` køres automatisk. Pakken sendes af ItemsAdder.
+  Står der `127.0.0.1` eller `127.0.1.1` i ItemsAdders "URL:" efter `/iazip`, så skriv serverens rigtige IP/domæne
+  under `server: address:` i `plugins/ItemsAdder/config.yml` og kør `/iazip` igen.
 
 Spillere uden pakken får almindelige menuer og Minecraft-ikoner, så intet ser forkert ud.
 `/hayday pakke` sender pakken igen, og `/hayday admin pakke` viser status.
 Grafikken kan tegnes om med `python3 tools/generate_pack.py` (kræver Pillow).
 Al grafik er original og tegnet til dette projekt – der bruges ingen grafik fra Hay Day/Supercell.
+
+### 🏡 Gammel ø → ny gård
+Øer lavet før version 1.3 kan bygges om i den nye stil med `/hayday gaard ombyg confirm` (spillerens marker og
+bygninger lægges i inventoryet), eller af en admin med `/hayday admin oe <spiller> nulstil confirm`.
+Torvets springvand, boder og bro bygges med `/hayday admin torv`.
 
 ### 🏝️ Øerne
 * Øerne ligger i et gitter i havet (48×48 blokke med 24 blokke vand imellem – kan ændres i `config.yml` før verdenen laves).
@@ -102,6 +113,8 @@ Alias: `/hd`, `/farm`, `/gaard`
 | `/hayday gaard navn <navn>` · `adgang <alle\|venner\|ingen>` · `saethjem` | Gårdens indstillinger |
 | `/hayday ven [tilfoej\|fjern] <spiller>` | Venner (kan altid besøge dig) |
 | `/hayday like` | Like gården du står på |
+| `/hayday gaard ombyg confirm` | Byg din ø om i den nye stil (stuehus, lade, silo, mark, dam) |
+| `/hayday events` | Se hvilke events der kører |
 | `/hayday smidud` · `forbyd` · `tillad <spiller>` | Send en gæst hjem · forbyd/tillad besøg |
 | `/hayday profil [spiller]` · `top` | Profil og top-liste |
 | `/hayday admin spiller <spiller>` | Alt om en spiller (level, penge, lager, gård, skib, vejbod) |
@@ -118,6 +131,9 @@ Alias: `/hd`, `/farm`, `/gaard`
 | `/hayday admin reset <spiller> confirm` | Nulstil alt (data, gård, ø og vejbod) |
 | `/hayday admin info · fjern · faerdig` | Mark/bygning du kigger på |
 | `/hayday admin pakke [send]` | Resourcepack-status (og send igen) |
+| `/hayday admin event start <type\|alle> [minutter] [gange]` | Start et event: `penge`, `xp`, `vaekst`, `hoest`, `produktion` |
+| `/hayday admin event stop <type\|alle>` · `liste` | Stop events · se aktive events |
+| `/hayday admin torv` | Byg torvets springvand, boder, lygter og bro |
 | `/hayday admin reload` | Genindlæs alle filer |
 
 Admin-kommandoerne virker også på spillere der er offline – deres fil indlæses og gemmes automatisk.
@@ -144,6 +160,7 @@ Admin-kommandoerne virker også på spillere der er offline – deres fil indlæ
 `%hayday_silo_used%` `%hayday_silo_capacity%` `%hayday_barn_used%` `%hayday_barn_capacity%`
 `%hayday_orders_ready%` `%hayday_ship_state%` `%hayday_ship_time%` `%hayday_ship_filled%` `%hayday_rank%` `%hayday_top_name_<n>%` `%hayday_top_level_<n>%` `%hayday_top_xp_<n>%`
 `%hayday_island_name%` `%hayday_island_visits%` `%hayday_island_likes%` `%hayday_island_access%` `%hayday_island_visitors%`
+`%hayday_events%` `%hayday_event_<type>%` (gangefaktor, fx 2) `%hayday_event_<type>_time%` (tid tilbage)
 
 ---
 
@@ -153,7 +170,8 @@ Admin-kommandoerne virker også på spillere der er offline – deres fil indlæ
 |---|---|
 | `config.yml` | Økonomi, øer, levels, marker, lager, ordrer, skib, vejbod, hologrammer, animationer, resourcepack, ItemsAdder og ikoner |
 | `items.yml` | Alle varer og afgrøder (navn, ikon, salgspris, vækstid, vækststadier …) |
-| `buildings.yml` | Bygninger, dyr og opskrifter |
+| `buildings.yml` | Bygninger, dyr og opskrifter (`structure: none` = kun én blok) |
+| `structures.yml` | Husene, indhegningerne og gårdens pynt som blueprints (lag af tegn + palette) |
 | `messages.yml` | Alle beskeder |
 | `holograms.yml` | Admin-hologrammer (gemmes automatisk) |
 
@@ -170,7 +188,7 @@ Hologrammer, dyr og animationer bruger ikke-persistente entities, så der aldrig
 
 ```bash
 mvn package
-# -> target/HayDay-1.2.0.jar
+# -> target/HayDay-1.3.0.jar
 ```
 
 GitHub Actions bygger automatisk jar-filen ved hvert push (se fanen *Actions*). Et tag som `v1.0.0` laver en release med jar-filen.
@@ -186,7 +204,9 @@ src/main/java/dev/tardyc/hayday/
 ├── gui/                     Alle menuer
 ├── hologram/                Hologrammer (TextDisplay) og svævende ikoner
 ├── hook/                    ItemsAdder, ProtocolLib, PlaceholderAPI og ikoner
-├── island/                  Øerne: verdens-generator, stuehus, besøg, venner og beskyttelse
+├── island/                  Øerne: verdens-generator, gården, besøg, venner og beskyttelse
+├── structure/               Blueprints: huse og pynt fra structures.yml (med drejning)
+├── events/                  Dobbelt penge, XP, vækst, høst og produktion
 ├── pack/                    Resourcepacken: bygning, hosting og font-tegn
 ├── listener/                Events og beskyttelse af marker/bygninger
 ├── manager/                 Gård, marked, ordrer, levels, animationer, lager …
@@ -194,4 +214,5 @@ src/main/java/dev/tardyc/hayday/
 ├── registry/                items.yml og buildings.yml
 └── util/                    Hjælpere
 tools/generate_pack.py       Tegner hele resourcepacken (menuer, items, ikoner, font)
+tools/build_structures.py    Tegner husene og gårdens pynt -> structures.yml
 ```

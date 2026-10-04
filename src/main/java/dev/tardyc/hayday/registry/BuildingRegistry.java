@@ -86,7 +86,7 @@ public final class BuildingRegistry {
                 }
             }
             int baseSlots = Math.max(1, Math.min(9, section.getInt("slots", 2)));
-            buildings.put(id, new BuildingType(id,
+            BuildingType type = new BuildingType(id,
                     section.getString("name", id),
                     function,
                     block,
@@ -98,7 +98,9 @@ public final class BuildingRegistry {
                     Math.max(baseSlots, Math.min(9, section.getInt("max-slots", 6))),
                     Math.max(0, section.getDouble("slot-price", 250)),
                     Math.max(1, section.getInt("max-per-player", 1)),
-                    buildingRecipes));
+                    buildingRecipes);
+            type.setStructureId(section.getString("structure", id));
+            buildings.put(id, type);
         }
     }
 

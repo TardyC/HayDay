@@ -10,6 +10,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -33,6 +34,8 @@ public final class Settings {
     public int massRadius;
     public boolean notifyReady;
     public boolean joinSummary;
+    public boolean buildingStructures;
+    public boolean fieldsInGround;
 
     // Levels
     public int maxLevel;
@@ -139,6 +142,7 @@ public final class Settings {
     public boolean islandFireSpread;
     public List<String> islandHologram;
     public List<String> islandSpawnHologram;
+    public Map<String, List<String>> islandLandmarkLines;
 
     // HayDay-itemet i hotbaren
     public boolean menuItemEnabled;
@@ -208,6 +212,8 @@ public final class Settings {
         massRadius = Math.max(1, c.getInt("general.mass-action-radius", 12));
         notifyReady = c.getBoolean("general.notify-ready", true);
         joinSummary = c.getBoolean("general.join-summary", true);
+        buildingStructures = c.getBoolean("general.building-structures", true);
+        fieldsInGround = c.getBoolean("general.fields-in-ground", true);
 
         maxLevel = Math.max(1, c.getInt("levels.max-level", 50));
         xpBase = Math.max(1, c.getLong("levels.xp-base", 20));
@@ -312,6 +318,10 @@ public final class Settings {
         islandFireSpread = c.getBoolean("islands.fire-spread", false);
         islandHologram = lines(c, "islands.hologram");
         islandSpawnHologram = lines(c, "islands.spawn-hologram");
+        islandLandmarkLines = new HashMap<>();
+        for (String id : new String[]{"barn", "silo", "orderboard", "mailbox"}) {
+            islandLandmarkLines.put(id, lines(c, "islands.landmarks." + id));
+        }
 
         menuItemEnabled = c.getBoolean("menu-item.enabled", true);
         menuItemSlot = Math.max(0, Math.min(8, c.getInt("menu-item.slot", 8)));
