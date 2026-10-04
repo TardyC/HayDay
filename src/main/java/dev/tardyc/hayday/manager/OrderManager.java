@@ -122,12 +122,14 @@ public final class OrderManager {
         }
         data.getOrders().set(index, Order.waiting(System.currentTimeMillis() + plugin.getSettings().orderNewDelay));
         data.setDirty(true);
-        plugin.getEconomy().deposit(player, order.getCoins());
-        plugin.getMessages().send(player, "orders.completed", "coins", plugin.getEconomy().format(order.getCoins()), "xp", order.getXp());
+        double coins = plugin.getEvents().money(order.getCoins());
+        int xp = plugin.getEvents().xp(order.getXp());
+        plugin.getEconomy().deposit(player, coins);
+        plugin.getMessages().send(player, "orders.completed", "coins", plugin.getEconomy().format(coins), "xp", xp);
         plugin.getAnimations().coinBurst(player);
         plugin.getAnimations().floatingText(player.getLocation().add(0, 2.3, 0),
-                "&6+" + plugin.getEconomy().format(order.getCoins()) + " &b+" + order.getXp() + " XP");
-        plugin.getLevels().addXp(player, order.getXp());
+                "&6+" + plugin.getEconomy().format(coins) + " &b+" + xp + " XP");
+        plugin.getLevels().addXp(player, xp);
     }
 
     public void discard(Player player, int index) {

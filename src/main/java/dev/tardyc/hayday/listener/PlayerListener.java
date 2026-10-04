@@ -33,6 +33,7 @@ public final class PlayerListener implements Listener {
         plugin.getFarm().updateOwnerName(player);
         plugin.getMarket().updateSellerName(player);
         plugin.getLeaderboard().update(data);
+        plugin.getEvents().onJoin(player);
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             if (player.isOnline()) {
                 plugin.getPack().send(player);
@@ -66,6 +67,7 @@ public final class PlayerListener implements Listener {
             data.setLastSeen(System.currentTimeMillis());
         }
         plugin.getPlayers().unload(event.getPlayer());
+        plugin.getEvents().onQuit(event.getPlayer());
         plugin.getClickGuard().forget(event.getPlayer());
         plugin.getPack().forget(event.getPlayer());
     }
@@ -73,6 +75,8 @@ public final class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onResourcePack(PlayerResourcePackStatusEvent event) {
         plugin.getPack().onStatus(event);
+        // HayDay-itemet får sin egen tekstur når pakken er indlæst
+        plugin.getMenuItem().update(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

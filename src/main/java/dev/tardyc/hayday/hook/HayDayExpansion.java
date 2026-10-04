@@ -1,6 +1,8 @@
 package dev.tardyc.hayday.hook;
 
 import dev.tardyc.hayday.HayDayPlugin;
+import dev.tardyc.hayday.events.EventManager;
+import dev.tardyc.hayday.events.EventType;
 import dev.tardyc.hayday.island.Island;
 import dev.tardyc.hayday.manager.LeaderboardManager;
 import dev.tardyc.hayday.model.ItemCategory;
@@ -10,6 +12,7 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -75,6 +78,28 @@ public final class HayDayExpansion extends PlaceholderExpansion {
                 default:
                     return "";
             }
+        }
+
+        // Events: event_penge (gangefaktor), event_penge_time, events (navne på aktive events)
+        if (key.equals("events")) {
+            List<String> names = new ArrayList<>();
+            for (EventManager.ActiveEvent event : plugin.getEvents().getActive()) {
+                names.add(Text.strip(plugin.getEvents().name(event)));
+            }
+            return names.isEmpty() ? "-" : String.join(", ", names);
+        }
+        if (key.startsWith("event_")) {
+            boolean time = key.endsWith("_time");
+            EventType type = EventType.parse(key.substring(6, time ? key.length() - 5 : key.length()));
+            if (type == null) {
+                return "";
+            }
+            for (EventManager.ActiveEvent event : plugin.getEvents().getActive()) {
+                if (event.getType() == type) {
+                    return time ? Text.timeMillis(event.timeLeft()) : EventManager.formatMultiplier(event.getMultiplier());
+                }
+            }
+            return time ? "-" : "1";
         }
 
         if (offline == null || !offline.isOnline() || offline.getPlayer() == null) {

@@ -212,6 +212,39 @@ islands:
     - "&eKlik her for at besøge en gård"
 
 # ==============================================================
+#   HayDay-itemet i hotbaren (åbner menuen - kan ikke smides eller flyttes)
+# ==============================================================
+menu-item:
+  enabled: true
+  # Hotbar-plads 0-8 (8 = længst til højre)
+  slot: 8
+  # Item hvis spilleren ikke har resourcepacken (med pakken vises HayDays egen høballe-tekstur)
+  material: WHEAT
+  name: "&a&lHay&e&lDay"
+  lore:
+    - "&7Højreklik: åbn HayDay-menuen"
+    - "&7Shift + højreklik: tag hjem til din gård"
+  glow: true
+  # Verdener hvor spillerne har itemet. Tom liste = alle verdener.
+  worlds: []
+
+# ==============================================================
+#   Events: dobbelt penge, dobbelt XP, hurtig vækst, dobbelt høst og dobbelt produktion
+#   Start med /hayday admin event start <type> [minutter] [gange]
+# ==============================================================
+events:
+  default-multiplier: 2.0
+  default-minutes: 30
+  # Vis aktive events i en bossbar øverst på skærmen
+  bossbar: true
+  # Automatiske events: et tilfældigt event starter med jævne mellemrum (kun når ingen andre kører)
+  auto:
+    enabled: false
+    every-minutes: 180
+    duration-minutes: 30
+    types: [penge, xp, vaekst, hoest, produktion]
+
+# ==============================================================
 #   Skibet: fyld kasserne med varer og send skibet afsted for en bonus
 # ==============================================================
 ship:

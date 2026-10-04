@@ -81,7 +81,7 @@ public final class StorageManager {
             Sounds.play(player, Sounds.ERROR);
             return false;
         }
-        double price = item.getSellPrice() * amount;
+        double price = plugin.getEvents().money(item.getSellPrice() * amount);
         plugin.getEconomy().deposit(player, price);
         plugin.getMessages().send(player, "storage.sold", "amount", amount, "item", item.getName(),
                 "price", plugin.getEconomy().format(price));

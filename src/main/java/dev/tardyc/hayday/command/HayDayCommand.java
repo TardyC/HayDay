@@ -43,7 +43,7 @@ public final class HayDayCommand implements TabExecutor {
     private static final Pattern HOLO_NAME = Pattern.compile("[A-Za-z0-9_-]{1,32}");
     private static final List<String> PLAYER_SUBS = Arrays.asList("hjælp", "silo", "lade", "ordrer", "butik",
             "vejbod", "avis", "skib", "profil", "top", "pakke", "hjem", "gaard", "besoeg", "torv", "ven", "like",
-            "smidud", "forbyd", "tillad");
+            "smidud", "forbyd", "tillad", "events");
     /** Underkommandoer hvor 2. argument er et spillernavn. */
     private static final List<String> NAME_SUBS = Arrays.asList("profil", "vejbod", "besoeg", "besøg", "smidud", "forbyd", "tillad");
     private static final List<String> HOLO_SUBS = Arrays.asList("create", "top", "addline", "setline", "removeline",
@@ -196,6 +196,10 @@ public final class HayDayCommand implements TabExecutor {
                 return true;
             case "like":
                 like(sender);
+                return true;
+            case "events":
+            case "event":
+                listEvents(sender);
                 return true;
             case "smidud":
             case "kick":
@@ -460,6 +464,18 @@ public final class HayDayCommand implements TabExecutor {
         Player online = Bukkit.getPlayer(uuid);
         if (online != null) {
             msg().send(online, "island.friend-notify", "player", player.getName());
+        }
+    }
+
+    private void listEvents(CommandSender sender) {
+        List<String> lines = plugin.getEvents().describe();
+        if (lines.isEmpty()) {
+            msg().send(sender, "events.none");
+            return;
+        }
+        msg().send(sender, "events.list-header");
+        for (String line : lines) {
+            sender.sendMessage(line);
         }
     }
 

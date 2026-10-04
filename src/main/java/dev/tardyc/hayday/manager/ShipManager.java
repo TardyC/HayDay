@@ -167,17 +167,19 @@ public final class ShipManager {
         crate.setFilled(true);
         crate.setHelper(helping ? player.getName() : null);
         owner.setDirty(true);
-        plugin.getEconomy().deposit(player, crate.getCoins());
-        String coins = plugin.getEconomy().format(crate.getCoins());
+        double reward = plugin.getEvents().money(crate.getCoins());
+        int xp = plugin.getEvents().xp(crate.getXp());
+        plugin.getEconomy().deposit(player, reward);
+        String coins = plugin.getEconomy().format(reward);
         if (helping) {
-            plugin.getMessages().send(player, "island.helped-ship", "owner", owner.getName(), "coins", coins, "xp", crate.getXp());
+            plugin.getMessages().send(player, "island.helped-ship", "owner", owner.getName(), "coins", coins, "xp", xp);
         } else {
             plugin.getMessages().send(player, "ship.filled", "amount", crate.getAmount(), "item", item.getName(),
-                    "coins", coins, "xp", crate.getXp());
+                    "coins", coins, "xp", xp);
         }
         Sounds.play(player, Sounds.PLACE, 1.2f);
-        plugin.getAnimations().floatingText(player.getLocation().add(0, 2.3, 0), "&6+" + coins + " &b+" + crate.getXp() + " XP");
-        plugin.getLevels().addXp(player, crate.getXp());
+        plugin.getAnimations().floatingText(player.getLocation().add(0, 2.3, 0), "&6+" + coins + " &b+" + xp + " XP");
+        plugin.getLevels().addXp(player, xp);
 
         Player ownerPlayer = Bukkit.getPlayer(owner.getUuid());
         if (helping) {
@@ -219,8 +221,8 @@ public final class ShipManager {
             Sounds.play(player, Sounds.ERROR);
             return;
         }
-        double coins = bonusCoins(data);
-        int xp = bonusXp(data);
+        double coins = plugin.getEvents().money(bonusCoins(data));
+        int xp = plugin.getEvents().xp(bonusXp(data));
         depart(data, System.currentTimeMillis());
         plugin.getEconomy().deposit(player, coins);
         plugin.getMessages().send(player, "ship.sent", "coins", plugin.getEconomy().format(coins), "xp", xp);

@@ -165,6 +165,37 @@ island:
   helped-ship: "&aDu hjalp &f{owner} &amed skibet! &6+{coins} &b+{xp} XP"
   helped-ship-notify: "&d{player} &ahjalp med at fylde en kasse på dit skib! &7({amount}x {item})"
 
+events:
+  names:
+    penge: "&6&lDobbelt penge"
+    xp: "&b&lDobbelt XP"
+    vaekst: "&a&lHurtig vækst"
+    hoest: "&2&lDobbelt høst"
+    produktion: "&d&lDobbelt produktion"
+  descriptions:
+    penge: "Salg, ordrer og skibet giver ekstra penge!"
+    xp: "Alt giver ekstra XP!"
+    vaekst: "Alt du planter og producerer bliver hurtigere færdigt!"
+    hoest: "Hver høst giver ekstra afgrøder!"
+    produktion: "Bygningerne laver ekstra varer!"
+  started: "&e&l★ EVENT! {name} &7i &f{time}&7. {description}"
+  started-title: "{name}"
+  started-subtitle: "&7{description} &8({time})"
+  ended: "&7Eventet {name} &7er slut. Tak fordi du farmede med!"
+  bossbar: "{name} &8(&fx{x}&8) &7- &f{time} &7tilbage"
+  list-header: "&6&l★ Events lige nu:"
+  list-entry: "&8• {name} &8(&fx{x}&8) &7- &f{time} &7tilbage"
+  none: "&7Der kører ingen events lige nu."
+  unknown: "&cUkendt event: &f{type} &7(penge, xp, vaekst, hoest, produktion, alle)"
+  not-active: "{name} &ckører ikke."
+  admin-started: "&aStartede {name} &a(x{x}) i &f{time}&a."
+  admin-stopped: "&aStoppede {name}&a."
+  admin-stopped-all: "&aStoppede &f{count} &aevent(s)."
+  admin-help:
+    - "&f/hayday admin event start <type|alle> [minutter] [gange]"
+    - "&f/hayday admin event stop <type|alle>"
+    - "&7Typer: &fpenge, xp, vaekst, hoest, produktion"
+
 pack:
   sent: "&aHayDays resourcepack bliver sendt til dig..."
   not-own: "&7Resourcepacken leveres af serveren (ItemsAdder) eller er slået fra."
@@ -248,6 +279,7 @@ help:
   - "&f/hayday gaard &7- Din gård: adgang, navn, hjem og venner"
   - "&f/hayday ven tilfoej|fjern <spiller> &7- Venner kan altid besøge dig"
   - "&f/hayday like &7- Like gården du står på"
+  - "&f/hayday events &7- Se hvilke events der kører (dobbelt penge, XP ...)"
   - "&f/hayday smidud|forbyd|tillad <spiller> &7- Styr dine gæster"
   - "&f/hayday profil [spiller] &7- Se en profil"
   - "&f/hayday top &7- Se de bedste farmere"
@@ -272,6 +304,7 @@ admin-help:
   - "&f/hayday admin reset <spiller> confirm &7- Nulstil alt"
   - "&f/hayday admin info &7| &ffjern &7| &ffaerdig &7- Mark/bygning du kigger på"
   - "&f/hayday admin pakke [send] &7- Resourcepack-status"
+  - "&f/hayday admin event start|stop|liste &7- Dobbelt penge, XP, vækst, høst og produktion"
   - "&f/hayday admin reload &7- Genindlæs konfigurationen"
   - "&f/hayday holo &7- Hologram-kommandoer"
 

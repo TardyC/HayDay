@@ -59,6 +59,8 @@ public final class MainMenu extends Menu {
                         "",
                         "&7Penge: &6" + money(plugin.getEconomy().getBalance(player)),
                         "&7Placering: &e" + (rank > 0 ? "#" + rank : "-"))
+                .lore(eventLore())
+                .glow(!plugin.getEvents().getActive().isEmpty())
                 .build());
 
         // Silo og lade
@@ -151,6 +153,18 @@ public final class MainMenu extends Menu {
 
         set(34, closeButton(), click -> closeLater());
         fillEmpty();
+    }
+
+    /** Aktive events (dobbelt penge osv.) under profilen. */
+    private List<String> eventLore() {
+        List<String> lore = new ArrayList<>();
+        List<String> events = plugin.getEvents().describe();
+        if (!events.isEmpty()) {
+            lore.add("");
+            lore.add("&6&l★ Events lige nu:");
+            lore.addAll(events);
+        }
+        return lore;
     }
 
     private ItemStack visitIcon() {

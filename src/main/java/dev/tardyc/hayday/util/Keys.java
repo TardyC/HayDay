@@ -16,6 +16,8 @@ public final class Keys {
     public static NamespacedKey ANIMAL;
     /** Markerer midlertidige animations-entities (svævende ikoner, varer der flyver osv.). */
     public static NamespacedKey ANIMATION;
+    /** Markerer HayDay-itemet i hotbaren. */
+    public static NamespacedKey MENU_ITEM;
 
     private Keys() {
     }
@@ -25,5 +27,6 @@ public final class Keys {
         HOLOGRAM = new NamespacedKey(plugin, "hologram");
         ANIMAL = new NamespacedKey(plugin, "animal");
         ANIMATION = new NamespacedKey(plugin, "animation");
+        MENU_ITEM = new NamespacedKey(plugin, "menu_item");
     }
 }

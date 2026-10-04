@@ -251,7 +251,7 @@ public final class FarmService {
                 return PlantResult.NO_FUNDS;
             }
         }
-        field.plant(crop.getId(), System.currentTimeMillis(), type.getGrowMillis());
+        field.plant(crop.getId(), System.currentTimeMillis(), plugin.getEvents().time(type.getGrowMillis()));
         farm().markDirty();
         farm().refresh(field);
         plugin.getAnimations().plant(field.getCropPos().toCenter(), crop.getDisplayStack());
@@ -337,6 +337,7 @@ public final class FarmService {
             return;
         }
         if (result == HarvestResult.OK) {
+            xp[0] = plugin.getEvents().xp(xp[0]);
             Map.Entry<String, Integer> entry = collected.entrySet().iterator().next();
             FarmItem item = plugin.getItems().get(entry.getKey());
             msg().send(player, "field.harvested", "amount", entry.getValue(), "crop", item.getName(), "xp", xp[0]);
@@ -368,6 +369,7 @@ public final class FarmService {
             }
         }
         if (count > 0) {
+            xp[0] = plugin.getEvents().xp(xp[0]);
             msg().send(player, "field.harvested-many", "count", count, "items", describe(collected), "xp", xp[0]);
             Sounds.play(player, Sounds.HARVEST);
             plugin.getAnimations().floatingText(player.getLocation().add(0, 2.3, 0), "&b+" + xp[0] + " XP");
@@ -397,7 +399,7 @@ public final class FarmService {
             return HarvestResult.NOTHING;
         }
         PlayerData data = plugin.getPlayers().get(player);
-        int amount = item.getCrop().getHarvestAmount();
+        int amount = plugin.getEvents().harvest(item.getCrop().getHarvestAmount());
         if (!plugin.getStorage().hasSpace(data, item, amount)) {
             return HarvestResult.FULL;
         }
@@ -494,7 +496,7 @@ public final class FarmService {
             data.removeItem(entry.getKey(), entry.getValue());
         }
         long now = System.currentTimeMillis();
-        QueueEntry entry = building.enqueue(recipe.getId(), now, recipe.getMillis());
+        QueueEntry entry = building.enqueue(recipe.getId(), now, plugin.getEvents().time(recipe.getMillis()));
         farm().markDirty();
         farm().refresh(building);
         msg().send(player, "building.started", "product", output.getName(), "time", Text.timeMillis(entry.getEndTime() - now));
@@ -525,18 +527,20 @@ public final class FarmService {
                 iterator.remove();
                 continue;
             }
-            if (!plugin.getStorage().hasSpace(data, output, recipe.getOutputAmount())) {
+            int outputAmount = plugin.getEvents().production(recipe.getOutputAmount());
+            if (!plugin.getStorage().hasSpace(data, output, outputAmount)) {
                 full = true;
                 break;
             }
-            data.addItem(output.getId(), recipe.getOutputAmount());
-            collected.merge(output.getId(), recipe.getOutputAmount(), Integer::sum);
+            data.addItem(output.getId(), outputAmount);
+            collected.merge(output.getId(), outputAmount, Integer::sum);
             plugin.getAnimations().collect(player, building.getPos().toCenter().add(0, 1.2, 0), output.getDisplayStack(),
-                    recipe.getOutputAmount());
+                    outputAmount);
             xp += recipe.getXp();
             iterator.remove();
         }
         if (!collected.isEmpty()) {
+            xp = plugin.getEvents().xp(xp);
             farm().markDirty();
             farm().refresh(building);
             msg().send(player, "building.collected", "items", describe(collected), "xp", xp);

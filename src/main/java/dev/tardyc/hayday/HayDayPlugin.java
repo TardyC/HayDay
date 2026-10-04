@@ -4,6 +4,7 @@ import dev.tardyc.hayday.command.HayDayCommand;
 import dev.tardyc.hayday.config.Messages;
 import dev.tardyc.hayday.config.Settings;
 import dev.tardyc.hayday.economy.EconomyManager;
+import dev.tardyc.hayday.events.EventManager;
 import dev.tardyc.hayday.gui.Menu;
 import dev.tardyc.hayday.gui.MenuListener;
 import dev.tardyc.hayday.hologram.AdminHologramManager;
@@ -15,6 +16,7 @@ import dev.tardyc.hayday.island.IslandListener;
 import dev.tardyc.hayday.island.IslandManager;
 import dev.tardyc.hayday.listener.EntityListener;
 import dev.tardyc.hayday.listener.FarmListener;
+import dev.tardyc.hayday.listener.MenuItemListener;
 import dev.tardyc.hayday.listener.PlayerListener;
 import dev.tardyc.hayday.listener.ProtectionListener;
 import dev.tardyc.hayday.manager.AnimationManager;
@@ -22,6 +24,7 @@ import dev.tardyc.hayday.manager.FarmManager;
 import dev.tardyc.hayday.manager.FarmService;
 import dev.tardyc.hayday.manager.LeaderboardManager;
 import dev.tardyc.hayday.manager.LevelManager;
+import dev.tardyc.hayday.manager.MenuItemManager;
 import dev.tardyc.hayday.manager.MarketManager;
 import dev.tardyc.hayday.manager.OrderManager;
 import dev.tardyc.hayday.manager.PlayerManager;
@@ -75,10 +78,13 @@ public final class HayDayPlugin extends JavaPlugin {
     private ResourcePackManager pack;
     private ShipManager ship;
     private IslandManager islands;
+    private EventManager events;
+    private MenuItemManager menuItem;
 
     private BukkitTask tickTask;
     private BukkitTask menuTask;
     private BukkitTask saveTask;
+    private int menuItemTicks;
 
     @Override
     public void onEnable() {
@@ -109,6 +115,8 @@ public final class HayDayPlugin extends JavaPlugin {
         ship = new ShipManager(this);
         animations = new AnimationManager(this);
         islands = new IslandManager(this);
+        events = new EventManager(this);
+        menuItem = new MenuItemManager(this);
 
         economy.setup();
         itemsAdder.setup();
@@ -118,6 +126,7 @@ public final class HayDayPlugin extends JavaPlugin {
         islands.setup();
         farm.load();
         market.load();
+        events.load();
         adminHolograms.load();
         leaderboard.loadAsync(players.getFolder());
 
@@ -128,6 +137,7 @@ public final class HayDayPlugin extends JavaPlugin {
         pm.registerEvents(new EntityListener(this), this);
         pm.registerEvents(new PlayerListener(this), this);
         pm.registerEvents(new IslandListener(this), this);
+        pm.registerEvents(new MenuItemListener(this), this);
 
         PluginCommand command = getCommand("hayday");
         if (command != null) {
@@ -139,7 +149,9 @@ public final class HayDayPlugin extends JavaPlugin {
         // Spillere der allerede er online (fx efter /reload)
         for (Player player : Bukkit.getOnlinePlayers()) {
             leaderboard.update(players.get(player));
+            events.onJoin(player);
         }
+        menuItem.updateAll();
 
         // Økonomi-plugins kan starte efter os - find økonomien når serveren er helt oppe
         Bukkit.getScheduler().runTask(this, () -> economy.resolve());
@@ -176,6 +188,9 @@ public final class HayDayPlugin extends JavaPlugin {
         }
         if (islands != null) {
             islands.shutdown();
+        }
+        if (events != null) {
+            events.shutdown();
         }
         if (animations != null) {
             animations.cleanup();
@@ -236,6 +251,8 @@ public final class HayDayPlugin extends JavaPlugin {
         holograms.respawnAll();
         farm.reloadHolograms();
         islands.reload();
+        events.reload();
+        menuItem.updateAll();
         adminHolograms.load();
         startTasks();
     }
@@ -247,10 +264,15 @@ public final class HayDayPlugin extends JavaPlugin {
             ship.tick();
             farm.tick();
             islands.tick();
+            events.tick();
             adminHolograms.tick();
             holograms.tick();
         }, 20L, interval);
         menuTask = Bukkit.getScheduler().runTaskTimer(this, () -> {
+            // HayDay-itemet kommer tilbage hvis det fx er blevet ryddet med /clear
+            if (++menuItemTicks % 5 == 0) {
+                menuItem.updateAll();
+            }
             for (Player player : Bukkit.getOnlinePlayers()) {
                 InventoryHolder holder = player.getOpenInventory().getTopInventory().getHolder();
                 if (holder instanceof Menu && ((Menu) holder).isAutoRefresh()) {
@@ -365,6 +387,14 @@ public final class HayDayPlugin extends JavaPlugin {
 
     public IslandManager getIslands() {
         return islands;
+    }
+
+    public EventManager getEvents() {
+        return events;
+    }
+
+    public MenuItemManager getMenuItem() {
+        return menuItem;
     }
 
     /** Så HayDay-verdenen også kan indlæses via bukkit.yml eller Multiverse ("generator: HayDay"). */

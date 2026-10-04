@@ -1,5 +1,6 @@
 package dev.tardyc.hayday.config;
 
+import dev.tardyc.hayday.events.EventType;
 import dev.tardyc.hayday.model.ItemCategory;
 import dev.tardyc.hayday.util.Text;
 import org.bukkit.Color;
@@ -138,6 +139,24 @@ public final class Settings {
     public boolean islandFireSpread;
     public List<String> islandHologram;
     public List<String> islandSpawnHologram;
+
+    // HayDay-itemet i hotbaren
+    public boolean menuItemEnabled;
+    public int menuItemSlot;
+    public String menuItemMaterial;
+    public String menuItemName;
+    public List<String> menuItemLore;
+    public boolean menuItemGlow;
+    public Set<String> menuItemWorlds;
+
+    // Events
+    public double eventDefaultMultiplier;
+    public int eventDefaultMinutes;
+    public boolean eventBossbar;
+    public boolean eventAutoEnabled;
+    public int eventAutoEvery;
+    public int eventAutoDuration;
+    public List<EventType> eventAutoTypes;
 
     // Animationer
     public boolean animations;
@@ -293,6 +312,31 @@ public final class Settings {
         islandFireSpread = c.getBoolean("islands.fire-spread", false);
         islandHologram = lines(c, "islands.hologram");
         islandSpawnHologram = lines(c, "islands.spawn-hologram");
+
+        menuItemEnabled = c.getBoolean("menu-item.enabled", true);
+        menuItemSlot = Math.max(0, Math.min(8, c.getInt("menu-item.slot", 8)));
+        menuItemMaterial = c.getString("menu-item.material", "WHEAT");
+        menuItemName = c.getString("menu-item.name", "&a&lHay&e&lDay");
+        menuItemLore = c.getStringList("menu-item.lore");
+        menuItemGlow = c.getBoolean("menu-item.glow", true);
+        menuItemWorlds = new HashSet<>();
+        for (String world : c.getStringList("menu-item.worlds")) {
+            menuItemWorlds.add(world.toLowerCase(Locale.ROOT));
+        }
+
+        eventDefaultMultiplier = Math.max(0.1, c.getDouble("events.default-multiplier", 2.0));
+        eventDefaultMinutes = Math.max(1, c.getInt("events.default-minutes", 30));
+        eventBossbar = c.getBoolean("events.bossbar", true);
+        eventAutoEnabled = c.getBoolean("events.auto.enabled", false);
+        eventAutoEvery = Math.max(1, c.getInt("events.auto.every-minutes", 180));
+        eventAutoDuration = Math.max(1, c.getInt("events.auto.duration-minutes", 30));
+        eventAutoTypes = new ArrayList<>();
+        for (String type : c.getStringList("events.auto.types")) {
+            EventType parsed = EventType.parse(type);
+            if (parsed != null && !eventAutoTypes.contains(parsed)) {
+                eventAutoTypes.add(parsed);
+            }
+        }
 
         animations = c.getBoolean("animations.enabled", true);
         animHarvest = animations && c.getBoolean("animations.harvest", true);

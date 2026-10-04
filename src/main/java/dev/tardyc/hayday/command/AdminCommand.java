@@ -2,6 +2,8 @@ package dev.tardyc.hayday.command;
 
 import dev.tardyc.hayday.HayDayPlugin;
 import dev.tardyc.hayday.config.Messages;
+import dev.tardyc.hayday.events.EventManager;
+import dev.tardyc.hayday.events.EventType;
 import dev.tardyc.hayday.island.Island;
 import dev.tardyc.hayday.island.IslandLayout;
 import dev.tardyc.hayday.island.IslandManager;
@@ -39,7 +41,7 @@ import java.util.UUID;
 final class AdminCommand {
 
     static final List<String> SUBS = Arrays.asList("spiller", "lager", "give", "take", "item", "xp", "level", "coins",
-            "skib", "ordrer", "faerdigalle", "tp", "oe", "fjernalt", "reset", "info", "fjern", "faerdig", "pakke", "reload");
+            "skib", "ordrer", "faerdigalle", "tp", "oe", "fjernalt", "reset", "info", "fjern", "faerdig", "pakke", "event", "reload");
     private static final List<String> WITH_PLAYER = Arrays.asList("spiller", "lager", "give", "take", "item", "xp", "level",
             "coins", "skib", "ordrer", "faerdigalle", "tp", "oe", "fjernalt", "reset");
 
@@ -112,6 +114,10 @@ final class AdminCommand {
             case "pakke":
             case "pack":
                 pack(sender, args);
+                return;
+            case "event":
+            case "events":
+                event(sender, args);
                 return;
             default:
                 break;
@@ -527,6 +533,71 @@ final class AdminCommand {
                 "required", plugin.getSettings().packRequired ? "ja" : "nej");
     }
 
+    /** /hayday admin event start <type|alle> [minutter] [gange] | stop <type|alle> | liste */
+    private void event(CommandSender sender, String[] args) {
+        EventManager events = plugin.getEvents();
+        String action = args.length >= 2 ? args[1].toLowerCase(Locale.ROOT) : "liste";
+        switch (action) {
+            case "start": {
+                if (args.length < 3) {
+                    usage(sender, "/hayday admin event start <penge|xp|vaekst|hoest|produktion|alle> [minutter] [gange]");
+                    return;
+                }
+                List<EventType> types = new ArrayList<>();
+                if (args[2].equalsIgnoreCase("alle") || args[2].equalsIgnoreCase("all")) {
+                    types.addAll(Arrays.asList(EventType.values()));
+                } else {
+                    EventType type = EventType.parse(args[2]);
+                    if (type == null) {
+                        msg().send(sender, "events.unknown", "type", args[2]);
+                        return;
+                    }
+                    types.add(type);
+                }
+                Integer minutes = args.length >= 4 ? parseInt(sender, args[3]) : Integer.valueOf(plugin.getSettings().eventDefaultMinutes);
+                Double multiplier = args.length >= 5 ? parseDouble(sender, args[4]) : Double.valueOf(plugin.getSettings().eventDefaultMultiplier);
+                if (minutes == null || multiplier == null) {
+                    return;
+                }
+                if (minutes < 1 || multiplier <= 0 || multiplier > 100) {
+                    usage(sender, "Minutter skal være mindst 1 og gange mellem 0.1 og 100.");
+                    return;
+                }
+                for (EventType type : types) {
+                    events.start(type, multiplier, minutes * 60_000L);
+                    msg().send(sender, "events.admin-started", "name", events.name(type),
+                            "x", EventManager.formatMultiplier(multiplier), "time", Text.time(minutes * 60L));
+                }
+                return;
+            }
+            case "stop": {
+                if (args.length < 3 || args[2].equalsIgnoreCase("alle") || args[2].equalsIgnoreCase("all")) {
+                    msg().send(sender, "events.admin-stopped-all", "count", events.stopAll());
+                    return;
+                }
+                EventType type = EventType.parse(args[2]);
+                if (type == null) {
+                    msg().send(sender, "events.unknown", "type", args[2]);
+                    return;
+                }
+                msg().send(sender, events.stop(type, true) ? "events.admin-stopped" : "events.not-active", "name", events.name(type));
+                return;
+            }
+            default: {
+                List<String> lines = events.describe();
+                if (lines.isEmpty()) {
+                    msg().send(sender, "events.none");
+                } else {
+                    msg().send(sender, "events.list-header");
+                    for (String line : lines) {
+                        sender.sendMessage(line);
+                    }
+                }
+                msg().sendList(sender, "events.admin-help");
+            }
+        }
+    }
+
     private void lookingAt(CommandSender sender, String action) {
         if (!(sender instanceof Player)) {
             msg().send(sender, "general.player-only");
@@ -591,6 +662,26 @@ final class AdminCommand {
         String sub = args[1].toLowerCase(Locale.ROOT);
         if (sub.equals("pakke")) {
             return args.length == 3 ? Collections.singletonList("send") : Collections.<String>emptyList();
+        }
+        if (sub.equals("event")) {
+            if (args.length == 3) {
+                return Arrays.asList("start", "stop", "liste");
+            }
+            if (args.length == 4 && (args[2].equalsIgnoreCase("start") || args[2].equalsIgnoreCase("stop"))) {
+                List<String> types = new ArrayList<>();
+                for (EventType type : EventType.values()) {
+                    types.add(type.id());
+                }
+                types.add("alle");
+                return types;
+            }
+            if (args.length == 5 && args[2].equalsIgnoreCase("start")) {
+                return Arrays.asList("15", "30", "60", "120");
+            }
+            if (args.length == 6 && args[2].equalsIgnoreCase("start")) {
+                return Arrays.asList("1.5", "2", "3");
+            }
+            return Collections.emptyList();
         }
         if (!WITH_PLAYER.contains(sub)) {
             return Collections.emptyList();

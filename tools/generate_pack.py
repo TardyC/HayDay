@@ -645,6 +645,23 @@ def paint_blanket(d, img):
 # Pack-filer
 # ===========================================================================
 
+def paint_menu(d, img):
+    """HayDay-itemet: en høballe med rødt bånd og sløjfe."""
+    d.rounded_rectangle((1, 4, 14, 14), radius=2, fill=(236, 190, 70))
+    for y in (6, 9, 12):
+        d.line([(2, y), (13, y)], fill=(204, 152, 44))
+    for x in range(2, 14, 3):
+        d.point((x, 5), fill=(252, 228, 140))
+        d.point((x + 1, 8), fill=(252, 228, 140))
+        d.point((x, 11), fill=(252, 228, 140))
+    d.line([(1, 9), (14, 9)], fill=(214, 48, 49))
+    d.line([(7, 4), (7, 14)], fill=(214, 48, 49))
+    d.line([(8, 4), (8, 14)], fill=(160, 28, 28))
+    d.polygon([(3, 1), (7, 4), (3, 5)], fill=(214, 48, 49))
+    d.polygon([(12, 1), (8, 4), (12, 5)], fill=(214, 48, 49))
+    d.point((7, 3), fill=(240, 98, 92))
+
+
 def paint_pack_icon():
     size = 128
     img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
@@ -784,6 +801,9 @@ def main():
     save_item("baersaft", paint_berry_juice)
     save_item("uldsweater", paint_sweater)
     save_item("uldtaeppe", paint_blanket)
+    state = random.getstate()
+    save_item("hayday_menu", paint_menu)
+    random.setstate(state)
 
     paint_pack_icon()
     write_pack_files()
