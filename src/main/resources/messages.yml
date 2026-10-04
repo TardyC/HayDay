@@ -207,6 +207,13 @@ admin:
     - "&7Påkrævet: &f{required}"
     - "&7Spillere med pakken: &f{loaded}&7/&f{online}"
     - "&8Send igen til alle: /hayday admin pakke send"
+  pack-status-itemsadder:
+    - "&a&l» Resourcepack"
+    - "&7Tilstand: &fITEMSADDER &8(pakken bygges og sendes af ItemsAdder)"
+    - "&7Adressen står i ItemsAdders besked efter &f/iazip &7(\"URL: ...\")."
+    - "&7Står der 127.0.0.1 eller 127.0.1.1, så sæt serverens rigtige IP/domæne i"
+    - "&fplugins/ItemsAdder/config.yml &7under &fserver: address: &7og kør &f/iazip&7."
+    - "&8Send igen til alle: /hayday admin pakke send"
   no-target: "&cDu kigger ikke på en mark eller bygning."
   removed: "&aFjernede {what} &aejet af &f{owner}&a."
   finished: "&aFærdiggjorde {what}&a."

@@ -502,13 +502,23 @@ final class AdminCommand {
 
     private void pack(CommandSender sender, String[] args) {
         ResourcePackManager pack = plugin.getPack();
+        boolean itemsAdder = pack.getMode() == ResourcePackManager.Mode.ITEMSADDER;
         if (args.length >= 2 && args[1].equalsIgnoreCase("send")) {
+            if (itemsAdder) {
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "iatexture all");
+                msg().send(sender, "admin.pack-sent", "count", Bukkit.getOnlinePlayers().size());
+                return;
+            }
             int sent = 0;
             for (Player player : Bukkit.getOnlinePlayers()) {
                 pack.send(player);
                 sent++;
             }
             msg().send(sender, "admin.pack-sent", "count", sent);
+            return;
+        }
+        if (itemsAdder) {
+            msg().sendList(sender, "admin.pack-status-itemsadder");
             return;
         }
         msg().sendList(sender, "admin.pack-status", "mode", pack.getMode().name(),

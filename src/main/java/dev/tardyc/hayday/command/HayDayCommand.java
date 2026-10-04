@@ -144,6 +144,10 @@ public final class HayDayCommand implements TabExecutor {
                     if (plugin.getPack().getMode() == ResourcePackManager.Mode.OWN) {
                         plugin.getPack().send(packPlayer);
                         msg().send(packPlayer, "pack.sent");
+                    } else if (plugin.getPack().getMode() == ResourcePackManager.Mode.ITEMSADDER) {
+                        // ItemsAdder sender pakken - bed den om at sende den igen
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "iatexture " + packPlayer.getName());
+                        msg().send(packPlayer, "pack.sent");
                     } else {
                         msg().send(packPlayer, "pack.not-own");
                     }
