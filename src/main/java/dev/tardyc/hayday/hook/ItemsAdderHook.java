@@ -43,6 +43,8 @@ public final class ItemsAdderHook {
 
     private final HayDayPlugin plugin;
     private boolean available;
+    /** Hvorfor ItemsAdder ikke kan bruges (vises i /hayday admin pakke), eller null. */
+    private String problem;
 
     private Constructor<?> fontImageConstructor;
     private Method fontImageExists;
@@ -63,9 +65,14 @@ public final class ItemsAdderHook {
 
     public void setup() {
         available = false;
+        problem = null;
         knownFontImages.clear();
         missingFontImages.clear();
-        if (!plugin.getSettings().itemsAdder || Bukkit.getPluginManager().getPlugin("ItemsAdder") == null) {
+        if (Bukkit.getPluginManager().getPlugin("ItemsAdder") == null) {
+            return;
+        }
+        if (!plugin.getSettings().itemsAdder) {
+            problem = "itemsadder.enabled er false i HayDays config.yml";
             return;
         }
         try {
@@ -84,6 +91,7 @@ public final class ItemsAdderHook {
             available = true;
             plugin.getLogger().info("ItemsAdder fundet - teksturerede menuer og ikoner er slået til.");
         } catch (Throwable t) {
+            problem = "ItemsAdders API kunne ikke bruges (" + t.getClass().getSimpleName() + ") - se konsollen";
             plugin.getLogger().warning("ItemsAdder fundet, men API'et kunne ikke bruges: " + t);
         }
         if (available && plugin.getSettings().itemsAdderExport) {
@@ -93,6 +101,11 @@ public final class ItemsAdderHook {
 
     public boolean isAvailable() {
         return available;
+    }
+
+    /** Hvorfor ItemsAdder er installeret men ikke bruges, ellers null. */
+    public String getProblem() {
+        return problem;
     }
 
     /** Findes font-billedet (fx "hayday:gui_main") i ItemsAdders resourcepack? */

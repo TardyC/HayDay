@@ -542,6 +542,9 @@ final class AdminCommand {
                 "url", pack.getMode() == ResourcePackManager.Mode.OWN ? pack.url() : "-",
                 "loaded", pack.getLoaded().size(), "online", Bukkit.getOnlinePlayers().size(),
                 "required", plugin.getSettings().packRequired ? "ja" : "nej");
+        for (String line : ownPackDiagnostics(pack)) {
+            sender.sendMessage(Text.color(line));
+        }
     }
 
     /** /hayday admin event start <type|alle> [minutter] [gange] | stop <type|alle> | liste */
@@ -607,6 +610,42 @@ final class AdminCommand {
                 msg().sendList(sender, "events.admin-help");
             }
         }
+    }
+
+    /** Fejlfinding af HayDays egen pakke: lokal adresse, forkert mc-packs-link og ItemsAdder der ikke bruges. */
+    private List<String> ownPackDiagnostics(ResourcePackManager pack) {
+        List<String> lines = new ArrayList<>();
+        if (plugin.getItemsAdder().getProblem() != null) {
+            lines.add("&eItemsAdder er installeret, men bruges ikke: &f" + plugin.getItemsAdder().getProblem());
+        }
+        if (pack.getMode() != ResourcePackManager.Mode.OWN) {
+            return lines;
+        }
+        String sha = pack.sha1();
+        lines.add("&7Pakken: &fplugins/HayDay/HayDay-resourcepack.zip &8(SHA-1 " + (sha.length() >= 12 ? sha.substring(0, 12) : sha) + "...)");
+        String url = plugin.getSettings().packUrl;
+        if (url.isEmpty()) {
+            if (pack.isLocalOnly()) {
+                lines.add("&c✘ Adressen er lokal - kun spillere på selve server-computeren kan hente pakken.");
+                lines.add("&e→ Upload plugins/HayDay/HayDay-resourcepack.zip til mc-packs.net, skriv linket under");
+                lines.add("&e   resource-pack.url i plugins/HayDay/config.yml og kør /hayday admin reload.");
+                lines.add("&e→ Eller skriv serverens IP under resource-pack.host.address og åbn port "
+                        + plugin.getSettings().packHostPort + " hos din host.");
+            } else {
+                lines.add("&7Pakken hostes af HayDay selv - husk at port " + plugin.getSettings().packHostPort + " skal være åben.");
+            }
+            return lines;
+        }
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("[0-9a-fA-F]{40}").matcher(url);
+        if (matcher.find()) {
+            if (matcher.group().equalsIgnoreCase(sha)) {
+                lines.add("&a✔ Linket passer med pakken.");
+            } else {
+                lines.add("&c✘ Linket peger på en ANDEN pakke end den HayDay har nu (fx efter en opdatering).");
+                lines.add("&e→ Upload den nye plugins/HayDay/HayDay-resourcepack.zip og skift linket i resource-pack.url.");
+            }
+        }
+        return lines;
     }
 
     private void lookingAt(CommandSender sender, String action) {

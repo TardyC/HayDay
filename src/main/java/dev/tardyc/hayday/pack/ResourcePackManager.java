@@ -88,6 +88,12 @@ public final class ResourcePackManager {
                 build();
                 startServer();
                 plugin.getLogger().info("Resourcepack klar (" + (zip.length / 1024) + " KB) - " + url());
+                if (isLocalOnly()) {
+                    plugin.getLogger().warning("Resourcepackens adresse er " + url() + " - den virker KUN på samme computer som "
+                            + "serveren. Upload plugins/HayDay/HayDay-resourcepack.zip til fx mc-packs.net og skriv linket under "
+                            + "resource-pack.url i config.yml (eller sæt resource-pack.host.address og åbn port "
+                            + settings.packHostPort + ").");
+                }
             } catch (IOException | NoSuchAlgorithmException e) {
                 plugin.getLogger().warning("Kunne ikke bygge resourcepacken: " + e.getMessage());
                 mode = Mode.NONE;
@@ -195,6 +201,20 @@ public final class ResourcePackManager {
             executor.shutdownNow();
             executor = null;
         }
+    }
+
+    /** Pakkens SHA-1 (hex) - mc-packs.net bruger den som filnavn. */
+    public String sha1() {
+        return hashHex;
+    }
+
+    /** Er adressen kun lokal (127.x / localhost), så spillere på andre computere ikke kan hente pakken? */
+    public boolean isLocalOnly() {
+        if (!plugin.getSettings().packUrl.isEmpty()) {
+            return false;
+        }
+        String url = url();
+        return url.contains("://127.") || url.contains("://localhost") || url.contains("://0.0.0.0");
     }
 
     public String url() {
