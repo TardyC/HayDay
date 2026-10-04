@@ -2,6 +2,7 @@ package dev.tardyc.hayday.hook;
 
 import dev.tardyc.hayday.HayDayPlugin;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -16,11 +17,18 @@ import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Valgfri integration med ItemsAdder: teksturerede menuer, egne ikoner og font-billeder.
@@ -229,5 +237,87 @@ public final class ItemsAdderHook {
         } else {
             plugin.getLogger().info("Kør /iazip så menuerne får Hay Day-tekstur!");
         }
+    }
+
+    // ------------------------------------------------------------------
+    // Fejlfinding af ItemsAdders resourcepack (/hayday admin pakke)
+    // ------------------------------------------------------------------
+
+    private static final Pattern SHA1 = Pattern.compile("[0-9a-fA-F]{40}");
+
+    /**
+     * Tjekker ItemsAdders hosting: er adressen 'auto' (virker ikke i containere), og passer linket til
+     * en ekstern host (fx mc-packs.net, hvor filnavnet er pakkens SHA-1) med den pakke serveren har nu?
+     */
+    public List<String> packDiagnostics() {
+        List<String> lines = new ArrayList<>();
+        File folder = new File(plugin.getDataFolder().getParentFile(), "ItemsAdder");
+        File configFile = new File(folder, "config.yml");
+        File zip = new File(folder, "output/generated.zip");
+        if (!configFile.exists()) {
+            lines.add("&cFandt ikke plugins/ItemsAdder/config.yml.");
+            return lines;
+        }
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(configFile);
+        String sha = null;
+        if (zip.exists()) {
+            try {
+                MessageDigest digest = MessageDigest.getInstance("SHA-1");
+                byte[] hash = digest.digest(Files.readAllBytes(zip.toPath()));
+                StringBuilder hex = new StringBuilder();
+                for (byte b : hash) {
+                    hex.append(String.format("%02x", b));
+                }
+                sha = hex.toString();
+            } catch (IOException | NoSuchAlgorithmException e) {
+                lines.add("&cKunne ikke læse generated.zip: " + e.getMessage());
+            }
+            lines.add("&7Pakken på serveren: &foutput/generated.zip &8(" + (zip.length() / 1024) + " KB, SHA-1 "
+                    + (sha == null ? "?" : sha.substring(0, 12)) + "...)");
+        } else {
+            lines.add("&cItemsAdder har ikke lavet en pakke endnu - kør &f/iazip&c.");
+        }
+        String base = "resource-pack.hosting.";
+        if (config.getBoolean(base + "external-host.enabled", false)) {
+            String url = config.getString(base + "external-host.url", "");
+            lines.add("&7Hosting: &fexternal-host &8(" + url + ")");
+            Matcher matcher = SHA1.matcher(url);
+            if (url.isEmpty()) {
+                lines.add("&cDer står intet link under external-host.url.");
+            } else if (sha != null && matcher.find()) {
+                String linked = matcher.group().toLowerCase(Locale.ROOT);
+                if (linked.equals(sha)) {
+                    lines.add("&a✔ Linket passer med pakken på serveren.");
+                } else {
+                    lines.add("&c✘ Linket peger på en ANDEN pakke (" + linked.substring(0, 12) + "...) end den serveren har nu!");
+                    lines.add("&e→ Upload plugins/ItemsAdder/output/generated.zip igen, sæt det nye link ind og kør /iareload.");
+                    lines.add("&e→ Kør IKKE /iazip bagefter - så laves en ny pakke og linket passer ikke igen.");
+                }
+            } else if (sha != null) {
+                lines.add("&7Kan ikke se på linket om det passer (det indeholder ikke pakkens SHA-1).");
+            }
+        } else if (config.getBoolean(base + "simple_self_host.enabled", false)) {
+            String address = config.getString(base + "simple_self_host.server_address", "auto");
+            if ("auto".equalsIgnoreCase(address)) {
+                address = config.getString("server.address", "auto");
+            }
+            lines.add("&7Hosting: &fsimple_self_host &8(adresse: " + address + ", port: "
+                    + config.getString("server.port", "auto") + ")");
+            if ("auto".equalsIgnoreCase(address)) {
+                lines.add("&c✘ Adressen er 'auto'. På hosts med containere bliver den 127.x.x.x, og så kan ingen hente pakken.");
+                lines.add("&e→ Skriv serverens rigtige IP/domæne under server: address: i ItemsAdders config.yml.");
+            } else if (address.startsWith("127.") || address.equalsIgnoreCase("localhost")) {
+                lines.add("&c✘ " + address + " er serverens egen interne adresse - spillerne kan ikke nå den.");
+            } else {
+                lines.add("&a✔ Adressen ser rigtig ud.");
+            }
+        } else if (config.getBoolean(base + "self-host.enabled", false)) {
+            lines.add("&7Hosting: &fself-host &8(" + config.getString(base + "self-host.server-ip", "?") + ":"
+                    + config.getString(base + "self-host.pack-port", "?") + ")");
+        } else {
+            lines.add("&cIngen hosting er slået til i ItemsAdders config.yml.");
+        }
+        lines.add("&8Spillernes egen fejl står i .minecraft/logs/latest.log (søg efter \"resource pack\" eller \"hash\").");
+        return lines;
     }
 }

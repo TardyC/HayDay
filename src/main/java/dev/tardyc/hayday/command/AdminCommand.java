@@ -533,6 +533,9 @@ final class AdminCommand {
         }
         if (itemsAdder) {
             msg().sendList(sender, "admin.pack-status-itemsadder");
+            for (String line : plugin.getItemsAdder().packDiagnostics()) {
+                sender.sendMessage(Text.color(line));
+            }
             return;
         }
         msg().sendList(sender, "admin.pack-status", "mode", pack.getMode().name(),
